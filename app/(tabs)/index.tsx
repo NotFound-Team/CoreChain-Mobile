@@ -18,6 +18,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
+         <Link href={"/(auth)/signin"}>Sign IN</Link>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
