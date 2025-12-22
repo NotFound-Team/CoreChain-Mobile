@@ -1,6 +1,6 @@
-import { loginAuth } from "@/services/auth.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "expo-router";
 import { ScanQrCode, User } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -31,12 +31,13 @@ const signInSchema = z.object({
 export type SignInFormData = z.infer<typeof signInSchema>;
 
 const SignInModal = ({ isVisible, onClose }: any) => {
-  const {login} = useAuthStore()
+  const { login } = useAuthStore();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -48,14 +49,13 @@ const SignInModal = ({ isVisible, onClose }: any) => {
   const onSubmit = async (data: SignInFormData) => {
     console.log("Form Data:", data);
     try {
-      const response = await loginAuth(data)
-      if(!response.isError) {
-        console.log(response.data)
-      }
+      login(data);
+      router.replace("/(tabs)");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
     onClose();
+    reset();
   };
 
   const dismissKeyboard = () => {

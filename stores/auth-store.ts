@@ -1,3 +1,5 @@
+import { SignInFormData } from "@/components/SignInModal";
+import { loginAuth } from "@/services/auth.service";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
@@ -6,12 +8,11 @@ interface User {
   id: string;
   email: string;
   name: string;
-  phoneNumber?: string;
+  roleName: string;
 }
 
 interface TokenType {
   accessToken: string;
-  refreshToken: string;
 }
 
 interface AuthState {
@@ -20,7 +21,7 @@ interface AuthState {
   isAuthenticated: boolean;
   redirectRoute: string | null;
   setRedirectRoute: (route: string) => void;
-  login: (email: string, password: string) => Promise<void>;
+  login: (data: SignInFormData) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   loadStoredToken: () => Promise<void>;
@@ -34,18 +35,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   setRedirectRoute: (route: string) => {
     set({ redirectRoute: route });
   },
-  login: async (email: string, password: string) => {
+  login: async (data: SignInFormData) => {
     try {
       // call service
-      const res = await axios.post("https://api.example.com/login", {
-        email,
-        password,
+      const res = await loginAuth(data);
+      const { access_token, user } = res.data;
+
+      await SecureStore.setItemAsync("access_token", access_token);
+
+      set({
+        token: { accessToken: access_token },
+        isAuthenticated: true,
+        user: {
+          email: user.email,
+          id: user._id,
+          name: user.name,
+          roleName: user.role.name,
+        },
       });
-      const { accessToken, refreshToken } = res.data;
-
-      await SecureStore.setItemAsync("access_token", accessToken);
-
-      set({ token: {accessToken, refreshToken}, isAuthenticated: true });
     } catch (err: any) {
       throw new Error(err?.response?.data?.message || "Login failed");
     }

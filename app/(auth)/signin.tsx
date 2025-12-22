@@ -1,4 +1,5 @@
 import SignInModal from "@/components/SignInModal";
+import Toast from "@/components/Toast";
 import React, { useState } from "react";
 import {
   Animated,
@@ -66,6 +67,8 @@ const SignInScreen = () => {
       </View>
 
       <SignInModal isVisible={isModalVisible} onClose={toggleModal} />
+      {/* <CustomAlert isVisible message="dds" onClose={() => {}} onConfirm={() => {}} /> */}
+      <Toast isVisible  message="OK" onClose={() => {}} type="success" />
     </SafeAreaView>
   );
 };
