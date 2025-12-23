@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/configs/api";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const instanceAxios = axios.create({
   baseURL: BASE_URL,
@@ -7,7 +8,7 @@ const instanceAxios = axios.create({
 
 // ==== REQUEST INTERCEPTOR ====
 instanceAxios.interceptors.request.use((config) => {
-  const accessToken = "access_token";
+  const accessToken = SecureStore.getItem("access_token");
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }

@@ -1,6 +1,7 @@
 import { SignInFormData } from "@/components/SignInModal";
-import { loginAuth } from "@/services/auth.service";
+import { loginAuth, logoutAuth } from "@/services/auth.service";
 import axios from "axios";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
@@ -41,7 +42,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await loginAuth(data);
       const { access_token, user } = res.data;
 
-      await SecureStore.setItemAsync("access_token", access_token);
+      SecureStore.setItem("access_token", access_token);
 
       set({
         token: { accessToken: access_token },
@@ -63,7 +64,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await axios.post("https://api.example.com/register", data);
       const { accessToken, user } = res.data;
 
-      await SecureStore.setItemAsync("access_token", accessToken);
+      SecureStore.setItem("access_token", accessToken);
       // set({ user, accessToken, isAuthenticated: true });
     } catch (err: any) {
       throw new Error(err?.response?.data?.message || "Register failed");
@@ -71,12 +72,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    await logoutAuth();
     await SecureStore.deleteItemAsync("access_token");
     set({ user: null, token: null, isAuthenticated: false });
+    router.replace("/(auth)/signin");
   },
 
   loadStoredToken: async () => {
-    const token = await SecureStore.getItemAsync("access_token");
+    const token = SecureStore.getItem("access_token");
     if (token) {
       try {
         const res = await axios.get("https://api.example.com/me", {

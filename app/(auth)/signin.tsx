@@ -1,5 +1,4 @@
 import SignInModal from "@/components/SignInModal";
-import Toast from "@/components/Toast";
 import React, { useState } from "react";
 import {
   Animated,
@@ -9,7 +8,6 @@ import {
   View
 } from "react-native";
 
-// Sử dụng NativeWind cho styling
 const SignInScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -68,7 +66,7 @@ const SignInScreen = () => {
 
       <SignInModal isVisible={isModalVisible} onClose={toggleModal} />
       {/* <CustomAlert isVisible message="dds" onClose={() => {}} onConfirm={() => {}} /> */}
-      <Toast isVisible  message="OK" onClose={() => {}} type="success" />
+      {/* <Toast isVisible  message="OK" onClose={() => {}} type="success" /> */}
     </SafeAreaView>
   );
 };

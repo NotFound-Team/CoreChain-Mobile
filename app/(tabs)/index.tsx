@@ -1,99 +1,234 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useAuthStore } from "@/stores/auth-store";
+import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { Link } from "expo-router";
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const MEETINGS = [
+  { id: 1, title: "Townhall Meeting", time: "01:30 AM - 02:00 AM" },
+  { id: 2, title: "Dashboard Report", time: "01:30 AM - 02:00 AM" },
+];
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-         <Link href={"/(auth)/signin"} className="text-red-500">Sign IN</Link>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { isAuthenticated, logout } = useAuthStore();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <View className="flex-1 bg-[#F8F9FE]">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
+        <SafeAreaView className="bg-white z-50 sticky top-0 border-b border-gray-100">
+          <View className="flex-row items-center justify-between px-5 pt-8 pb-6">
+            <View className="flex-row items-center">
+              <Link href={"/profile"}>
+                <Image
+                  source={{
+                    uri: "https://i.pravatar.cc/150?u=tonald",
+                  }}
+                  style={{ width: 48, height: 48, borderRadius: 24 }}
+                  className="bg-pink-200"
+                />
+              </Link>
+              <View className="ml-3">
+                <View className="flex-row items-center">
+                  <Text className="text-lg font-bold text-[#1A1C1E]">
+                    Tonald Drump
+                  </Text>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={16}
+                    color="#8862F2"
+                    style={{ marginLeft: 4 }}
+                  />
+                </View>
+                <Text className="text-xs text-[#8862F2] font-medium">
+                  Junior Full Stack Developer
+                </Text>
+              </View>
+            </View>
+            <View className="flex-row gap-2">
+              <TouchableOpacity className="p-2 bg-white rounded-full shadow-sm">
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={20}
+                  color="#5F6368"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity className="p-2 bg-white rounded-full shadow-sm">
+                <Ionicons
+                  name="notifications-outline"
+                  size={20}
+                  color="#5F6368"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
+
+        {/* Purple Summary Card */}
+        <View className="mx-5 mt-5 bg-[#8862F2] rounded-[12px] py-7 px-4 flex-row justify-between items-center overflow-hidden">
+          <View>
+            <Text className="text-white text-xl font-bold">
+              My Work Summary
+            </Text>
+            <Text className="text-white/80 mt-1">
+              Today task & presence activity
+            </Text>
+          </View>
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/512/2554/2554304.png",
+            }}
+            className="w-20 h-20 opacity-90"
+            contentFit="contain"
+          />
+        </View>
+
+        {/* Today Meeting Section */}
+        <View className="mt-6 px-5">
+          <View className="bg-white rounded-[8px] px-4 py-3">
+            <View className="flex-row items-center mb-4">
+              <Text className="text-lg font-bold text-[#1A1C1E]">
+                Today Meeting
+              </Text>
+              <View className="ml-2 bg-[#E8E1FF] px-2 py-0.5 rounded-md">
+                <Text className="text-[#8862F2] font-bold text-xs">2</Text>
+              </View>
+            </View>
+            <Text className="text-gray-400 -mt-3 mb-4 text-sm">
+              Your schedule for the day
+            </Text>
+
+            {MEETINGS.map((item) => (
+              <View
+                key={item.id}
+                className="bg-[#F9FAFB] border border-gray-100 rounded-2xl p-4 mb-3 flex-row items-center justify-between shadow-sm"
+              >
+                <View className="flex-row items-center flex-1">
+                  <View className="bg-[#8862F2] p-2 rounded-full mr-3">
+                    <Ionicons name="videocam" size={20} color="white" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-bold text-[#1A1C1E] text-[15px]">
+                      {item.title}
+                    </Text>
+                    <View className="flex-row items-center mt-1">
+                      <Ionicons name="time-outline" size={14} color="#9AA0A6" />
+                      <Text className="text-gray-400 text-xs ml-1">
+                        {item.time}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <TouchableOpacity className="bg-[#8862F2] px-4 py-2 rounded-full">
+                  <Text className="text-white font-medium text-xs">
+                    Join Meet
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Today Task Section */}
+        <View className="mt-4 px-5">
+          <View className="bg-white rounded-[8px] px-4 py-3">
+            <View className="flex-row items-center mb-1">
+              <Text className="text-lg font-bold text-[#1A1C1E]">
+                Today Task
+              </Text>
+              <View className="ml-2 bg-[#E8E1FF] px-2 py-0.5 rounded-md">
+                <Text className="text-[#8862F2] font-bold text-xs">1</Text>
+              </View>
+            </View>
+            <Text className="text-gray-400 mb-4 text-sm">
+              The tasks assigned to you for today
+            </Text>
+
+            <View className="bg-[#F9FAFB] border border-gray-100 rounded-2xl p-4 shadow-sm">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <View className="bg-[#8862F2] p-2 rounded-full mr-3">
+                    <Ionicons name="flash" size={18} color="white" />
+                  </View>
+                  <Text className="font-bold text-[#1A1C1E] text-md">
+                    Wiring Dashboard Analytics
+                  </Text>
+                </View>
+              </View>
+
+              <View className="flex-row gap-2 mb-4">
+                <View className="bg-gray-100 px-3 py-1 rounded-full flex-row items-center">
+                  <Ionicons name="ellipse" size={8} color="#9AA0A6" />
+                  <Text className="text-gray-500 text-xs ml-1">
+                    In Progress
+                  </Text>
+                </View>
+                <View className="bg-red-100 px-3 py-1 rounded-full flex-row items-center">
+                  <Ionicons name="flag" size={12} color="#FF5A5F" />
+                  <Text className="text-[#FF5A5F] text-xs ml-1 font-bold">
+                    High
+                  </Text>
+                </View>
+              </View>
+
+              {/* Progress Bar */}
+              <View className="h-2 bg-gray-100 rounded-full mb-4 overflow-hidden">
+                <View className="h-full bg-[#8862F2] w-[80%]" />
+              </View>
+
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row -space-x-2">
+                  {/* Mock Avatars */}
+                  {[1, 2, 3].map((i) => (
+                    <View
+                      key={i}
+                      className="w-8 h-8 rounded-full border-2 border-white bg-blue-100"
+                    />
+                  ))}
+                </View>
+                <View className="flex-row gap-3">
+                  <View className="flex-row items-center bg-gray-50 px-2 py-1 rounded-lg">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={14}
+                      color="#9AA0A6"
+                    />
+                    <Text className="text-gray-500 text-[10px] ml-1">
+                      27 April
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center bg-gray-50 px-2 py-1 rounded-lg">
+                    <Ionicons
+                      name="chatbox-outline"
+                      size={14}
+                      color="#9AA0A6"
+                    />
+                    <Text className="text-gray-500 text-[10px] ml-1">2</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Logout Button (Optional) */}
+        {isAuthenticated && (
+          <TouchableOpacity
+            onPress={logout}
+            className="mt-8 mx-10 py-4 bg-gray-200 rounded-2xl items-center"
+          >
+            <Text className="text-gray-600 font-bold">Logout</Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

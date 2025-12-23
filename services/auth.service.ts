@@ -1,6 +1,7 @@
 import { API_ENDPOINT } from "@/configs/api";
 import { handleApiError, handleApiResponse } from "@/helpers/api";
 import { ApiResponse } from "@/types/api";
+import instanceAxios from "@/utils/axios";
 import axios from "axios";
 
 interface PermissionItem {
@@ -29,6 +30,16 @@ export const loginAuth = async (
 ): Promise<ApiResponse<ResponseDataLogin>> => {
   try {
     const res = await axios.post(`${API_ENDPOINT.AUTH.LOGIN}`, data);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const logoutAuth = async (): Promise<ApiResponse<ResponseDataLogin>> => {
+  try {
+    const res = await instanceAxios.post(`${API_ENDPOINT.AUTH.LOGOUT}`, {});
+    console.log("RES-LOGOUT", res)
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);

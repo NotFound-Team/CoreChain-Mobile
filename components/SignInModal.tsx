@@ -49,7 +49,7 @@ const SignInModal = ({ isVisible, onClose }: any) => {
   const onSubmit = async (data: SignInFormData) => {
     console.log("Form Data:", data);
     try {
-      login(data);
+      await login(data);
       router.replace("/(tabs)");
     } catch (error) {
       console.log(error);
