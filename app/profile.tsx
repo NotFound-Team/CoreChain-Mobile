@@ -1,112 +1,170 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useAuthStore } from "@/stores/auth-store";
+import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+const SECTIONS = {
+  CONTACT: [
+    { icon: "mail", label: "Tonald@gmail.com", color: "#8862F2" },
+    { icon: "location", label: "Taman Anggrek", color: "#8862F2" },
+  ],
+  ACCOUNT: [
+    { icon: "person", label: "Personal Data" },
+    { icon: "folder", label: "Office Assets" },
+    { icon: "card", label: "Payroll & Tax" },
+  ],
+  SETTINGS: [
+    { icon: "settings", label: "Change Password", href: "/changepassword" },
+    { icon: "code-working", label: "Versioning" },
+    { icon: "help-circle", label: "FAQ and Help" },
+    // { icon: "log-out", label: "Logout", color: "#FF5A5F", isLogout: true },
+  ],
+};
 
 export default function ProfileScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
+  const { isAuthenticated, logout, user } = useAuthStore();
+  const handleLogout = async () => {
+    console.log("handle logout");
+
+    if (isAuthenticated) {
+      await logout();
+    } else {
+      router.replace("/(auth)/signin");
+    }
+  };
+  const renderItem = (item: any, index: number) => (
+    <TouchableOpacity
+      key={index}
+      className="flex-row items-center justify-between py-3 px-4 bg-[#F8F9FE]"
+      onPress={() => {
+        if (item.href) {
+          router.push(item.href);
+        }
+      }}
+    >
+      <View className="flex-row items-center">
+        <View
+          className="w-8 h-8 rounded-lg items-center justify-center mr-3"
           style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+            backgroundColor: item.color ? `${item.color}20` : "#F3F4F6",
+          }}
+        >
+          <Ionicons
+            name={item.icon as any}
+            size={18}
+            color={item.color || "#8862F2"}
+          />
+        </View>
+        <Text
+          className={`text-[15px] font-medium ${item.isLogout ? "text-[#FF5A5F]" : "text-[#4B5563]"}`}
+        >
+          {item.label}
+        </Text>
+      </View>
+      {!item.isLogout && (
+        <Ionicons name="chevron-forward" size={18} color="#D1D5DB" />
+      )}
+    </TouchableOpacity>
+  );
+
+  return (
+    <View className="flex-1 bg-white">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Purple Header */}
+        <View className="bg-[#8862F2] pt-12 pb-24 px-5 items-center">
+          <View className="flex-row w-full items-center justify-between mb-4">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="bg-white/20 p-2 rounded-full"
+            >
+              <Ionicons name="chevron-back" size={24} color="white" />
+            </TouchableOpacity>
+            <Text className="text-white text-lg font-bold">My Profile</Text>
+            <View className="w-10" />
+          </View>
+        </View>
+
+        {/* Profile Card Container */}
+        <View className="px-5 -mt-0 bg-white rounded-tl-[20px] rounded-tr-[20px] ">
+          <View className=" rounded-[30px]  pb-6 pt-1 items-center overflow-visible">
+            {/* Avatar */}
+            <View className="border-4 border-white rounded-[25px] -mt-16 bg-[#E8E1FF] overflow-hidden">
+              <Image
+                source={{
+                  uri: "https://img.freepik.com/vector-mien-phi/hinh-minh-hoa-chang-trai-tre-mim-cuoi_1308-174669.jpg",
+                }}
+                style={{ width: 128, height: 128, borderRadius: 24 }}
+                className="w-32 h-32"
+                contentFit="cover"
+              />
+            </View>
+
+            <View className="items-center mt-4">
+              <View className="flex-row items-center">
+                <Text className="text-xl font-bold text-[#1A1C1E]">
+                  Tonald Drump
+                </Text>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color="#8862F2"
+                  className="ml-1"
+                />
+              </View>
+              <Text className="text-[#8862F2] font-medium mt-1">
+                Junior Full Stack Developer
+              </Text>
+            </View>
+          </View>
+
+          {/* Sections */}
+          <View className="mt-6 mb-10">
+            {/* Contact Section */}
+            <Text className="text-gray-500 font-bold text-xs ml-2 mb-3">
+              CONTACT
+            </Text>
+            <View className="bg-white rounded-2xl shadow-sm mb-6 py-2">
+              {SECTIONS.CONTACT.map(renderItem)}
+            </View>
+
+            {/* Account Section */}
+            <Text className="text-gray-500 font-bold text-xs ml-2 mb-3">
+              ACCOUNT
+            </Text>
+            <View className="bg-white rounded-2xl shadow-sm mb-6 py-2">
+              {SECTIONS.ACCOUNT.map(renderItem)}
+            </View>
+
+            {/* Settings Section */}
+            <Text className="text-gray-500 font-bold text-xs ml-2 mb-3">
+              SETTINGS
+            </Text>
+            <View className="bg-white rounded-2xl shadow-sm py-2">
+              {SECTIONS.SETTINGS.map(renderItem)}
+              <TouchableOpacity
+                className="flex-row items-center justify-between py-3 px-4 bg-[#F8F9FE]"
+                onPress={handleLogout}
+              >
+                <View className="flex-row items-center">
+                  <View
+                    className="w-8 h-8 rounded-lg items-center justify-center mr-3"
+                    style={{
+                      backgroundColor: "#FF5A5F/20",
+                    }}
+                  >
+                    <Ionicons name={"log-out"} size={18} color={"#FF5A5F"} />
+                  </View>
+                  <Text className={`text-[15px] font-medium`}>{"Logout"}</Text>
+                </View>
+                {/* {!item.isLogout && (
+                  <Ionicons name="chevron-forward" size={18} color="#D1D5DB" />
+                )} */}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
