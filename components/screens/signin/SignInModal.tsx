@@ -14,8 +14,8 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import { z } from "zod";
-import Checkbox from "./Checkbox";
-import Input from "./Input";
+import Checkbox from "./customs/Checkbox";
+import Input from "./customs/Input";
 
 const screenHeight = Dimensions.get("window").height;
 const modalHeight = screenHeight * (3 / 4);
