@@ -158,7 +158,7 @@ export default function Home() {
                     </View>
                   </View>
                 </View>
-                <TouchableOpacity className="bg-[#8862F2] px-4 py-2 rounded-full">
+                <TouchableOpacity className="bg-[#8862F2] px-4 py-2 rounded-full" onPress={() => router.push('/video-meeting')}>
                   <Text className="text-white font-medium text-xs">
                     Join Meet
                   </Text>

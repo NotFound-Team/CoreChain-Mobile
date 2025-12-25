@@ -9,4 +9,5 @@ export const API_ENDPOINT = {
     REGISTER: `${BASE_URL}/auth/register`,
     OTP: `${BASE_URL}/auth/otp`,
   },
+  TASK: `${BASE_URL}/tasks`,
 };

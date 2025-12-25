@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 const getPriorityStyles = (priority: number) => {
@@ -36,6 +37,7 @@ const getStatusStyles = (status: number) => {
 };
 
 export const TaskItem = ({ item }: { item: any }) => {
+  const router = useRouter();
   const priority = getPriorityStyles(item.priority);
   const status = getStatusStyles(item.status);
   const formattedDate = new Date(item.dueDate).toLocaleDateString("en-GB", {
@@ -43,10 +45,16 @@ export const TaskItem = ({ item }: { item: any }) => {
     month: "short",
   });
 
+  const handlePress = (id: string) => {
+    console.log(id);
+    router.push(`/task-details/${id}`);
+  };
+
   return (
     <TouchableOpacity
       className="bg-white mx-4 mb-4 p-4 rounded-[20px] shadow-sm border border-gray-50"
       activeOpacity={0.8}
+      onPress={() => handlePress(item?._id)}
     >
       <View className="flex-row items-center mb-3">
         <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-3">

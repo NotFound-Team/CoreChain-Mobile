@@ -1,17 +1,16 @@
 import { MOCK_TASKS } from "@/mocks/task";
+import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Dimensions,
   FlatList,
   Modal,
-  Pressable,
   SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { TaskItem } from "./TaskItem";
 
@@ -20,7 +19,8 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 export default function Challange() {
   const [activeTab, setActiveTab] = useState("All");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const router = useRouter();
+  
+  const { user } = useAuthStore();
 
   const [filters, setFilters] = useState({
     priority: null as number | null,
@@ -69,9 +69,7 @@ export default function Challange() {
     setIsModalVisible(false);
   };
 
-  const handlePress = (id) => {
-    router.push(`/task-details/${id}`);
-  };
+  
 
   const renderHeader = () => (
     <View>
@@ -130,19 +128,31 @@ export default function Challange() {
     </View>
   );
 
+  // const fetchTaskByMe = async () => {
+  //   console.log(user?.id)
+  //   const response = await getTasks({ assignedTo: user?.id });
+  //   console.log(response);
+  // };
+
+  // useEffect(() => {
+  //   fetchTaskByMe();
+  // }, [user.id]);
+
   return (
     <SafeAreaView className="flex-1 bg-[#F8F9FE]">
       <FlatList
         data={filteredTasks}
         keyExtractor={(item) => item?._id || Math.random().toString()}
         renderItem={({ item }) => (
-          <Pressable onPress={() => handlePress(item._id)} className="w-full">
             <TaskItem item={item} />
-          </Pressable>
         )}
         ListHeaderComponent={renderHeader}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
+
+      {/* <Pressable onPress={() => handlePress("6832717fc58badba71ee8214")} className="w-full">
+            <Text>OK</Text>
+          </Pressable> */}
 
       <Modal visible={isModalVisible} animationType="slide" transparent>
         <View className="flex-1 justify-end bg-black/40">

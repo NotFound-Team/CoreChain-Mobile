@@ -1,12 +1,9 @@
+import { TaskDetails } from "@/components/screens/task-details";
 import { useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
 
 export default function TaskDetailsScreen() {
   const { id } = useLocalSearchParams();
+  console.log("SCREEN DETAILS", id);
 
-  return (
-    <View>
-      <Text>Task ID: {id}</Text>
-    </View>
-  );
+  return <TaskDetails id={id as string} />;
 }
