@@ -22,7 +22,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.background,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarLabelStyle: { fontSize: 12 },
-        tabBarStyle: { paddingBottom: 4, height: 70 },
+        tabBarStyle: { paddingBottom: 4, paddingTop: 15, height: 80 },
         tabBarIndicatorStyle: {
           backgroundColor: "#7A5AF8",
           height: 3,

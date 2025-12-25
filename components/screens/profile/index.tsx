@@ -10,7 +10,7 @@ const SECTIONS = {
     { icon: "location", label: "Taman Anggrek", color: "#8862F2" },
   ],
   ACCOUNT: [
-    { icon: "person", label: "Personal Data" },
+    { icon: "person", label: "Personal Data", href: "/personal" },
     { icon: "folder", label: "Office Assets" },
     { icon: "card", label: "Payroll & Tax" },
   ],
