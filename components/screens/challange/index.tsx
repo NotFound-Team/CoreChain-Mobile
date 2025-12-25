@@ -1,3 +1,5 @@
+import { Text } from "react-native";
+
 export const Challange = () => {
-  return <>Challange</>;
+  return <Text>Challange</Text>;
 };

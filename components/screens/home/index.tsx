@@ -1,8 +1,11 @@
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { Link } from "expo-router";
+import { Href, Link, router } from "expo-router";
+import { useState } from "react";
 import {
+  Platform,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   Text,
@@ -17,15 +20,37 @@ const MEETINGS = [
 
 export default function Home() {
   const { isAuthenticated, logout } = useAuthStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const onRefresh = () => {
+    setIsRefreshing(true);
+
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 2000);
+  };
+
+  const handleNavigate = (href: Href) => {
+    router.push(href);
+  };
 
   return (
     <View className="flex-1 bg-[#F8F9FE]">
       <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={["#8862F2", "#8862F2"]}
+            tintColor="#8862F2"
+          />
+        }
       >
-        <SafeAreaView className="bg-white z-50 sticky top-0 border-b border-gray-100">
-          <View className="flex-row items-center justify-between px-5 pt-8 pb-6">
+        <SafeAreaView className="bg-white border-b border-gray-200">
+          <View
+            className={`flex-row items-center justify-between px-5 pb-4 ${Platform.OS === "android" && "pt-8"}`}
+          >
             <View className="flex-row items-center">
               <Link href={"/profile"}>
                 <Image
@@ -54,14 +79,20 @@ export default function Home() {
               </View>
             </View>
             <View className="flex-row gap-2">
-              <TouchableOpacity className="p-2 bg-white rounded-full shadow-sm">
+              <TouchableOpacity
+                className="p-2 bg-white rounded-full shadow-sm"
+                onPress={() => handleNavigate("/messages")}
+              >
                 <Ionicons
                   name="chatbubble-ellipses-outline"
                   size={20}
                   color="#5F6368"
                 />
               </TouchableOpacity>
-              <TouchableOpacity className="p-2 bg-white rounded-full shadow-sm">
+              <TouchableOpacity
+                className="p-2 bg-white rounded-full shadow-sm"
+                onPress={() => handleNavigate("/notifications")}
+              >
                 <Ionicons
                   name="notifications-outline"
                   size={20}
@@ -73,7 +104,7 @@ export default function Home() {
         </SafeAreaView>
 
         {/* Purple Summary Card */}
-        <View className="mx-5 mt-5 bg-[#8862F2] rounded-[12px] py-7 px-4 flex-row justify-between items-center overflow-hidden">
+        <View className="mx-5 mt-5 bg-[#8862F2] border border-gray-100 rounded-[12px] py-7 px-4 flex-row justify-between items-center overflow-hidden">
           <View>
             <Text className="text-white text-xl font-bold">
               My Work Summary
@@ -93,7 +124,7 @@ export default function Home() {
 
         {/* Today Meeting Section */}
         <View className="mt-6 px-5">
-          <View className="bg-white rounded-[8px] px-4 py-3">
+          <View className="bg-white rounded-[8px] px-4 py-3 border border-gray-100">
             <View className="flex-row items-center mb-4">
               <Text className="text-lg font-bold text-[#1A1C1E]">
                 Today Meeting
@@ -138,8 +169,8 @@ export default function Home() {
         </View>
 
         {/* Today Task Section */}
-        <View className="mt-4 px-5">
-          <View className="bg-white rounded-[8px] px-4 py-3">
+        <View className="mt-4 px-5 ">
+          <View className="bg-white rounded-[8px] px-4 py-3 border border-gray-100">
             <View className="flex-row items-center mb-1">
               <Text className="text-lg font-bold text-[#1A1C1E]">
                 Today Task

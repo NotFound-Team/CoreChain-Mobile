@@ -1,3 +1,5 @@
+import Checkbox from "@/components/customs/Checkbox";
+import Input from "@/components/customs/Input";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
@@ -14,8 +16,6 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import { z } from "zod";
-import Checkbox from "./customs/Checkbox";
-import Input from "./customs/Input";
 
 const screenHeight = Dimensions.get("window").height;
 const modalHeight = screenHeight * (3 / 4);

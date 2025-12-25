@@ -17,7 +17,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { AppStateStatus, Platform } from "react-native";
-import { Toaster } from 'sonner-native';
+import { Toaster } from "sonner-native";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -34,8 +34,22 @@ const AppScreens = () => {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)/signin" options={{ headerShown: false }} />
-      <Stack.Screen name="profile" options={{ headerShown: false }} />
-      <Stack.Screen name="changepassword" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="profile"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="changepassword"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="messages"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="notifications"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
       <Stack.Screen
         name="modal"
         options={{ presentation: "modal", title: "Modal" }}
@@ -57,7 +71,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
         <AppScreens />
-        <Toaster  />
+        <Toaster />
         <StatusBar style="auto" />
       </ThemeProvider>
     </QueryClientProvider>

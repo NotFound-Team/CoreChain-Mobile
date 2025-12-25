@@ -1,3 +1,5 @@
+import { Text } from "react-native";
+
 export const Leave = () => {
-  return <>Leave</>;
+  return <Text>Leave</Text>;
 };

@@ -1,3 +1,5 @@
+import { Text } from "react-native";
+
 export const Calendar = () => {
-  return <>Calendar</>;
+  return <Text>Calendar</Text>;
 };
