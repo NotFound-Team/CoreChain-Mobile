@@ -1,8 +1,8 @@
 import "@/global.css";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -12,9 +12,9 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAppState } from "@/hooks/useAppState";
 import { useOnlineManager } from "@/hooks/useOnlineManager";
 import {
-  focusManager,
-  QueryClient,
-  QueryClientProvider,
+    focusManager,
+    QueryClient,
+    QueryClientProvider,
 } from "@tanstack/react-query";
 import { AppStateStatus, Platform } from "react-native";
 import { Toaster } from "sonner-native";
@@ -48,6 +48,10 @@ const AppScreens = () => {
       />
       <Stack.Screen
         name="notifications"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="task-details/[id]"
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen

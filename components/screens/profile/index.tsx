@@ -36,7 +36,7 @@ export default function Profile() {
   const renderItem = (item: any, index: number) => (
     <TouchableOpacity
       key={index}
-      className="flex-row items-center justify-between py-3 px-4 bg-[#F8F9FE]"
+      className="flex-row items-center justify-between py-3 px-4"
       onPress={() => {
         if (item.href) {
           router.push(item.href);
@@ -124,7 +124,7 @@ export default function Profile() {
             <Text className="text-gray-500 font-bold text-xs ml-2 mb-3">
               CONTACT
             </Text>
-            <View className="bg-white rounded-2xl shadow-sm mb-6 py-2">
+            <View className="bg-[#F8F9FE] rounded-2xl shadow-sm mb-6 py-2">
               {SECTIONS.CONTACT.map(renderItem)}
             </View>
 
@@ -132,7 +132,7 @@ export default function Profile() {
             <Text className="text-gray-500 font-bold text-xs ml-2 mb-3">
               ACCOUNT
             </Text>
-            <View className="bg-white rounded-2xl shadow-sm mb-6 py-2">
+            <View className="bg-[#F8F9FE] rounded-2xl shadow-sm mb-6 py-2">
               {SECTIONS.ACCOUNT.map(renderItem)}
             </View>
 
@@ -140,7 +140,7 @@ export default function Profile() {
             <Text className="text-gray-500 font-bold text-xs ml-2 mb-3">
               SETTINGS
             </Text>
-            <View className="bg-white rounded-2xl shadow-sm py-2">
+            <View className="bg-[#F8F9FE] rounded-2xl shadow-sm py-2">
               {SECTIONS.SETTINGS.map(renderItem)}
               <TouchableOpacity
                 className="flex-row items-center justify-between py-3 px-4 bg-[#F8F9FE]"
