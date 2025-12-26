@@ -1,4 +1,4 @@
-import { SignInFormData } from "@/components/SignInModal";
+import { SignInFormData } from "@/components/screens/signin/SignInModal";
 import { loginAuth, logoutAuth } from "@/services/auth.service";
 import axios from "axios";
 import { router } from "expo-router";

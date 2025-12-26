@@ -25,7 +25,9 @@ const signInSchema = z.object({
     .string()
     .min(1, "Email là bắt buộc")
     .email("Email không đúng định dạng"),
-  password: z.string().min(6, "Mật khẩu phải từ 6 ký tự trở lên"),
+  password: z
+    .string()
+    // .min(6, "Mật khẩu phải từ 6 ký tự trở lên"),
 });
 
 export type SignInFormData = z.infer<typeof signInSchema>;

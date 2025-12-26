@@ -36,10 +36,28 @@ export const loginAuth = async (
   }
 };
 
-export const logoutAuth = async (): Promise<ApiResponse<ResponseDataLogin>> => {
+export const logoutAuth = async (): Promise<ApiResponse<any>> => {
   try {
     const res = await instanceAxios.post(`${API_ENDPOINT.AUTH.LOGOUT}`, {});
-    console.log("RES-LOGOUT", res)
+    console.log("RES-LOGOUT", res);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const AccountAuth = async (): Promise<ApiResponse<any>> => {
+  try {
+    const res = await instanceAxios.get(`${API_ENDPOINT.AUTH.ACCOUNT}`);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const RefreshTokenAuth = async (): Promise<ApiResponse<any>> => {
+  try {
+    const res = await instanceAxios.get(`${API_ENDPOINT.AUTH.REFRESH}`);
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);

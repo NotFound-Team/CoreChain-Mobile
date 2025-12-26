@@ -251,14 +251,14 @@ export default function Home() {
         </View>
 
         {/* Logout Button (Optional) */}
-        {isAuthenticated && (
+        {/* {isAuthenticated && (
           <TouchableOpacity
             onPress={logout}
             className="mt-8 mx-10 py-4 bg-gray-200 rounded-2xl items-center"
           >
             <Text className="text-gray-600 font-bold">Logout</Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </ScrollView>
     </View>
   );
