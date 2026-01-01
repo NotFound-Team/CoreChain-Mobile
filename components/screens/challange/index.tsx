@@ -6,12 +6,12 @@ import {
   Dimensions,
   FlatList,
   Modal,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { TaskItem } from "./TaskItem";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -129,14 +129,18 @@ export default function Challange() {
   );
 
   // const fetchTaskByMe = async () => {
-  //   console.log(user?.id)
+  //   try {
+  //     console.log(user?.id)
   //   const response = await getTasks({ assignedTo: user?.id });
   //   console.log(response);
+  //   } catch (error) {
+  //     console.error("Error fetching tasks:", error);
+  //   }
   // };
 
   // useEffect(() => {
   //   fetchTaskByMe();
-  // }, [user.id]);
+  // }, [user?.id]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8F9FE]">

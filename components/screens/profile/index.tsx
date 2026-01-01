@@ -4,26 +4,31 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-const SECTIONS = {
-  CONTACT: [
-    { icon: "mail", label: "Tonald@gmail.com", color: "#8862F2" },
-    { icon: "location", label: "Taman Anggrek", color: "#8862F2" },
-  ],
-  ACCOUNT: [
-    { icon: "person", label: "Personal Data", href: "/personal" },
-    { icon: "folder", label: "Office Assets" },
-    { icon: "card", label: "Payroll & Tax" },
-  ],
-  SETTINGS: [
-    { icon: "settings", label: "Change Password", href: "/changepassword" },
-    { icon: "code-working", label: "Versioning" },
-    { icon: "help-circle", label: "FAQ and Help" },
-    // { icon: "log-out", label: "Logout", color: "#FF5A5F", isLogout: true },
-  ],
-};
-
 export default function Profile() {
   const { isAuthenticated, logout, user } = useAuthStore();
+
+  const SECTIONS = {
+    CONTACT: [
+      {
+        icon: "mail",
+        label: user?.email || "Tonald@gmail.com",
+        color: "#8862F2",
+      },
+      { icon: "location", label: "Taman Anggrek", color: "#8862F2" },
+    ],
+    ACCOUNT: [
+      { icon: "person", label: "Personal Data", href: "/personal" },
+      { icon: "folder", label: "Office Assets" },
+      { icon: "card", label: "Payroll & Tax" },
+    ],
+    SETTINGS: [
+      { icon: "settings", label: "Change Password", href: "/changepassword" },
+      { icon: "code-working", label: "Versioning" },
+      { icon: "help-circle", label: "FAQ and Help" },
+      // { icon: "log-out", label: "Logout", color: "#FF5A5F", isLogout: true },
+    ],
+  };
+
   const handleLogout = async () => {
     console.log("handle logout");
 
@@ -103,7 +108,7 @@ export default function Profile() {
             <View className="items-center mt-4">
               <View className="flex-row items-center">
                 <Text className="text-xl font-bold text-[#1A1C1E]">
-                  Tonald Drump
+                  {user?.name || "Tonald Drump"}
                 </Text>
                 <Ionicons
                   name="checkmark-circle"
@@ -113,7 +118,7 @@ export default function Profile() {
                 />
               </View>
               <Text className="text-[#8862F2] font-medium mt-1">
-                Junior Full Stack Developer
+                {user?.roleName || "Product Designer"}
               </Text>
             </View>
           </View>

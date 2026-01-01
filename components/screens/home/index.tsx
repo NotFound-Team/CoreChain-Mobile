@@ -6,12 +6,12 @@ import { useState } from "react";
 import {
   Platform,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const MEETINGS = [
   { id: 1, title: "Townhall Meeting", time: "01:30 AM - 02:00 AM" },

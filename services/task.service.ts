@@ -8,7 +8,7 @@ export const getTasks = async (
   params: TaskQueryParams
 ): Promise<ApiResponse<any>> => {
   try {
-    const res = await instanceAxios.get(`${API_ENDPOINT.TASK}`, { params });
+    const res = await instanceAxios.get(`${API_ENDPOINT.TASK.INDEX}`, { params });
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);
