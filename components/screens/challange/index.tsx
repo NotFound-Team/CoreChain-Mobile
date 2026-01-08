@@ -2,27 +2,78 @@ import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { TypeTask } from "@/types/task";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Animated,
   Dimensions,
   FlatList,
   Modal,
+  PanResponder,
   ScrollView,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TaskItem } from "./TaskItem";
-
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+import { TaskItemSkeleton } from "./TaskItemSkeleton";
 
 export default function Challange() {
   const [activeTab, setActiveTab] = useState("All");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [tasks, setTasks] = useState<TypeTask[]>([]);
-
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
+
+  const SCREEN_HEIGHT = Dimensions.get("window").height;
+  const panY = useRef(new Animated.Value(0)).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 5;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          panY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 150) {
+          closeModal();
+        } else {
+          Animated.spring(panY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  useEffect(() => {
+    if (isModalVisible) {
+      Animated.spring(panY, {
+        toValue: 0,
+        tension: 50,
+        friction: 10,
+        useNativeDriver: true,
+      }).start();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModalVisible]);
+
+  const closeModal = () => {
+    Animated.timing(panY, {
+      toValue: SCREEN_HEIGHT,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setIsModalVisible(false);
+    });
+  };
 
   const [filters, setFilters] = useState({
     priority: null as number | null,
@@ -32,6 +83,7 @@ export default function Challange() {
 
   const [tempFilters, setTempFilters] = useState(filters);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const uniqueProjectIds = useMemo(() => {
     return Array.from(new Set(tasks.map((t) => t?.projectId).filter(Boolean)));
   }, [tasks]);
@@ -126,53 +178,97 @@ export default function Challange() {
     </View>
   );
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <FlatList
+          data={[1, 2, 3, 4]}
+          renderItem={() => <TaskItemSkeleton />}
+          keyExtractor={(item) => item.toString()}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        />
+      );
+    }
+
+    if (tasks.length === 0) {
+      return (
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          {renderHeader()}
+          <View className="flex-1 justify-center items-center pt-20">
+            <Text className="text-gray-500">No tasks found</Text>
+          </View>
+        </ScrollView>
+      );
+    }
+
+    return (
+      <FlatList
+        data={filteredTasks}
+        keyExtractor={(item) => item?._id || Math.random().toString()}
+        renderItem={({ item }) => <TaskItem item={item} />}
+        ListHeaderComponent={renderHeader}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+    );
+  };
+
   const fetchTaskByMe = async () => {
     try {
-      console.log(user?.id);
+      setIsLoading(true);
       const response = await getTasks({ assignedTo: user?.id });
       if (!response.isError) {
         setTasks(response.data.result);
       }
-      console.log(response);
     } catch (error) {
       console.error("Error fetching tasks:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchTaskByMe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8F9FE]">
-      {tasks.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-500">No tasks found</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredTasks}
-          keyExtractor={(item) => item?._id || Math.random().toString()}
-          renderItem={({ item }) => <TaskItem item={item} />}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={{ paddingBottom: 100 }}
-        />
-      )}
+      {renderContent()}
 
       {/* <Pressable onPress={() => handlePress("6832717fc58badba71ee8214")} className="w-full">
             <Text>OK</Text>
           </Pressable> */}
 
-      <Modal visible={isModalVisible} animationType="slide" transparent>
+      <Modal
+        visible={isModalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={closeModal}
+      >
         <View className="flex-1 justify-end bg-black/40">
-          <View
-            className="bg-white rounded-t-[40px] p-6"
-            style={{ height: SCREEN_HEIGHT * 0.7 }}
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View className="absolute inset-0" />
+          </TouchableWithoutFeedback>
+
+          <Animated.View
+            style={{
+              height: SCREEN_HEIGHT * 0.7,
+              transform: [{ translateY: panY }],
+            }}
+            className="bg-white rounded-t-[40px] p-6 shadow-2xl"
           >
-            <View className="w-10 h-1 bg-gray-200 rounded-full self-center mb-6" />
+            <View
+              {...panResponder.panHandlers}
+              className="w-full pt-2 pb-6 items-center"
+              // activeOpacity={1}
+            >
+              <View className="w-12 h-1.5 bg-gray-200 rounded-full" />
+            </View>
+
             <Text className="text-xl font-bold mb-6">Filter Settings</Text>
 
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
               {/* Filter Priority */}
               <Text className="text-gray-400 font-bold text-xs mb-3 uppercase">
                 Priority
@@ -184,7 +280,11 @@ export default function Challange() {
                     onPress={() =>
                       setTempFilters({ ...tempFilters, priority: p })
                     }
-                    className={`mr-2 px-5 py-2 rounded-full border ${tempFilters.priority === p ? "bg-[#8862F2] border-[#8862F2]" : "border-gray-200"}`}
+                    className={`mr-2 px-5 py-2 rounded-full border ${
+                      tempFilters.priority === p
+                        ? "bg-[#8862F2] border-[#8862F2]"
+                        : "border-gray-200"
+                    }`}
                   >
                     <Text
                       className={
@@ -205,6 +305,7 @@ export default function Challange() {
                 ))}
               </View>
 
+              {/* Sort By */}
               <Text className="text-gray-400 font-bold text-xs mb-3 uppercase">
                 Sort By
               </Text>
@@ -215,7 +316,11 @@ export default function Challange() {
                     onPress={() =>
                       setTempFilters({ ...tempFilters, sortBy: s })
                     }
-                    className={`mr-2 mb-2 px-4 py-2 rounded-xl border ${tempFilters.sortBy === s ? "bg-[#F3EFff] border-[#8862F2]" : "border-gray-100"}`}
+                    className={`mr-2 mb-2 px-4 py-2 rounded-xl border ${
+                      tempFilters.sortBy === s
+                        ? "bg-[#F3EFff] border-[#8862F2]"
+                        : "border-gray-100"
+                    }`}
                   >
                     <Text
                       className={
@@ -231,9 +336,10 @@ export default function Challange() {
               </View>
             </ScrollView>
 
-            <View className="flex-row gap-4">
+            {/* Action Buttons */}
+            <View className="flex-row gap-4 mt-4 pb-4">
               <TouchableOpacity
-                onPress={() => setIsModalVisible(false)}
+                onPress={closeModal}
                 className="flex-1 bg-gray-100 h-14 rounded-2xl items-center justify-center"
               >
                 <Text className="text-gray-500 font-bold">Cancel</Text>
@@ -245,7 +351,7 @@ export default function Challange() {
                 <Text className="text-white font-bold">Apply</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </SafeAreaView>
