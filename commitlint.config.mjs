@@ -4,6 +4,7 @@ const config = {
     "type-enum": [
       2,
       "always",
+      // allowed types
       [
         "feat",
         "fix",
@@ -23,6 +24,11 @@ const config = {
   },
 };
 
-// type(scope?): subject
+{/* 
+  <type>(<scope>): <subject>
+
+  <body> (optional)
+  <footer> (optional) 
+*/}
 
 export default config;

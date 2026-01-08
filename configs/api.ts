@@ -2,7 +2,7 @@ export const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const API_ENDPOINT = {
   AUTH: {
-    LOGIN: `/auth/login`,
+    LOGIN: `${BASE_URL}/auth/login`,
     LOGOUT: `/auth/logout`,
     REFRESH: `/auth/refresh`,
     ACCOUNT: "/auth/account",

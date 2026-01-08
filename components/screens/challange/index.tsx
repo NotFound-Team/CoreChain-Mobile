@@ -1,7 +1,8 @@
-import { MOCK_TASKS } from "@/mocks/task";
+import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { TypeTask } from "@/types/task";
 import { Ionicons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -9,7 +10,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TaskItem } from "./TaskItem";
@@ -19,7 +20,8 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 export default function Challange() {
   const [activeTab, setActiveTab] = useState("All");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  
+  const [tasks, setTasks] = useState<TypeTask[]>([]);
+
   const { user } = useAuthStore();
 
   const [filters, setFilters] = useState({
@@ -31,15 +33,13 @@ export default function Challange() {
   const [tempFilters, setTempFilters] = useState(filters);
 
   const uniqueProjectIds = useMemo(() => {
-    return Array.from(
-      new Set(MOCK_TASKS.map((t) => t?.projectId).filter(Boolean))
-    );
-  }, []);
+    return Array.from(new Set(tasks.map((t) => t?.projectId).filter(Boolean)));
+  }, [tasks]);
 
   const filteredTasks = useMemo(() => {
     if (!filters) return [];
 
-    let result = [...MOCK_TASKS];
+    let result = [...tasks];
 
     if (activeTab === "In Progress")
       result = result.filter((t) => t?.status === 2);
@@ -62,14 +62,12 @@ export default function Challange() {
     });
 
     return result;
-  }, [activeTab, filters]);
+  }, [activeTab, filters, tasks]);
 
   const handleApplyFilters = () => {
     setFilters(tempFilters);
     setIsModalVisible(false);
   };
-
-  
 
   const renderHeader = () => (
     <View>
@@ -128,31 +126,38 @@ export default function Challange() {
     </View>
   );
 
-  // const fetchTaskByMe = async () => {
-  //   try {
-  //     console.log(user?.id)
-  //   const response = await getTasks({ assignedTo: user?.id });
-  //   console.log(response);
-  //   } catch (error) {
-  //     console.error("Error fetching tasks:", error);
-  //   }
-  // };
+  const fetchTaskByMe = async () => {
+    try {
+      console.log(user?.id);
+      const response = await getTasks({ assignedTo: user?.id });
+      if (!response.isError) {
+        setTasks(response.data.result);
+      }
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
 
-  // useEffect(() => {
-  //   fetchTaskByMe();
-  // }, [user?.id]);
+  useEffect(() => {
+    fetchTaskByMe();
+  }, [user?.id]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8F9FE]">
-      <FlatList
-        data={filteredTasks}
-        keyExtractor={(item) => item?._id || Math.random().toString()}
-        renderItem={({ item }) => (
-            <TaskItem item={item} />
-        )}
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+      {tasks.length === 0 ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-500">No tasks found</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredTasks}
+          keyExtractor={(item) => item?._id || Math.random().toString()}
+          renderItem={({ item }) => <TaskItem item={item} />}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        />
+      )}
 
       {/* <Pressable onPress={() => handlePress("6832717fc58badba71ee8214")} className="w-full">
             <Text>OK</Text>

@@ -19,7 +19,7 @@ const MEETINGS = [
 ];
 
 export default function Home() {
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const onRefresh = () => {
     setIsRefreshing(true);
@@ -32,6 +32,12 @@ export default function Home() {
   const handleNavigate = (href: Href) => {
     router.push(href);
   };
+
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.replace("/(auth)/signin");
+  //   }
+  // }, [isAuthenticated]);
 
   return (
     <View className="flex-1 bg-[#F8F9FE]">
@@ -64,7 +70,7 @@ export default function Home() {
               <View className="ml-3">
                 <View className="flex-row items-center">
                   <Text className="text-lg font-bold text-[#1A1C1E]">
-                    Tonald Drump
+                    {user?.name || "User Name"}
                   </Text>
                   <Ionicons
                     name="checkmark-circle"
@@ -158,7 +164,10 @@ export default function Home() {
                     </View>
                   </View>
                 </View>
-                <TouchableOpacity className="bg-[#8862F2] px-4 py-2 rounded-full" onPress={() => router.push('/video-meeting')}>
+                <TouchableOpacity
+                  className="bg-[#8862F2] px-4 py-2 rounded-full"
+                  onPress={() => router.push("/video-meeting")}
+                >
                   <Text className="text-white font-medium text-xs">
                     Join Meet
                   </Text>
