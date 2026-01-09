@@ -1,5 +1,8 @@
-// import { getProjects } from "@/services/project.service";
+import ProjectSkeleton from "@/components/skeletons/ProjectSkeleton";
+import { getDepartments } from "@/services/department.service";
+import { getProjects } from "@/services/project.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { IDepartment } from "@/types/department";
 import { IProject } from "@/types/project";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -14,100 +17,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const MOCK_PROJECTS: IProject[] = [
-  {
-    _id: "1",
-    name: "Mobile App Redesign",
-    description: "Revamping the user interface for better UX and performance.",
-    attachments: [],
-    department: "1",
-    manager: {
-      _id: "user1",
-      name: "Alice Manager",
-      email: "alice@example.com",
-    },
-    teamMembers: [
-      { _id: "u1", name: "John Doe", email: "john@example.com" },
-      { _id: "u2", name: "Jane Smith", email: "jane@example.com" },
-      { _id: "u3", name: "Bob Johnson", email: "bob@example.com" },
-      { _id: "u4", name: "Alice Brown", email: "alice@example.com" },
-    ],
-    tasks: ["t1", "t2", "t3"],
-    expenses: [],
-    revenue: 0,
-    priority: 1,
-    status: 1, // In Progress
-    progress: 65,
-    startDate: new Date("2024-01-01"),
-    endDate: new Date("2024-03-31"),
-    actualEndDate: new Date(),
-    isDeleted: false,
-    createdAt: new Date("2023-12-20"),
-    updatedAt: new Date("2024-01-20"),
-    deletedAt: new Date(),
-    createdBy: { _id: "admin", email: "admin@example.com" },
-    updatedBy: { _id: "admin", email: "admin@example.com" },
-    deletedBy: { _id: "", email: "" },
-  },
-  {
-    _id: "2",
-    name: "Backend Migration",
-    description: "Migrating legacy services to a microservices architecture.",
-    attachments: [],
-    department: "1",
-    manager: {
-      _id: "user1",
-      name: "Alice Manager",
-      email: "alice@example.com",
-    },
-    teamMembers: [
-      { _id: "u5", name: "Charlie Lee", email: "charlie@example.com" },
-      { _id: "u6", name: "David Kim", email: "david@example.com" },
-    ],
-    tasks: ["t4", "t5"],
-    expenses: [],
-    revenue: 0,
-    priority: 2,
-    status: 0, // Pending
-    progress: 10,
-    startDate: new Date("2024-04-01"),
-    endDate: new Date("2024-06-30"),
-    actualEndDate: new Date(),
-    isDeleted: false,
-    createdAt: new Date("2024-01-05"),
-    updatedAt: new Date("2024-01-05"),
-    deletedAt: new Date(),
-    createdBy: { _id: "admin", email: "admin@example.com" },
-    updatedBy: { _id: "admin", email: "admin@example.com" },
-    deletedBy: { _id: "", email: "" },
-  },
-  {
-    _id: "3",
-    name: "Q1 Marketing Campaign",
-    description: "Launch campaign for the new product line.",
-    attachments: [],
-    department: "3",
-    manager: { _id: "user8", name: "Sarah Connor", email: "sarah@example.com" },
-    teamMembers: [{ _id: "u7", name: "Eva Green", email: "eva@example.com" }],
-    tasks: ["t6"],
-    expenses: [],
-    revenue: 50000,
-    priority: 1,
-    status: 2, // Completed
-    progress: 100,
-    startDate: new Date("2024-01-01"),
-    endDate: new Date("2024-03-31"),
-    actualEndDate: new Date("2024-03-25"),
-    isDeleted: false,
-    createdAt: new Date("2023-11-15"),
-    updatedAt: new Date("2024-03-25"),
-    deletedAt: new Date(),
-    createdBy: { _id: "admin", email: "admin@example.com" },
-    updatedBy: { _id: "admin", email: "admin@example.com" },
-    deletedBy: { _id: "", email: "" },
-  },
-];
-
 export default function ProjectScreen() {
   const router = useRouter();
   const [projects, setProjects] = useState<IProject[]>([]);
@@ -117,14 +26,20 @@ export default function ProjectScreen() {
   const fetchProjects = async () => {
     try {
       setIsLoading(true);
-      // const res = await getProjects({ teamMembers: user?.id });
-      // if (!res.isError) {
-      //   setProjects(res.data.result);
-      // }
-      setTimeout(() => {
-        setProjects(MOCK_PROJECTS);
-        setIsLoading(false);
-      }, 500);
+      const resDepartments = await getDepartments({ employees: user?.id });
+
+      const departments = resDepartments.data.result;
+
+      const newProjects: IProject[] = [];
+
+      await Promise.all(
+        departments.map(async (department: IDepartment) => {
+          const resProjects = await getProjects({ department: department._id });
+          newProjects.push(...resProjects.data.projects);
+        })
+      );
+      setProjects(newProjects);
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -133,6 +48,7 @@ export default function ProjectScreen() {
 
   useEffect(() => {
     fetchProjects();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getStatusColor = (status: number) => {
@@ -253,8 +169,10 @@ export default function ProjectScreen() {
       {/* Content */}
       <View className="flex-1 px-4 pt-4">
         {isLoading ? (
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-400">Loading projects...</Text>
+          <View>
+            {[1, 2, 3, 4].map((i) => (
+              <ProjectSkeleton key={i} />
+            ))}
           </View>
         ) : projects.length === 0 ? (
           <View className="flex-1 justify-center items-center">
