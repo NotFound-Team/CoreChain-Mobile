@@ -19,6 +19,8 @@ import {
 import { AppStateStatus, Platform } from "react-native";
 import { Toaster } from "sonner-native";
 
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
@@ -93,13 +95,22 @@ export default function RootLayout() {
   useAppState(onAppStateChange);
   const colorScheme = useColorScheme();
 
+  // useEffect(() => {
+  //   requestUserPermission();
+  //   // setupFCMListeners()
+  // }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
-        <AppScreens />
-        <Toaster />
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          value={colorScheme === "light" ? DarkTheme : DefaultTheme}
+        >
+          <AppScreens />
+          <Toaster />
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
