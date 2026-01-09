@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Image, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const VideoMeeting = () => {
   return (

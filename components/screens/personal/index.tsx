@@ -5,13 +5,13 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
 const personalDataSchema = z.object({

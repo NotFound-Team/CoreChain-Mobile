@@ -1,5 +1,5 @@
-import { Leave } from '@/components/screens/leave';
+import FeedbackScreen from '@/components/screens/feedback';
 
 export default function LeaveScreen() {
-  return <Leave />
+  return <FeedbackScreen />
 }
