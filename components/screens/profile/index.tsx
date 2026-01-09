@@ -19,7 +19,7 @@ export default function Profile() {
     ACCOUNT: [
       { icon: "person", label: "Personal Data", href: "/personal" },
       { icon: "folder", label: "Office Assets" },
-      { icon: "card", label: "Payroll & Tax" },
+      { icon: "card", label: "Payroll & Tax", href: "/personnel" },
     ],
     SETTINGS: [
       { icon: "settings", label: "Change Password", href: "/changepassword" },

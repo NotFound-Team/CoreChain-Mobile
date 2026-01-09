@@ -20,3 +20,13 @@ export interface IFeedback {
     email: string;
   };
 }
+
+export interface CreateFeedbackBody {
+  sender: string;
+  category: string;
+  title: string;
+  content: string;
+  isAnonymous?: boolean;
+}
+
+export interface UpdateFeedbackBody extends Partial<CreateFeedbackBody> {}

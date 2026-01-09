@@ -17,7 +17,8 @@ export interface IProject {
         _id: string;
         name: string;
         email: string;
-      };
+      }[]
+    | string;
   tasks: string[];
   expenses: {
     cost: number;

@@ -128,6 +128,26 @@ export default function Home() {
           />
         </View>
 
+        {/* Shortcuts */}
+        <View className="flex-row justify-between px-5 mt-5 gap-2">
+          <TouchableOpacity 
+            className="flex-1 bg-white py-4 rounded-xl border border-gray-100 shadow-sm items-center justify-center"
+            onPress={() => handleNavigate("/department" as Href)}
+          >
+             <Ionicons name="business-outline" size={20} color="#4F46E5" />
+             <Text className="font-bold text-gray-700 text-xs mt-1">Departments</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            className="flex-1 bg-white py-4 rounded-xl border border-gray-100 shadow-sm items-center justify-center"
+            onPress={() => handleNavigate("/project" as Href)}
+          >
+             <Ionicons name="briefcase-outline" size={20} color="#3B82F6" />
+             <Text className="font-bold text-gray-700 text-xs mt-1">Projects</Text>
+          </TouchableOpacity>
+
+        </View>
+
         {/* Today Meeting Section */}
         <View className="mt-6 px-5">
           <View className="bg-white rounded-[8px] px-4 py-3 border border-gray-100">

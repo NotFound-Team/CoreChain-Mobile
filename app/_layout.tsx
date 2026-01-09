@@ -19,6 +19,8 @@ import {
 import { AppStateStatus, Platform } from "react-native";
 import { Toaster } from "sonner-native";
 
+// import { getFCMToken } from "@/services/firebase.service";
+import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const unstable_settings = {
@@ -61,6 +63,18 @@ const AppScreens = () => {
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
+        name="department/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="project/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="personnel/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
         name="modal"
         options={{ presentation: "modal", title: "Modal" }}
       />
@@ -76,6 +90,10 @@ export default function RootLayout() {
   useOnlineManager();
   useAppState(onAppStateChange);
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // getFCMToken();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

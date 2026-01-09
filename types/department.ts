@@ -4,7 +4,7 @@ export interface IDepartment {
   code: string;
   description: string;
   manager: string;
-  employees: string[];
+  employees: string[] | string;
   status: string;
   budget: number;
   projectIds: string[];
