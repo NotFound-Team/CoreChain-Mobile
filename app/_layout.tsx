@@ -19,35 +19,21 @@ import {
 import { AppStateStatus, Platform } from "react-native";
 import { Toaster } from "sonner-native";
 
+// import { getFCMToken } from "@/services/firebase.service";
+import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
+
 function onAppStateChange(status: AppStateStatus) {
-  // React Query already supports in web browser refetch on window focus by default
   if (Platform.OS !== "web") {
     focusManager.setFocused(status === "active");
   }
 }
 
 const AppScreens = () => {
-  // const { isAuthenticated } = useAuthStore();
-  // const segments = useSegments();
-  // const router = useRouter();
-
-  // const navigationState = useRootNavigationState();
-
-  // useEffect(() => {
-  //   if (!navigationState?.key) return;
-
-  //   const inAuthGroup = segments[0] === "(auth)";
-
-  //   if (!isAuthenticated && !inAuthGroup) {
-  //     router.replace("/(auth)/signin");
-  //   } else if (isAuthenticated && inAuthGroup) {
-  //     router.replace("/(tabs)");
-  //   }
-  // }, [isAuthenticated, segments, navigationState?.key]);
-
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -77,6 +63,18 @@ const AppScreens = () => {
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
+        name="department/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="project/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="personnel/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
         name="modal"
         options={{ presentation: "modal", title: "Modal" }}
       />
@@ -87,19 +85,25 @@ const AppScreens = () => {
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 2 } },
 });
+
 export default function RootLayout() {
   useOnlineManager();
-
   useAppState(onAppStateChange);
   const colorScheme = useColorScheme();
 
+  useEffect(() => {
+    // getFCMToken();
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
-        <AppScreens />
-        <Toaster />
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
+          <AppScreens />
+          <Toaster />
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

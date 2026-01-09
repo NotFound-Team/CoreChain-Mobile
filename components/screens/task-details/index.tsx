@@ -1,212 +1,285 @@
-import { Ionicons } from "@expo/vector-icons";
+import LoadingOverlay from "@/components/customs/LoadingOverlay";
+import { getTaskDetail } from "@/services/task.service";
+import { TypeTask } from "@/types/task";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"; // Import thêm icon
 import { router } from "expo-router";
-import {
-  Image,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// Helper: Soft UI Colors (Nền nhạt + Chữ đậm)
+const getStatusStyles = (status: number) => {
+  switch (status) {
+    case 1: // In Progress
+      return {
+        label: "In Progress",
+        bg: "bg-blue-100",
+        text: "text-blue-700",
+        icon: "timer-sand",
+      };
+    case 2: // Completed
+      return {
+        label: "Completed",
+        bg: "bg-emerald-100",
+        text: "text-emerald-700",
+        icon: "check-circle-outline",
+      };
+    default: // Todo
+      return {
+        label: "To Do",
+        bg: "bg-slate-100",
+        text: "text-slate-600",
+        icon: "clipboard-list-outline",
+      };
+  }
+};
+
+const getPriorityStyles = (priority: number) => {
+  switch (priority) {
+    case 1: // High
+      return {
+        label: "High Priority",
+        bg: "bg-red-100",
+        text: "text-red-600",
+        iconColor: "#DC2626",
+      };
+    case 2: // Medium
+      return {
+        label: "Medium Priority",
+        bg: "bg-orange-100",
+        text: "text-orange-600",
+        iconColor: "#EA580C",
+      };
+    default: // Low
+      return {
+        label: "Low Priority",
+        bg: "bg-blue-50",
+        text: "text-blue-600",
+        iconColor: "#2563EB",
+      };
+  }
+};
+
 export const TaskDetails = ({ id }: { id: string }) => {
-  console.log("TASKS DETAILS", id);
+  const [taskDetail, setTaskDetail] = useState<TypeTask | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchTaskDetails = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getTaskDetail(id);
+        if (!response.isError) {
+          setTaskDetail(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching task details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTaskDetails();
+  }, [id]);
+
+  if (!taskDetail && !isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-[#F8FAFC]">
+        <Text className="text-slate-400">Task not found</Text>
+      </View>
+    );
+  }
+
+  const statusInfo = taskDetail ? getStatusStyles(taskDetail.status) : null;
+  const priorityInfo = taskDetail
+    ? getPriorityStyles(taskDetail.priority)
+    : null;
+
   return (
-    <View className="flex-1 bg-[#F1F3F8]">
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-      >
-        <SafeAreaView className="bg-white">
-          <View className="flex-row items-center justify-between px-4 py-3 mb-4 border-b border-gray-200">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"
-            >
-              <Ionicons name="chevron-back" size={24} color="#8862F2" />
-            </TouchableOpacity>
-            <Text className="text-lg font-bold text-slate-800">
-              Task Details
-            </Text>
-            <View className="w-10" />
-          </View>
+    <View className="flex-1 bg-[#F8FAFC]">
+      {isLoading && <LoadingOverlay visible={isLoading} />}
 
-          <ScrollView showsVerticalScrollIndicator={false} className="px-5">
-            {/* Title & Status */}
-            <View className="flex-row justify-between items-start mt-4">
-              <View>
-                <Text className="text-xl font-extrabold text-slate-900">
-                  Create On Boarding Screen
-                </Text>
-                <Text className="text-slate-400 text-xs mt-1">
-                  Created 27 Sept 2024
-                </Text>
-              </View>
-              <View className="bg-slate-100 px-3 py-1 rounded-full flex-row items-center">
-                <View className="w-2 h-2 bg-slate-400 rounded-full mr-1" />
-                <Text className="text-slate-500 text-xs font-medium">
-                  In Progress
-                </Text>
-              </View>
-            </View>
-
-            {/* Main Image Slider Placeholder */}
-            <View className="mt-5">
-              <Image
-                source={{ uri: "https://placeholder.com/600x400" }} // Thay bằng ảnh thật
-                className="w-full h-56 rounded-3xl"
-                resizeMode="cover"
-              />
-              {/* Pagination dots */}
-              <View className="flex-row justify-center mt-3 space-x-1">
-                <View className="w-6 h-1 bg-purple-600 rounded-full" />
-                <View className="w-1.5 h-1 bg-slate-300 rounded-full" />
-                <View className="w-1.5 h-1 bg-slate-300 rounded-full" />
-              </View>
-            </View>
-
-            {/* Thumbnails */}
-            <View className="flex-row mt-4 space-x-3">
-              <Image
-                source={{ uri: "https://placeholder.com/100" }}
-                className="w-16 h-16 rounded-xl border border-slate-100"
-              />
-              <Image
-                source={{ uri: "https://placeholder.com/100" }}
-                className="w-16 h-16 rounded-xl border border-slate-100"
-              />
-            </View>
-
-            {/* Description Box */}
-            <View className="mt-6 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
-              <Text className="font-bold text-slate-800 mb-2">Description</Text>
-              <Text className="text-slate-500 leading-5 text-[13px]">
-                Create on boarding page based on pic, pixel perfect, with the
-                user story of i want to know what kind of apps is this so i need
-                to view onboarding screen...
+      {taskDetail && statusInfo && priorityInfo && (
+        <>
+          {/* Header trong suốt, đẹp hơn */}
+          <SafeAreaView className="bg-[#F8FAFC] z-10">
+            <View className="flex-row items-center justify-between px-5 py-2">
+              <TouchableOpacity
+                onPress={() => router.back()}
+                className="w-10 h-10 items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm"
+              >
+                <Ionicons name="arrow-back" size={22} color="#1E293B" />
+              </TouchableOpacity>
+              <Text className="text-lg font-bold text-slate-800">
+                Task Details
               </Text>
-            </View>
-
-            {/* Priority & Difficulty */}
-            <View className="flex-row justify-between mt-6">
-              <View className="flex-1 mr-2">
-                <Text className="text-slate-500 text-xs font-bold mb-2">
-                  Priority
-                </Text>
-                <View className="bg-red-500 flex-row items-center p-2 rounded-xl">
-                  <Text className="text-white font-bold text-xs ml-1">
-                    🚩 High
-                  </Text>
-                </View>
-              </View>
-              <View className="flex-1 ml-2">
-                <Text className="text-slate-500 text-xs font-bold mb-2">
-                  Difficulty
-                </Text>
-                <View className="bg-green-50 flex-row items-center p-2 rounded-xl border border-green-100">
-                  <Text className="text-green-600 font-bold text-[11px]">
-                    😊 Very Easy (Less Than a Day)
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Assignee */}
-            <View className="mt-6">
-              <Text className="text-slate-500 text-xs font-bold mb-3">
-                Assignee
-              </Text>
-              <View className="flex-row items-center">
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/150?u=alice" }}
-                  className="w-12 h-12 rounded-full bg-orange-100"
+              <TouchableOpacity className="w-10 h-10 items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm">
+                <Ionicons
+                  name="ellipsis-horizontal"
+                  size={22}
+                  color="#1E293B"
                 />
-                <View className="ml-3">
-                  <Text className="font-bold text-slate-800">Alice</Text>
-                  <Text className="text-purple-600 text-xs">
-                    Sr Front End Developer
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Comment Section */}
-            <View className="mt-8 mb-10">
-              <Text className="text-slate-500 text-xs font-bold mb-4">
-                Comment Section
-              </Text>
-
-              {/* Jason's Comment */}
-              <View className="flex-row mb-6">
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/150?u=jason" }}
-                  className="w-10 h-10 rounded-full bg-pink-100"
-                />
-                <View className="ml-3 flex-1">
-                  <View className="flex-row justify-between">
-                    <Text className="font-bold text-slate-800 text-xs">
-                      Jason{" "}
-                      <Text className="text-purple-500 font-normal">
-                        Product Manager
-                      </Text>
-                    </Text>
-                    <Text className="text-[10px] text-slate-400">
-                      28 Sept 2024 5:53 AM
-                    </Text>
-                  </View>
-                  <Text className="text-slate-600 mt-1 text-[13px]">
-                    Dude, how long it will take? any blocker? need the update
-                    asap
-                  </Text>
-                </View>
-              </View>
-
-              {/* Alice's Comment */}
-              <View className="flex-row mb-6">
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/150?u=alice" }}
-                  className="w-10 h-10 rounded-full bg-orange-100"
-                />
-                <View className="ml-3 flex-1">
-                  <View className="flex-row justify-between">
-                    <Text className="font-bold text-slate-800 text-xs">
-                      Alice{" "}
-                      <Text className="text-purple-500 font-normal">
-                        Sr Front End Developer
-                      </Text>
-                    </Text>
-                    <Text className="text-[10px] text-slate-400">
-                      29 Sept 2024 5:53 AM
-                    </Text>
-                  </View>
-                  <Text className="text-slate-600 mt-1 text-[13px]">
-                    <Text className="text-purple-600">@Jason</Text> still
-                    testing, will be push at 04:00 PM
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </ScrollView>
-
-          {/* Input Field Fixed at Bottom */}
-          <View className="px-5 py-4 border-t border-slate-50 flex-row items-center">
-            <Image
-              source={{ uri: "https://i.pravatar.cc/150?u=me" }}
-              className="w-10 h-10 rounded-full bg-pink-100 mr-3"
-            />
-            <View className="flex-1 bg-slate-50 rounded-xl px-4 py-2 flex-row items-center">
-              <TextInput
-                placeholder="Write a comment..."
-                className="flex-1 text-slate-600 h-10"
-              />
-              <TouchableOpacity className="bg-slate-400 p-2 rounded-lg">
-                {/* <PaperAirplaneIcon size={16} color="white" /> */}
               </TouchableOpacity>
             </View>
-          </View>
-        </SafeAreaView>
-      </ScrollView>
+          </SafeAreaView>
+
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            className="px-5 mt-2"
+          >
+            {/* Title Section */}
+            <View className="mb-6">
+              <View
+                className={`self-start px-3 py-1.5 rounded-full flex-row items-center mb-3 ${statusInfo.bg}`}
+              >
+                <MaterialCommunityIcons
+                  name={statusInfo.icon as any}
+                  size={14}
+                  color={
+                    statusInfo.text.split("-")[1] === "blue"
+                      ? "#1D4ED8"
+                      : statusInfo.text.split("-")[1] === "emerald"
+                        ? "#047857"
+                        : "#475569"
+                  }
+                  style={{ marginRight: 4 }}
+                />
+                <Text
+                  className={`${statusInfo.text} text-xs font-bold uppercase tracking-wider`}
+                >
+                  {statusInfo.label}
+                </Text>
+              </View>
+
+              <Text className="text-3xl font-extrabold text-slate-900 leading-tight">
+                {taskDetail.title}
+              </Text>
+
+              <View className="flex-row items-center mt-3 space-x-2">
+                <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
+                <Text className="text-slate-400 text-sm font-medium">
+                  Created on{" "}
+                  {new Date(taskDetail.createdAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </Text>
+              </View>
+            </View>
+
+            {/* Info Grid (Priority & Deadline) */}
+            <View className="flex-row gap-4 mb-6">
+              {/* Priority Card */}
+              <View className="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <View className="flex-row items-center mb-2">
+                  <View
+                    className={`w-8 h-8 rounded-full items-center justify-center ${priorityInfo.bg} mr-2`}
+                  >
+                    <Ionicons
+                      name="flag"
+                      size={16}
+                      color={priorityInfo.iconColor}
+                    />
+                  </View>
+                  <Text className="text-slate-400 text-xs font-bold uppercase">
+                    Priority
+                  </Text>
+                </View>
+                <Text className="text-slate-800 font-bold text-base ml-1">
+                  {priorityInfo.label.split(" ")[0]}
+                </Text>
+              </View>
+
+              {/* Due Date Card */}
+              <View className="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <View className="flex-row items-center mb-2">
+                  <View className="w-8 h-8 rounded-full items-center justify-center bg-purple-50 mr-2">
+                    <Ionicons name="time" size={16} color="#9333EA" />
+                  </View>
+                  <Text className="text-slate-400 text-xs font-bold uppercase">
+                    Due Date
+                  </Text>
+                </View>
+                <Text className="text-slate-800 font-bold text-base ml-1">
+                  {new Date(taskDetail.dueDate).toLocaleDateString("en-GB")}
+                </Text>
+              </View>
+            </View>
+
+            {/* Creator / Assignee Section */}
+            <View className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6 flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <Image
+                  source={{
+                    uri: `https://ui-avatars.com/api/?name=${taskDetail.createdBy.email}&background=0D8ABC&color=fff&size=128`,
+                  }}
+                  className="w-12 h-12 rounded-full border-2 border-slate-50"
+                />
+                <View className="ml-3 flex-1">
+                  <Text className="text-slate-400 text-xs mb-0.5">
+                    Assigned by
+                  </Text>
+                  <Text
+                    className="font-bold text-slate-800 text-base"
+                    numberOfLines={1}
+                  >
+                    {taskDetail.createdBy.email.split("@")[0]}
+                  </Text>
+                  <Text className="text-slate-400 text-xs" numberOfLines={1}>
+                    {taskDetail.createdBy.email}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity className="bg-slate-50 p-2 rounded-full">
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={20}
+                  color="#64748B"
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Description */}
+            <View className="mb-8">
+              <Text className="text-lg font-bold text-slate-800 mb-3">
+                Description
+              </Text>
+              <View className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                <Text className="text-slate-600 leading-7 text-base">
+                  {taskDetail.description ||
+                    "No description provided for this task."}
+                </Text>
+              </View>
+            </View>
+
+            {/* Attachments Section (Optional) */}
+            {taskDetail.attachments.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-lg font-bold text-slate-800">
+                    Attachments
+                  </Text>
+                  <Text className="text-slate-400 text-sm">
+                    {taskDetail.attachments.length} files
+                  </Text>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {/* Demo Placeholder UI cho Attachment */}
+                  <View className="w-24 h-24 bg-slate-200 rounded-xl mr-3 items-center justify-center">
+                    <Ionicons name="document-text" size={30} color="#94A3B8" />
+                  </View>
+                  <View className="w-24 h-24 bg-slate-200 rounded-xl mr-3 items-center justify-center">
+                    <Ionicons name="image" size={30} color="#94A3B8" />
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+
+            <View className="h-10" />
+          </ScrollView>
+        </>
+      )}
     </View>
   );
 };

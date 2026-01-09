@@ -6,12 +6,12 @@ import { useState } from "react";
 import {
   Platform,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const MEETINGS = [
   { id: 1, title: "Townhall Meeting", time: "01:30 AM - 02:00 AM" },
@@ -19,7 +19,7 @@ const MEETINGS = [
 ];
 
 export default function Home() {
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const onRefresh = () => {
     setIsRefreshing(true);
@@ -32,6 +32,12 @@ export default function Home() {
   const handleNavigate = (href: Href) => {
     router.push(href);
   };
+
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.replace("/(auth)/signin");
+  //   }
+  // }, [isAuthenticated]);
 
   return (
     <View className="flex-1 bg-[#F8F9FE]">
@@ -64,7 +70,7 @@ export default function Home() {
               <View className="ml-3">
                 <View className="flex-row items-center">
                   <Text className="text-lg font-bold text-[#1A1C1E]">
-                    Tonald Drump
+                    {user?.name || "User Name"}
                   </Text>
                   <Ionicons
                     name="checkmark-circle"
@@ -122,6 +128,26 @@ export default function Home() {
           />
         </View>
 
+        {/* Shortcuts */}
+        <View className="flex-row justify-between px-5 mt-5 gap-2">
+          <TouchableOpacity 
+            className="flex-1 bg-white py-4 rounded-xl border border-gray-100 shadow-sm items-center justify-center"
+            onPress={() => handleNavigate("/department" as Href)}
+          >
+             <Ionicons name="business-outline" size={20} color="#4F46E5" />
+             <Text className="font-bold text-gray-700 text-xs mt-1">Departments</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            className="flex-1 bg-white py-4 rounded-xl border border-gray-100 shadow-sm items-center justify-center"
+            onPress={() => handleNavigate("/project" as Href)}
+          >
+             <Ionicons name="briefcase-outline" size={20} color="#3B82F6" />
+             <Text className="font-bold text-gray-700 text-xs mt-1">Projects</Text>
+          </TouchableOpacity>
+
+        </View>
+
         {/* Today Meeting Section */}
         <View className="mt-6 px-5">
           <View className="bg-white rounded-[8px] px-4 py-3 border border-gray-100">
@@ -158,7 +184,10 @@ export default function Home() {
                     </View>
                   </View>
                 </View>
-                <TouchableOpacity className="bg-[#8862F2] px-4 py-2 rounded-full" onPress={() => router.push('/video-meeting')}>
+                <TouchableOpacity
+                  className="bg-[#8862F2] px-4 py-2 rounded-full"
+                  onPress={() => router.push("/video-meeting")}
+                >
                   <Text className="text-white font-medium text-xs">
                     Join Meet
                   </Text>
