@@ -127,6 +127,20 @@ export default function Messages() {
         <View className="w-10" />
       </View>
 
+      {/* Search Trigger */}
+      <View className="px-4 py-3 bg-white border-b border-gray-100">
+        <TouchableOpacity
+          onPress={() => router.push("/search-user")}
+          activeOpacity={0.8}
+          className="flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-lg h-11 px-3"
+        >
+          <Ionicons name="search" size={20} color="#9CA3AF" />
+          <Text className="ml-2 text-gray-500 text-[15px]">
+            Search for users...
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={MESSAGES}
         keyExtractor={(item) => item.id}
