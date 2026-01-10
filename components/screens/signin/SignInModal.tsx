@@ -7,12 +7,12 @@ import { ScanQrCode, User } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  Dimensions,
-  Keyboard,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    Dimensions,
+    Keyboard,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import Modal from "react-native-modal";
 import { z } from "zod";
@@ -176,4 +176,4 @@ const SignInModal = ({ isVisible, onClose }: any) => {
   );
 };
 
-export default SignInModal;
+export default React.memo(SignInModal);

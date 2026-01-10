@@ -2,22 +2,19 @@ import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { TypeTask } from "@/types/task";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Animated,
-  Dimensions,
   FlatList,
-  Modal,
-  PanResponder,
   ScrollView,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TaskItem } from "./TaskItem";
 import { TaskItemSkeleton } from "./TaskItemSkeleton";
+
+const FilterModal = React.lazy(() => import("./FilterModal"));
 
 export default function Challange() {
   const [activeTab, setActiveTab] = useState("All");
@@ -25,55 +22,6 @@ export default function Challange() {
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
-
-  const SCREEN_HEIGHT = Dimensions.get("window").height;
-  const panY = useRef(new Animated.Value(0)).current;
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 5;
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          panY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 150) {
-          closeModal();
-        } else {
-          Animated.spring(panY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
-  useEffect(() => {
-    if (isModalVisible) {
-      Animated.spring(panY, {
-        toValue: 0,
-        tension: 50,
-        friction: 10,
-        useNativeDriver: true,
-      }).start();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModalVisible]);
-
-  const closeModal = () => {
-    Animated.timing(panY, {
-      toValue: SCREEN_HEIGHT,
-      duration: 250,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsModalVisible(false);
-    });
-  };
 
   const [filters, setFilters] = useState({
     priority: null as number | null,
@@ -116,10 +64,14 @@ export default function Challange() {
     return result;
   }, [activeTab, filters, tasks]);
 
-  const handleApplyFilters = () => {
+  const handleApplyFilters = useCallback(() => {
     setFilters(tempFilters);
     setIsModalVisible(false);
-  };
+  }, [tempFilters]);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalVisible(false);
+  }, []);
 
   const renderHeader = () => (
     <View>
@@ -229,7 +181,7 @@ export default function Challange() {
 
   useEffect(() => {
     fetchTaskByMe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return (
@@ -240,120 +192,13 @@ export default function Challange() {
             <Text>OK</Text>
           </Pressable> */}
 
-      <Modal
+      <FilterModal
         visible={isModalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={closeModal}
-      >
-        <View className="flex-1 justify-end bg-black/40">
-          <TouchableWithoutFeedback onPress={closeModal}>
-            <View className="absolute inset-0" />
-          </TouchableWithoutFeedback>
-
-          <Animated.View
-            style={{
-              height: SCREEN_HEIGHT * 0.7,
-              transform: [{ translateY: panY }],
-            }}
-            className="bg-white rounded-t-[40px] p-6 shadow-2xl"
-          >
-            <View
-              {...panResponder.panHandlers}
-              className="w-full pt-2 pb-6 items-center"
-              // activeOpacity={1}
-            >
-              <View className="w-12 h-1.5 bg-gray-200 rounded-full" />
-            </View>
-
-            <Text className="text-xl font-bold mb-6">Filter Settings</Text>
-
-            <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-              {/* Filter Priority */}
-              <Text className="text-gray-400 font-bold text-xs mb-3 uppercase">
-                Priority
-              </Text>
-              <View className="flex-row mb-6">
-                {[null, 1, 2, 3].map((p) => (
-                  <TouchableOpacity
-                    key={String(p)}
-                    onPress={() =>
-                      setTempFilters({ ...tempFilters, priority: p })
-                    }
-                    className={`mr-2 px-5 py-2 rounded-full border ${
-                      tempFilters.priority === p
-                        ? "bg-[#8862F2] border-[#8862F2]"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <Text
-                      className={
-                        tempFilters.priority === p
-                          ? "text-white"
-                          : "text-gray-500"
-                      }
-                    >
-                      {p === null
-                        ? "All"
-                        : p === 3
-                          ? "High"
-                          : p === 2
-                            ? "Med"
-                            : "Low"}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {/* Sort By */}
-              <Text className="text-gray-400 font-bold text-xs mb-3 uppercase">
-                Sort By
-              </Text>
-              <View className="flex-row flex-wrap mb-6">
-                {["dueDate", "startDate", "createdAt"].map((s) => (
-                  <TouchableOpacity
-                    key={s}
-                    onPress={() =>
-                      setTempFilters({ ...tempFilters, sortBy: s })
-                    }
-                    className={`mr-2 mb-2 px-4 py-2 rounded-xl border ${
-                      tempFilters.sortBy === s
-                        ? "bg-[#F3EFff] border-[#8862F2]"
-                        : "border-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={
-                        tempFilters.sortBy === s
-                          ? "text-[#8862F2] font-bold"
-                          : "text-gray-500"
-                      }
-                    >
-                      {s}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
-
-            {/* Action Buttons */}
-            <View className="flex-row gap-4 mt-4 pb-4">
-              <TouchableOpacity
-                onPress={closeModal}
-                className="flex-1 bg-gray-100 h-14 rounded-2xl items-center justify-center"
-              >
-                <Text className="text-gray-500 font-bold">Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleApplyFilters}
-                className="flex-[2] bg-[#8862F2] h-14 rounded-2xl items-center justify-center"
-              >
-                <Text className="text-white font-bold">Apply</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
+        tempFilters={tempFilters}
+        onClose={handleCloseModal}
+        onApply={handleApplyFilters}
+        onFilterChange={setTempFilters}
+      />
     </SafeAreaView>
   );
 }

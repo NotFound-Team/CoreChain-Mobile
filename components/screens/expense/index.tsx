@@ -6,31 +6,25 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  DollarSign,
   Plus,
   Search,
-  X,
 } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   StatusBar,
   Text,
-  TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { z } from "zod";
 import { RequestListSkeleton } from "./RequestListSkeleton";
+
+const CreateRequestModal = React.lazy(() => import("./CreateRequestModal"));
 
 
 // --- TYPES ---
@@ -47,9 +41,8 @@ interface SalaryRequest {
   updatedAt: string;
 }
 
-// --- ZOD SCHEMA ---
 const createRequestSchema = z.object({
-  amount: z.coerce.number().min(1000, "Tối thiểu 1.000đ"),
+  amount: z.number().min(1000, "Tối thiểu 1.000đ"),
   reason: z.string().min(5, "Lý do tối thiểu 5 ký tự"),
   returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Định dạng YYYY-MM-DD"),
 });
@@ -186,7 +179,7 @@ export const Expense = () => {
     return requests;
   }, [requests, filter]);
 
-  const onSubmit: SubmitHandler<CreateRequestFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<CreateRequestFormValues> = useCallback(async (data) => {
     try {
       setLoadingSubmit(true);
       await salaryAdvance(data);
@@ -204,7 +197,12 @@ export const Expense = () => {
     } finally {
       setLoadingSubmit(false);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reset]);
+
+  const handleCloseModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
 
   const fetchRequestSalary = async () => {
     try {
@@ -223,6 +221,7 @@ export const Expense = () => {
 
   useEffect(() => {
     fetchRequestSalary();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -283,149 +282,14 @@ export const Expense = () => {
       </TouchableOpacity>
 
       {/* Modal Form */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 justify-end bg-slate-900/50">
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              className="bg-white rounded-t-[40px] px-6 pt-8 pb-10"
-            >
-              <View className="flex-row justify-between items-center mb-6">
-                <Text className="text-xl font-bold text-slate-900">
-                  Tạo yêu cầu
-                </Text>
-                <TouchableOpacity
-                  disabled={loadingSubmit}
-                  onPress={() => !loadingSubmit && setModalVisible(false)}
-                  className="bg-slate-100 p-2 rounded-full"
-                >
-                  <X size={20} color="#64748b" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Amount Input */}
-              <View className="mb-4">
-                <Text className="text-slate-500 text-xs font-bold mb-2 uppercase ml-1">
-                  Số tiền ứng
-                </Text>
-                <Controller
-                  control={control}
-                  name="amount"
-                  render={({ field: { onChange, value } }) => (
-                    <View
-                      className={cn(
-                        "flex-row items-center bg-slate-50 border border-slate-100 rounded-2xl px-4 h-14",
-                        errors.amount && "border-red-500 bg-red-50/10"
-                      )}
-                    >
-                      <DollarSign
-                        size={20}
-                        color={errors.amount ? "#ef4444" : "#94a3b8"}
-                      />
-                      <TextInput
-                        className="flex-1 ml-2 text-slate-900 font-bold text-lg"
-                        placeholder="1,000,000"
-                        keyboardType="numeric"
-                        value={value?.toString()}
-                        onChangeText={(text) => {
-                          const cleaned = text.replace(/[^0-9]/g, "");
-                          onChange(cleaned === "" ? "" : Number(cleaned));
-                        }}
-                      />
-                    </View>
-                  )}
-                />
-                {errors.amount && (
-                  <Text className="text-red-500 text-[10px] mt-1 ml-2 font-medium">
-                    {errors.amount.message}
-                  </Text>
-                )}
-              </View>
-
-              {/* Date Input */}
-              <View className="mb-4">
-                <Text className="text-slate-500 text-xs font-bold mb-2 uppercase ml-1">
-                  Ngày hoàn trả
-                </Text>
-                <Controller
-                  control={control}
-                  name="returnDate"
-                  render={({ field: { onChange, value } }) => (
-                    <View
-                      className={cn(
-                        "flex-row items-center bg-slate-50 border border-slate-100 rounded-2xl px-4 h-14",
-                        errors.returnDate && "border-red-500 bg-red-50/10"
-                      )}
-                    >
-                      <Calendar
-                        size={20}
-                        color={errors.returnDate ? "#ef4444" : "#94a3b8"}
-                      />
-                      <TextInput
-                        className="flex-1 ml-2 text-slate-900"
-                        placeholder="YYYY-MM-DD"
-                        value={value}
-                        onChangeText={onChange}
-                      />
-                    </View>
-                  )}
-                />
-                {errors.returnDate && (
-                  <Text className="text-red-500 text-[10px] mt-1 ml-2 font-medium">
-                    {errors.returnDate.message}
-                  </Text>
-                )}
-              </View>
-
-              {/* Reason Input */}
-              <View className="mb-8">
-                <Text className="text-slate-500 text-xs font-bold mb-2 uppercase ml-1">
-                  Lý do
-                </Text>
-                <Controller
-                  control={control}
-                  name="reason"
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      className={cn(
-                        "bg-slate-50 border border-slate-100 rounded-2xl p-4 h-28 text-slate-900",
-                        errors.reason && "border-red-500 bg-red-50/10"
-                      )}
-                      placeholder="Nhập nội dung..."
-                      multiline
-                      textAlignVertical="top"
-                      value={value}
-                      onChangeText={onChange}
-                    />
-                  )}
-                />
-                {errors.reason && (
-                  <Text className="text-red-500 text-[10px] mt-1 ml-2 font-medium">
-                    {errors.reason.message}
-                  </Text>
-                )}
-              </View>
-
-              <TouchableOpacity
-                disabled={loadingSubmit}
-                onPress={handleSubmit(onSubmit)}
-                className={cn(
-                  "h-16 rounded-2xl items-center justify-center shadow-lg shadow-violet-200",
-                  loadingSubmit ? "bg-violet-400" : "bg-violet-600"
-                )}
-              >
-                {loadingSubmit ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text className="text-white font-extrabold text-lg">
-                    Gửi yêu cầu ngay
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </KeyboardAvoidingView>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      <CreateRequestModal
+        visible={modalVisible}
+        loading={loadingSubmit}
+        control={control as never}
+        errors={errors}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit(onSubmit)}
+      />
       {loadingSubmit && (
         <View className="absolute inset-0 bg-black/30 items-center justify-center">
           <ActivityIndicator size="large" color="white" />

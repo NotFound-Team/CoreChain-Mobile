@@ -1,20 +1,16 @@
-import React, { useState } from "react";
-import {
-  Animated,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useCallback, useState } from "react";
+import { Animated, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SignInModal from "./SignInModal";
+const SignInModal = React.lazy(() => import("./SignInModal"));
 
 const SignIn = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const toggleModal = () => {
+  const toggleModal = useCallback(() => {
     setModalVisible(!isModalVisible);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   const handleImageLoaded = () => {

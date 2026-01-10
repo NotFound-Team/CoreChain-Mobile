@@ -170,7 +170,7 @@ export default function ProjectScreen() {
       <View className="flex-1 px-4 pt-4">
         {isLoading ? (
           <View>
-            {[1, 2, 3, 4].map((i) => (
+            {["sk1", "sk2", "sk3", "sk4"].map((i) => (
               <ProjectSkeleton key={i} />
             ))}
           </View>
