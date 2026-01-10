@@ -1,4 +1,4 @@
-import { deleteFeedback, getFeedbacks } from "@/services/feedback.service";
+import { deleteFeedback } from "@/services/feedback.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { IFeedback } from "@/types/feedback";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CreateFeedbackModal } from "./CreateFeedbackModal";
 import { FeedbackSkeleton } from "./FeedbackSkeleton";
 
-export default function FeedbackScreen() {
+export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState<IFeedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -25,10 +25,10 @@ export default function FeedbackScreen() {
 
   const fetchFeedbacks = async () => {
     try {
-      const res = await getFeedbacks({ createdBy: user?.id });
-      if (!res.isError) {
-        setFeedbacks(res.data.result || []);
-      }
+      // const res = await getFeedbacks({ createdBy: user?.id });
+      // if (!res.isError) {
+      //   setFeedbacks(res.data.result || []);
+      // }
     } catch (error) {
       console.error(error);
     } finally {
@@ -38,6 +38,7 @@ export default function FeedbackScreen() {
 
   useEffect(() => {
     fetchFeedbacks();
+   
   }, []);
 
   const handleEdit = (item: IFeedback) => {
