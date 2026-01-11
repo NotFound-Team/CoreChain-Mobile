@@ -1,3 +1,4 @@
+import { SocketProvider } from "@/context/SocketContext";
 import "@/global.css";
 import { useAuthStore } from "@/stores/auth-store";
 import {
@@ -110,7 +111,7 @@ export default function RootLayout() {
     }, 1500);
 
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -125,7 +126,7 @@ export default function RootLayout() {
       // Redirect to tabs if authenticated and trying to access auth pages
       router.replace("/(tabs)");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, segments, isShowSplash]);
 
   if (isShowSplash) {
@@ -142,8 +143,10 @@ export default function RootLayout() {
         <ThemeProvider
           value={colorScheme === "light" ? DarkTheme : DefaultTheme}
         >
-          <AppScreens />
-          <Toaster />
+          <SocketProvider>
+            <AppScreens />
+            <Toaster />
+          </SocketProvider>
           <StatusBar style="auto" />
         </ThemeProvider>
       </QueryClientProvider>

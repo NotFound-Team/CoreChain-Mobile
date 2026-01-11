@@ -1,0 +1,151 @@
+import { createPrivateConversation } from "@/services/conversation.service";
+import { searchUsers } from "@/services/user.service";
+import { useAuthStore } from "@/stores/auth-store";
+import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import {
+    FlatList,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+interface User {
+    _id: string;
+    name: string;
+    avatar?: string;
+}
+
+// Simple debounce hook implementation
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
+export default function SearchUser() {
+    const [query, setQuery] = useState("");
+    const debouncedQuery = useDebounce(query, 250);
+    const [results, setResults] = useState<User[]>([]);
+    const { user } = useAuthStore();
+    const currentUserId = user?.id;
+
+    // Effect to handle search
+    React.useEffect(() => {
+        if (!debouncedQuery) {
+            setResults([]);
+            return;
+        }
+
+        const fetchUsers = async () => {
+            const res = await searchUsers(debouncedQuery);
+            if (!res.isError) {
+                const users = res.data?.result;
+                console.log("response users: ", users);
+                if (users.length === 0) {
+                    setResults([]);
+                    return;
+                }
+                // Filter out current user if ID is available
+                if (currentUserId) {
+                    setResults(users.filter((u: User) => u._id !== currentUserId));
+                } else {
+                    setResults(users);
+                }
+            }
+        };
+
+        fetchUsers();
+    }, [debouncedQuery, currentUserId]);
+
+    const handleUserPress = async (userId: string) => {
+        // Create or get private conversation
+        const res = await createPrivateConversation(userId);
+        if (!res.isError) {
+            // Depending on what valid response looks like, navigate.
+            // Usually returns the conversation object.
+            // If we just need to go to chat of that USER, we push user id as before?
+            // User request: "pass the user id of partner id to server... then navigate to a chat detail screen"
+            // Assuming /chat/[id] handles fetching msg by partner ID or convo ID.
+            // Based on existing Messages/index.tsx -> router.push(`/chat/${item.user_id}`)
+            // It seems /chat/[id] expects a PARTNER ID (User ID).
+            router.push(`/chat/${userId}`);
+        } else {
+            console.error("Failed to create conversation", res.message);
+        }
+    };
+
+    const renderItem = ({ item }: { item: User }) => (
+        <TouchableOpacity
+            className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100"
+            onPress={() => handleUserPress(item._id)}
+        >
+            <View className="w-10 h-10 rounded-full overflow-hidden bg-[#FDE7E7]">
+                <Image
+                    source={{ uri: item.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.name}` }}
+                    style={{ width: "100%", height: "100%" }}
+                    contentFit="cover"
+                />
+            </View>
+            <Text className="ml-3 text-[#1A1C1E] font-medium text-[16px]">
+                {item.name}
+            </Text>
+        </TouchableOpacity>
+    );
+
+    return (
+        <SafeAreaView className="flex-1 bg-white">
+            {/* Header with Search Input */}
+            <View className="flex-row items-center px-4 py-2 border-b border-gray-200 gap-3">
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color="#1A1C1E" />
+                </TouchableOpacity>
+
+                <View className="flex-1 flex-row items-center bg-gray-100 rounded-lg px-3 h-14">
+                    <Ionicons name="search" size={20} color="#6B7280" />
+                    <TextInput
+                        className="flex-1 ml-2 text-[#1A1C1E] text-[16px]"
+                        placeholder="Search users..."
+                        placeholderTextColor="#9CA3AF"
+                        value={query}
+                        onChangeText={setQuery}
+                        autoFocus
+                    />
+                    {query.length > 0 && (
+                        <TouchableOpacity onPress={() => setQuery("")}>
+                            <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+                        </TouchableOpacity>
+                    )}
+                </View>
+            </View>
+
+            {/* Results */}
+            <FlatList
+                data={results}
+                keyExtractor={(item) => item._id}
+                renderItem={renderItem}
+                ListEmptyComponent={
+                    debouncedQuery ? (
+                        <View className="p-8 items-center">
+                            <Text className="text-gray-500">No users found</Text>
+                        </View>
+                    ) : null
+                }
+            />
+        </SafeAreaView>
+    );
+}

@@ -31,3 +31,12 @@ export const updatePassword = async (
     return handleApiError(error);
   }
 };
+
+export const searchUsers = async (name: string): Promise<ApiResponse<any[]>> => {
+  try {
+    const res = await instanceAxios.get(`${API_ENDPOINT.USER.INDEX}?name=/${name}/g`);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};

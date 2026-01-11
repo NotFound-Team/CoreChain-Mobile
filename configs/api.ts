@@ -1,4 +1,5 @@
 export const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+export const BASE_URL_COMMUNICATION = process.env.EXPO_PUBLIC_API_URL_COMMUNICATION;
 
 export const API_ENDPOINT = {
   AUTH: {
@@ -82,6 +83,13 @@ export const API_ENDPOINT = {
   },
 
   CHAT: {
-    INDEX: `${process.env.NEXT_PUBLIC_BASE_URL_SOCKET}/chat`,
+    INDEX: `${BASE_URL_COMMUNICATION}/ws`,
+  },
+
+  CONVERSATION: {
+    INDEX: "/conversations",
+    PRIVATE: "/conversations/private",
+    DETAIL: "/conversations/detail",
+    UPLOAD: "/upload",
   },
 };
