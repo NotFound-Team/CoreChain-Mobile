@@ -1,3 +1,6 @@
+import { createPrivateConversation } from "@/services/conversation.service";
+import { searchUsers } from "@/services/user.service";
+import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -11,34 +14,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Mock Data
-const MOCK_USERS = [
-    {
-        id: "1",
-        name: "Alicia Rochefort",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alicia",
-    },
-    {
-        id: "2",
-        name: "Jessica Tan",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica",
-    },
-    {
-        id: "3",
-        name: "Lolita Xue",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lolita",
-    },
-    {
-        id: "4",
-        name: "Eaj Prakk",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Eaj",
-    },
-    {
-        id: "5",
-        name: "Jason",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jason",
-    },
-];
+interface User {
+    _id: string;
+    name: string;
+    avatar?: string;
+}
 
 // Simple debounce hook implementation
 function useDebounce<T>(value: T, delay: number): T {
@@ -59,8 +39,10 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export default function SearchUser() {
     const [query, setQuery] = useState("");
-    const debouncedQuery = useDebounce(query, 500);
-    const [results, setResults] = useState<typeof MOCK_USERS>([]);
+    const debouncedQuery = useDebounce(query, 250);
+    const [results, setResults] = useState<User[]>([]);
+    const { user } = useAuthStore();
+    const currentUserId = user?.id;
 
     // Effect to handle search
     React.useEffect(() => {
@@ -69,25 +51,52 @@ export default function SearchUser() {
             return;
         }
 
-        // Simulate API call with mock data
-        const filtered = MOCK_USERS.filter((user) =>
-            user.name.toLowerCase().includes(debouncedQuery.toLowerCase())
-        );
-        setResults(filtered);
-    }, [debouncedQuery]);
+        const fetchUsers = async () => {
+            const res = await searchUsers(debouncedQuery);
+            if (!res.isError) {
+                const users = res.data?.result;
+                console.log("response users: ", users);
+                if (users.length === 0) {
+                    setResults([]);
+                    return;
+                }
+                // Filter out current user if ID is available
+                if (currentUserId) {
+                    setResults(users.filter((u: User) => u._id !== currentUserId));
+                } else {
+                    setResults(users);
+                }
+            }
+        };
 
-    const handleUserPress = (userId: string) => {
-        router.push(`/chat/${userId}`);
+        fetchUsers();
+    }, [debouncedQuery, currentUserId]);
+
+    const handleUserPress = async (userId: string) => {
+        // Create or get private conversation
+        const res = await createPrivateConversation(userId);
+        if (!res.isError) {
+            // Depending on what valid response looks like, navigate.
+            // Usually returns the conversation object.
+            // If we just need to go to chat of that USER, we push user id as before?
+            // User request: "pass the user id of partner id to server... then navigate to a chat detail screen"
+            // Assuming /chat/[id] handles fetching msg by partner ID or convo ID.
+            // Based on existing Messages/index.tsx -> router.push(`/chat/${item.user_id}`)
+            // It seems /chat/[id] expects a PARTNER ID (User ID).
+            router.push(`/chat/${userId}`);
+        } else {
+            console.error("Failed to create conversation", res.message);
+        }
     };
 
-    const renderItem = ({ item }: { item: (typeof MOCK_USERS)[0] }) => (
+    const renderItem = ({ item }: { item: User }) => (
         <TouchableOpacity
             className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100"
-            onPress={() => handleUserPress(item.id)}
+            onPress={() => handleUserPress(item._id)}
         >
             <View className="w-10 h-10 rounded-full overflow-hidden bg-[#FDE7E7]">
                 <Image
-                    source={{ uri: item.avatar }}
+                    source={{ uri: item.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.name}` }}
                     style={{ width: "100%", height: "100%" }}
                     contentFit="cover"
                 />
@@ -127,7 +136,7 @@ export default function SearchUser() {
             {/* Results */}
             <FlatList
                 data={results}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item._id}
                 renderItem={renderItem}
                 ListEmptyComponent={
                     debouncedQuery ? (

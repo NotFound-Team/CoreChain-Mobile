@@ -1,3 +1,4 @@
+import { SocketProvider } from "@/context/SocketContext";
 import "@/global.css";
 import {
   DarkTheme,
@@ -99,8 +100,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
-          <AppScreens />
-          <Toaster />
+          <SocketProvider>
+            <AppScreens />
+            <Toaster />
+          </SocketProvider>
           <StatusBar style="auto" />
         </ThemeProvider>
       </QueryClientProvider>

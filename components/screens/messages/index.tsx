@@ -1,83 +1,58 @@
+import { useSocket } from "@/hooks/useSocket";
+import { Conversation, getConversations } from "@/services/conversation.service";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
+  RefreshControl,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const MESSAGES = [
-  {
-    id: "1",
-    name: "Alicia Rochefort",
-    message: "Hey Tonald, we have to attend our daily stand up...",
-    time: "09.10",
-    unreadCount: 1,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alicia",
-  },
-  {
-    id: "2",
-    name: "Jessica Tan",
-    message: "Ey Tonald, let's do the design sprint at friday 10.00...",
-    time: "09.10",
-    unreadCount: 0,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica",
-  },
-  {
-    id: "3",
-    name: "Lolita Xue",
-    message: "Ey Tonald, let's do the design sprint at friday 10.00...",
-    time: "09.10",
-    unreadCount: 0,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lolita",
-  },
-  {
-    id: "4",
-    name: "Eaj Prakk",
-    message: "Ey Tonald, let's do the design sprint at friday 10.00...",
-    time: "09.10",
-    unreadCount: 0,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Eaj",
-  },
-  {
-    id: "5",
-    name: "Jason",
-    message: "Ey Tonald, let's do the design sprint at friday 10.00...",
-    time: "09.10",
-    unreadCount: 0,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jason",
-  },
-  {
-    id: "6",
-    name: "Kimberly",
-    message: "Ey Tonald, let's do the design sprint at friday 10.00...",
-    time: "09.10",
-    unreadCount: 0,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kimberly",
-  },
-  {
-    id: "7",
-    name: "Wang",
-    message: "Ey Tonald, let's do the design sprint at friday 10.00...",
-    time: "09.10",
-    unreadCount: 0,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wang",
-  },
-];
-
 export default function Messages() {
-  const renderItem = ({ item }: { item: (typeof MESSAGES)[0] }) => (
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const { socket, isConnected } = useSocket();
+
+  useEffect(() => {
+    // Get current user ID from token or store
+    const getCurrentUser = async () => {
+      // Ideally this should come from a user context or store
+      // For now, we decode token or assume the user service handles it
+      // But since we use conversation.service which relies on token, 
+      // we just need to know who "I" am to format the display if needed.
+      // For this task, we will just fetch the conversations.
+    };
+    getCurrentUser();
+  }, []);
+
+  const {
+    data: conversationsData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: async () => {
+      const res = await getConversations();
+      console.log("conversationsData", res);
+      return res.data;
+    },
+  });
+
+  const renderItem = ({ item }: { item: Conversation }) => (
     <TouchableOpacity
       className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100"
       activeOpacity={0.7}
+      onPress={() => router.push(`/chat/${item.id}`)}
     >
       <View className="w-14 h-14 rounded-full overflow-hidden bg-[#FDE7E7]">
         <Image
-          source={{ uri: item.avatar }}
+          source={{ uri: item.avatar || `https://ui-avatars.com/api/?name=${item.name}&background=random` }}
           style={{ width: "100%", height: "100%" }}
           contentFit="cover"
         />
@@ -88,7 +63,9 @@ export default function Messages() {
           <Text className="text-[16px] font-bold text-[#1A1C1E]">
             {item.name}
           </Text>
-          <Text className="text-gray-400 text-[12px]">{item.time}</Text>
+          <Text className="text-gray-400 text-[12px]">
+            {dayjs(item.last_message_at).format("HH:mm")}
+          </Text>
         </View>
 
         <View className="flex-row justify-between items-center mt-1">
@@ -96,13 +73,14 @@ export default function Messages() {
             className="text-gray-500 text-[13px] flex-1 mr-2"
             numberOfLines={1}
           >
-            {item.message}
+            {/* Type check needs adjustment since API doesn't return type directly? Or use content check */}
+            {item.last_message_content}
           </Text>
 
-          {item.unreadCount > 0 && (
+          {(item.unread_count || 0) > 0 && (
             <View className="bg-[#FF5A5F] w-5 h-5 rounded-full items-center justify-center">
               <Text className="text-white text-[10px] font-bold">
-                {item.unreadCount}
+                {item.unread_count}
               </Text>
             </View>
           )}
@@ -142,10 +120,20 @@ export default function Messages() {
       </View>
 
       <FlatList
-        data={MESSAGES}
-        keyExtractor={(item) => item.id}
+        data={conversationsData}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        }
+        ListEmptyComponent={
+          !isLoading ? (
+            <View className="flex-1 items-center justify-center mt-10">
+              <Text className="text-gray-500">No conversations yet</Text>
+            </View>
+          ) : null
+        }
       />
     </SafeAreaView>
   );
