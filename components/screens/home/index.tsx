@@ -4,14 +4,13 @@ import { Image } from "expo-image";
 import { Href, Link, router } from "expo-router";
 import { useState } from "react";
 import {
-  Platform,
   RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MEETINGS = [
   { id: 1, title: "Townhall Meeting", time: "01:30 AM - 02:00 AM" },
@@ -20,6 +19,7 @@ const MEETINGS = [
 
 export default function Home() {
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const onRefresh = () => {
     setIsRefreshing(true);
@@ -41,6 +41,62 @@ export default function Home() {
 
   return (
     <View className="flex-1 bg-[#F8F9FE]">
+      <View
+        className="bg-white border-b border-gray-200"
+        style={{ paddingTop: insets.top }}
+      >
+        <View className="flex-row items-center justify-between px-5 pb-4">
+          <View className="flex-row items-center">
+            <Link href={"/profile"}>
+              <Image
+                source={{
+                  uri: "https://i.pravatar.cc/150?u=tonald",
+                }}
+                style={{ width: 48, height: 48, borderRadius: 24 }}
+                className="bg-pink-200"
+              />
+            </Link>
+            <View className="ml-3">
+              <View className="flex-row items-center">
+                <Text className="text-lg font-bold text-[#1A1C1E]">
+                  {user?.name || "User Name"}
+                </Text>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={16}
+                  color="#8862F2"
+                  style={{ marginLeft: 4 }}
+                />
+              </View>
+              <Text className="text-xs text-[#8862F2] font-medium">
+                Junior Full Stack Developer
+              </Text>
+            </View>
+          </View>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className="p-2 bg-white rounded-full shadow-sm"
+              onPress={() => handleNavigate("/messages")}
+            >
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={20}
+                color="#5F6368"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="p-2 bg-white rounded-full shadow-sm"
+              onPress={() => handleNavigate("/notifications")}
+            >
+              <Ionicons
+                name="notifications-outline"
+                size={20}
+                color="#5F6368"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
@@ -53,62 +109,6 @@ export default function Home() {
           />
         }
       >
-        <SafeAreaView className="bg-white border-b border-gray-200">
-          <View
-            className={`flex-row items-center justify-between px-5 pb-4 ${Platform.OS === "android" && "pt-8"}`}
-          >
-            <View className="flex-row items-center">
-              <Link href={"/profile"}>
-                <Image
-                  source={{
-                    uri: "https://i.pravatar.cc/150?u=tonald",
-                  }}
-                  style={{ width: 48, height: 48, borderRadius: 24 }}
-                  className="bg-pink-200"
-                />
-              </Link>
-              <View className="ml-3">
-                <View className="flex-row items-center">
-                  <Text className="text-lg font-bold text-[#1A1C1E]">
-                    {user?.name || "User Name"}
-                  </Text>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={16}
-                    color="#8862F2"
-                    style={{ marginLeft: 4 }}
-                  />
-                </View>
-                <Text className="text-xs text-[#8862F2] font-medium">
-                  Junior Full Stack Developer
-                </Text>
-              </View>
-            </View>
-            <View className="flex-row gap-2">
-              <TouchableOpacity
-                className="p-2 bg-white rounded-full shadow-sm"
-                onPress={() => handleNavigate("/messages")}
-              >
-                <Ionicons
-                  name="chatbubble-ellipses-outline"
-                  size={20}
-                  color="#5F6368"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="p-2 bg-white rounded-full shadow-sm"
-                onPress={() => handleNavigate("/notifications")}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={20}
-                  color="#5F6368"
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </SafeAreaView>
-
         {/* Purple Summary Card */}
         <View className="mx-5 mt-5 bg-[#8862F2] border border-gray-100 rounded-[12px] py-7 px-4 flex-row justify-between items-center overflow-hidden">
           <View>

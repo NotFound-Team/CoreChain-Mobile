@@ -5,12 +5,13 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TaskItem } from "./TaskItem";
 import { TaskItemSkeleton } from "./TaskItemSkeleton";
 
@@ -22,6 +23,7 @@ export default function Challange() {
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const [filters, setFilters] = useState({
     priority: null as number | null,
@@ -30,6 +32,15 @@ export default function Challange() {
   });
 
   const [tempFilters, setTempFilters] = useState(filters);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const onRefresh = useCallback(() => {
+    setIsRefreshing(true);
+
+    // Call API reload
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 2000);
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const uniqueProjectIds = useMemo(() => {
@@ -75,7 +86,10 @@ export default function Challange() {
 
   const renderHeader = () => (
     <View>
-      <View className="bg-[#8862F2] pt-12 pb-8 px-6 rounded-b-[40px] mb-6">
+      <View
+        className="bg-[#8862F2] pb-8 px-6 rounded-b-[40px] mb-6"
+        style={{ paddingTop: Math.max(insets.top, 20) }}
+      >
         <Text className="text-white text-3xl font-bold">
           Challanges Awaiting
         </Text>
@@ -156,6 +170,14 @@ export default function Challange() {
 
     return (
       <FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={["#8862F2", "#8862F2"]}
+            tintColor="#8862F2"
+          />
+        }
         data={filteredTasks}
         keyExtractor={(item) => item?._id || Math.random().toString()}
         renderItem={({ item }) => <TaskItem item={item} />}
@@ -185,7 +207,7 @@ export default function Challange() {
   }, [user?.id]);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F9FE]">
+    <View className="flex-1 bg-[#F8F9FE]">
       {renderContent()}
 
       {/* <Pressable onPress={() => handlePress("6832717fc58badba71ee8214")} className="w-full">
@@ -199,6 +221,6 @@ export default function Challange() {
         onApply={handleApplyFilters}
         onFilterChange={setTempFilters}
       />
-    </SafeAreaView>
+    </View>
   );
 }

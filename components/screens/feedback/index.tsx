@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { IFeedback } from "@/types/feedback";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -10,9 +11,11 @@ import {
   RefreshControl,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets
+} from "react-native-safe-area-context";
 import { CreateFeedbackModal } from "./CreateFeedbackModal";
 import { FeedbackSkeleton } from "./FeedbackSkeleton";
 
@@ -20,8 +23,11 @@ export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState<IFeedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState<IFeedback | null>(null);
+  const [selectedFeedback, setSelectedFeedback] = useState<IFeedback | null>(
+    null
+  );
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const fetchFeedbacks = async () => {
     try {
@@ -38,7 +44,6 @@ export default function Feedback() {
 
   useEffect(() => {
     fetchFeedbacks();
-   
   }, []);
 
   const handleEdit = (item: IFeedback) => {
@@ -94,37 +99,51 @@ export default function Feedback() {
       </Text>
       {item.encryptedEmployeeId && (
         <View className="flex-row items-center mt-3">
-            <Ionicons name="lock-closed" size={12} color="#9CA3AF" />
-            <Text className="text-gray-400 text-xs ml-1">Anonymous</Text>
+          <Ionicons name="lock-closed" size={12} color="#9CA3AF" />
+          <Text className="text-gray-400 text-xs ml-1">Anonymous</Text>
         </View>
       )}
-      
+
       {/* Action Buttons */}
       <View className="flex-row justify-end mt-4 pt-3 border-t border-gray-50 gap-3">
-          <TouchableOpacity 
-            onPress={() => handleEdit(item)}
-            className="flex-row items-center px-3 py-1.5 bg-blue-50 rounded-lg"
-          >
-             <Ionicons name="create-outline" size={16} color="#3B82F6" />
-             <Text className="ml-1 text-[#3B82F6] font-medium text-xs">Edit</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-             onPress={() => handleDelete(item._id)}
-             className="flex-row items-center px-3 py-1.5 bg-red-50 rounded-lg"
-          >
-             <Ionicons name="trash-outline" size={16} color="#EF4444" />
-             <Text className="ml-1 text-[#EF4444] font-medium text-xs">Delete</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleEdit(item)}
+          className="flex-row items-center px-3 py-1.5 bg-blue-50 rounded-lg"
+        >
+          <Ionicons name="create-outline" size={16} color="#3B82F6" />
+          <Text className="ml-1 text-[#3B82F6] font-medium text-xs">Edit</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => handleDelete(item._id)}
+          className="flex-row items-center px-3 py-1.5 bg-red-50 rounded-lg"
+        >
+          <Ionicons name="trash-outline" size={16} color="#EF4444" />
+          <Text className="ml-1 text-[#EF4444] font-medium text-xs">
+            Delete
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F9FE]">
+    <View className="flex-1 bg-[#F8F9FE]">
       {/* Header */}
-      <View className="px-6 pt-4 pb-4 flex-row justify-between items-center bg-white border-b border-gray-100">
-        <Text className="text-2xl font-bold text-gray-900">My Feedback</Text>
+      <View
+        className="flex-row items-center justify-between px-4 pb-4 pt-10 bg-white"
+        style={{ paddingTop: Math.max(insets.top, 20) }}
+      >
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"
+        >
+          <Ionicons name="chevron-back" size={24} color="#8862F2" />
+        </TouchableOpacity>
+        <Text className="text-lg font-bold text-[#1A1C1E]">
+          Feedback
+        </Text>
+        <View className="w-10" />
       </View>
 
       {/* Content */}
@@ -134,10 +153,14 @@ export default function Feedback() {
         ) : feedbacks.length === 0 ? (
           <View className="flex-1 justify-center items-center">
             <View className="w-20 h-20 bg-gray-100 rounded-full items-center justify-center mb-4">
-               <Ionicons name="file-tray-outline" size={40} color="#9CA3AF" />
+              <Ionicons name="file-tray-outline" size={40} color="#9CA3AF" />
             </View>
-            <Text className="text-gray-500 font-medium">No feedback sent yet</Text>
-            <Text className="text-gray-400 text-xs mt-1">Your voice matters. Send us your thoughts!</Text>
+            <Text className="text-gray-500 font-medium">
+              No feedback sent yet
+            </Text>
+            <Text className="text-gray-400 text-xs mt-1">
+              Your voice matters. Send us your thoughts!
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -163,8 +186,8 @@ export default function Feedback() {
       {/* FAB */}
       <TouchableOpacity
         onPress={() => {
-            setSelectedFeedback(null);
-            setIsModalVisible(true);
+          setSelectedFeedback(null);
+          setIsModalVisible(true);
         }}
         className="absolute bottom-10 right-6 w-16 h-16 bg-[#8862F2] rounded-full items-center justify-center shadow-xl shadow-purple-200"
       >
@@ -174,12 +197,12 @@ export default function Feedback() {
       <CreateFeedbackModal
         isVisible={isModalVisible}
         onClose={() => {
-            setIsModalVisible(false);
-            setSelectedFeedback(null);
+          setIsModalVisible(false);
+          setSelectedFeedback(null);
         }}
         onSuccess={fetchFeedbacks}
         initialData={selectedFeedback}
       />
-    </SafeAreaView>
+    </View>
   );
 }

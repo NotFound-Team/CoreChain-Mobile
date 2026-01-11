@@ -1,12 +1,12 @@
-import { SocketProvider } from "@/context/SocketContext";
 import "@/global.css";
 import { useAuthStore } from "@/stores/auth-store";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
@@ -16,9 +16,9 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useOnlineManager } from "@/hooks/useOnlineManager";
 import {
-  focusManager,
-  QueryClient,
-  QueryClientProvider,
+    focusManager,
+    QueryClient,
+    QueryClientProvider,
 } from "@tanstack/react-query";
 import { Toaster } from "sonner-native";
 
@@ -41,6 +41,7 @@ const AppScreens = () => {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)/welcome" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)/signin" options={{ headerShown: false }} />
       <Stack.Screen
         name="profile"
@@ -76,6 +77,10 @@ const AppScreens = () => {
       />
       <Stack.Screen
         name="personnel/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+       <Stack.Screen
+        name="feedback/index"
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
@@ -120,8 +125,16 @@ export default function RootLayout() {
     const inAuthGroup = segments[0] === "(auth)";
 
     if (!isAuthenticated && !inAuthGroup) {
-      // Redirect to the sign-in page if not authenticated and not already in auth group
-      router.replace("/(auth)/signin");
+      // Check if first time (mocked with SecureStore for now)
+      const hasSeenWelcome = SecureStore.getItem("has_seen_welcome");
+      
+      if (!hasSeenWelcome) {
+        router.replace("/(auth)/welcome");
+        // Mark as seen so next time they go to signin
+        SecureStore.setItem("has_seen_welcome", "true");
+      } else {
+        router.replace("/(auth)/signin");
+      }
     } else if (isAuthenticated && inAuthGroup) {
       // Redirect to tabs if authenticated and trying to access auth pages
       router.replace("/(tabs)");
@@ -143,10 +156,10 @@ export default function RootLayout() {
         <ThemeProvider
           value={colorScheme === "light" ? DarkTheme : DefaultTheme}
         >
-          <SocketProvider>
+          {/* <SocketProvider> */}
             <AppScreens />
             <Toaster />
-          </SocketProvider>
+          {/* </SocketProvider> */}
           <StatusBar style="auto" />
         </ThemeProvider>
       </QueryClientProvider>

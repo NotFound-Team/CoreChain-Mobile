@@ -1,6 +1,6 @@
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useState } from "react";
-import { Animated, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Animated, Dimensions, Text, TouchableOpacity, View } from "react-native";
 const SignInModal = React.lazy(() => import("./SignInModal"));
 
 const SignIn = () => {
@@ -8,9 +8,9 @@ const SignIn = () => {
   const [loaded, setLoaded] = useState(false);
 
   const toggleModal = useCallback(() => {
-    setModalVisible(!isModalVisible);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setModalVisible((prev) => !prev);
   }, []);
+
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   const handleImageLoaded = () => {
@@ -22,50 +22,59 @@ const SignIn = () => {
     }).start();
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* <StatusBar barStyle="light-content" backgroundColor="#7C3AED" /> */}
+  const { width, height } = Dimensions.get("window");
 
-      <View className="absolute h-2/3 inset-0 bg-violet-800/100" />
-      <View className="flex-1 flex-col items-center justify-between p-6">
-        {/* Phần Card thông tin (Mockup content) */}
-        {!loaded && (
-          <View className="w-full h-[190px] bg-gray-300 absolute top-0 left-0" />
-        )}
-        <View className="rounded-xl shadow-xl p-6 w-full max-w-sm absolute top-20 transform">
+  return (
+    <View className="flex-1 bg-white">
+      {/* Gradient Background */}
+      <LinearGradient
+        colors={["#8862F2", "#BFAFFF", "#FFFFFF"]}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: height * 0.7,
+        }}
+      />
+
+      <View className="flex-1 flex-col items-center justify-between py-12 px-6">
+        {/* Banner Image */}
+        <View className="flex-1 items-center justify-center w-full mt-10">
           <Animated.Image
-            source={require("@/assets/images/banner-wellcome.png")}
-            className="w-full h-auto"
+            source={require("@/assets/images/onboarding-4.png")}
             style={{
+              width: width * 0.85,
+              height: width * 0.85,
               opacity: fadeAnim,
             }}
             onLoad={handleImageLoaded}
-            resizeMode="cover"
+            resizeMode="contain"
           />
         </View>
 
-        <View className="absolute bottom-40 items-center">
-          <Text className="text-4xl font-semibold text-black mb-2">
+        {/* Text Content */}
+        <View className="items-center mb-10">
+          <Text className="text-[42px] font-bold text-[#1A1C1E] mb-2 tracking-tight">
             CoreChain
           </Text>
-          <Text className="text-lg font-medium text-[#475467] text-center px-8">
+          <Text className="text-[16px] font-medium text-[#5F6368] text-center px-6 leading-6">
             An intelligent HR solutions for businesses
           </Text>
         </View>
+
+        {/* Sign In Button */}
         <TouchableOpacity
           onPress={toggleModal}
-          className="absolute bottom-10 flex flex-row items-center justify-center w-11/12 h-12 max-w-md bg-[#8862F2] rounded-full shadow-lg"
+          activeOpacity={0.8}
+          className="w-full h-14 bg-[#7A5AF8] rounded-full items-center justify-center shadow-lg shadow-purple-200"
         >
-          <Text className="text-center text-lg font-medium text-white">
-            Sign In
-          </Text>
+          <Text className="text-white text-lg font-bold">Sign In</Text>
         </TouchableOpacity>
       </View>
 
       <SignInModal isVisible={isModalVisible} onClose={toggleModal} />
-      {/* <CustomAlert isVisible message="dds" onClose={() => {}} onConfirm={() => {}} /> */}
-      {/* <Toast isVisible  message="OK" onClose={() => {}} type="success" /> */}
-    </SafeAreaView>
+    </View>
   );
 };
 

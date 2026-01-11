@@ -7,6 +7,7 @@ import { ScanQrCode, User } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+    ActivityIndicator,
     Dimensions,
     Keyboard,
     Text,
@@ -34,6 +35,7 @@ export type SignInFormData = z.infer<typeof signInSchema>;
 
 const SignInModal = ({ isVisible, onClose }: any) => {
   const { login } = useAuthStore();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const {
     control,
@@ -51,13 +53,16 @@ const SignInModal = ({ isVisible, onClose }: any) => {
   const onSubmit = async (data: SignInFormData) => {
     console.log("Form Data:", data);
     try {
+      setIsLoading(true);
       await login(data);
       router.replace("/(tabs)");
+      onClose();
+      reset();
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-    onClose();
-    reset();
   };
 
   const dismissKeyboard = () => {
@@ -144,11 +149,16 @@ const SignInModal = ({ isVisible, onClose }: any) => {
           {/* Submit Button */}
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            className="flex items-center justify-center bg-violet-600 h-12 rounded-full shadow-lg mb-14"
+            disabled={isLoading}
+            className={`flex items-center justify-center bg-violet-600 h-12 rounded-full shadow-lg mb-14 ${isLoading ? "opacity-70" : ""}`}
           >
-            <Text className="text-center text-lg font-medium text-white">
-              Sign In
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-center text-lg font-medium text-white">
+                Sign In
+              </Text>
+            )}
           </TouchableOpacity>
 
           {/* Divider */}

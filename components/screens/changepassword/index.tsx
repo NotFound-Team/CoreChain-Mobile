@@ -16,7 +16,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { z } from "zod";
 
@@ -38,6 +38,7 @@ export default function ChangePassword() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const { user } = useAuthStore();
 
@@ -102,9 +103,9 @@ export default function ChangePassword() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-[#F8F9FE]">
+      <View className="flex-1 bg-[#F8F9FE]">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pb-4 pt-10 bg-white">
+        <View className="flex-row items-center justify-between px-4 pb-4 pt-10 bg-white" style={{ paddingTop: Math.max(insets.top, 20) }}>
           <TouchableOpacity
             onPress={() => router.back()}
             className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"
@@ -291,7 +292,7 @@ export default function ChangePassword() {
             )}
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     </TouchableWithoutFeedback>
   );
 }

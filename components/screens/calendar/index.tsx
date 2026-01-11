@@ -1,12 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MOCK_ATTENDANCE = [
   {
@@ -30,10 +30,15 @@ const MOCK_ATTENDANCE = [
 ];
 
 export default function Calendar() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F9FE]">
+    <View className="flex-1 bg-[#F8F9FE]">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="bg-[#8862F2] pt-12 pb-24 px-6 rounded-b-[40px] relative">
+        <View 
+          className="bg-[#8862F2] pb-24 px-6 rounded-b-[40px] relative"
+          style={{ paddingTop: Math.max(insets.top, 20) }}
+        >
           <View className="flex-row justify-between items-center">
             <View>
               <Text className="text-white text-3xl font-bold">
@@ -122,6 +127,6 @@ export default function Calendar() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -24,7 +24,7 @@ export default function Profile() {
     SETTINGS: [
       { icon: "settings", label: "Change Password", href: "/changepassword" },
       { icon: "code-working", label: "Versioning" },
-      { icon: "help-circle", label: "FAQ and Help" },
+      { icon: "feedback", label: "Feedback", href: "/feedback" },
       // { icon: "log-out", label: "Logout", color: "#FF5A5F", isLogout: true },
     ],
   };

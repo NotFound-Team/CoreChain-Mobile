@@ -3,16 +3,16 @@ import { Calendar, DollarSign, X } from "lucide-react-native";
 import React from "react";
 import { Control, Controller, FieldErrors, FieldValues } from "react-hook-form";
 import {
-    ActivityIndicator,
-    Keyboard,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 
 interface CreateRequestModalProps {
@@ -155,23 +155,24 @@ function CreateRequestModal({
                 </Text>
               )}
             </View>
-
-            <TouchableOpacity
-              disabled={loading}
-              onPress={onSubmit}
-              className={cn(
-                "h-16 rounded-2xl items-center justify-center shadow-lg shadow-violet-200",
-                loading ? "bg-violet-400" : "bg-violet-600"
-              )}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-white font-extrabold text-lg">
-                  Gửi yêu cầu ngay
-                </Text>
-              )}
-            </TouchableOpacity>
+            <View className={`${Platform.OS === "ios" ? "pb-5" : ""}`}>
+              <TouchableOpacity
+                disabled={loading}
+                onPress={onSubmit}
+                className={cn(
+                  "h-16 rounded-2xl items-center justify-center shadow-lg shadow-violet-200",
+                  loading ? "bg-violet-400" : "bg-violet-600"
+                )}
+              >
+                {loading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-extrabold text-lg">
+                    Gửi yêu cầu ngay
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </KeyboardAvoidingView>
         </View>
       </TouchableWithoutFeedback>

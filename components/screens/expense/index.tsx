@@ -14,18 +14,18 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { z } from "zod";
 import { RequestListSkeleton } from "./RequestListSkeleton";
 
 const CreateRequestModal = React.lazy(() => import("./CreateRequestModal"));
-
 
 // --- TYPES ---
 interface SalaryRequest {
@@ -156,8 +156,17 @@ export const Expense = () => {
   const [filter, setFilter] = useState<"ALL" | "APPROVED" | "PENDING">("ALL");
   const [loadingList, setLoadingList] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const onRefresh = useCallback(() => {
+    setIsRefreshing(true);
+
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 2000);
+  }, []);
 
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const {
     control,
@@ -179,26 +188,28 @@ export const Expense = () => {
     return requests;
   }, [requests, filter]);
 
-  const onSubmit: SubmitHandler<CreateRequestFormValues> = useCallback(async (data) => {
-    try {
-      setLoadingSubmit(true);
-      await salaryAdvance(data);
-      await fetchRequestSalary();
-      toast.success("Thành công", {
-        description: "Gửi yêu cầu thành công 🎉",
-      });
-      setModalVisible(false);
-      reset();
-    } catch (error) {
-      toast.error("Thất bại", {
-        description: "Có lỗi xảy ra, vui lòng thử lại",
-      });
-      console.log(error);
-    } finally {
-      setLoadingSubmit(false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reset]);
+  const onSubmit: SubmitHandler<CreateRequestFormValues> = useCallback(
+    async (data) => {
+      try {
+        setLoadingSubmit(true);
+        await salaryAdvance(data);
+        await fetchRequestSalary();
+        toast.success("Thành công", {
+          description: "Gửi yêu cầu thành công 🎉",
+        });
+        setModalVisible(false);
+        reset();
+      } catch (error) {
+        toast.error("Thất bại", {
+          description: "Có lỗi xảy ra, vui lòng thử lại",
+        });
+        console.log(error);
+      } finally {
+        setLoadingSubmit(false);
+      }
+    },
+    [reset]
+  );
 
   const handleCloseModal = useCallback(() => {
     setModalVisible(false);
@@ -221,15 +232,18 @@ export const Expense = () => {
 
   useEffect(() => {
     fetchRequestSalary();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FAFAFA]">
+    <View className="flex-1 bg-[#FAFAFA]">
       <StatusBar barStyle="dark-content" />
 
       {/* Header */}
-      <View className="px-5 pt-4 pb-6 bg-white shadow-sm">
+      <View
+        className="px-5 pb-6 bg-white shadow-sm"
+        style={{ paddingTop: insets.top + 16 }}
+      >
         <Text className="text-2xl font-black text-slate-900">
           Salary Request
         </Text>
@@ -260,6 +274,14 @@ export const Expense = () => {
         <RequestListSkeleton />
       ) : (
         <FlatList
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={["#8862F2", "#8862F2"]}
+              tintColor="#8862F2"
+            />
+          }
           data={filteredData}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => <RequestCard item={item} />}
@@ -295,6 +317,6 @@ export const Expense = () => {
           <ActivityIndicator size="large" color="white" />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };

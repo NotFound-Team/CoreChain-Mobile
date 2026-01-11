@@ -13,9 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Messages() {
+   const insets = useSafeAreaInsets();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { socket, isConnected } = useSocket();
 
@@ -90,9 +91,9 @@ export default function Messages() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F1F3F8]">
+    <View className="flex-1 bg-[#F1F3F8]">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 pt-8 bg-white border-b border-b-gray-200">
+      <View className="flex-row items-center justify-between px-4 py-4 pt-8 bg-white" style={{ paddingTop: Math.max(insets.top, 20) }}>
         <TouchableOpacity
           onPress={() => router.back()}
           className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"
@@ -135,6 +136,6 @@ export default function Messages() {
           ) : null
         }
       />
-    </SafeAreaView>
+    </View>
   );
 }
