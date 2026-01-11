@@ -26,3 +26,30 @@ export const getTaskDetail = async (id: string): Promise<ApiResponse<any>> => {
     return handleApiError(error);
   }
 };
+
+export const createTask = async (data: any): Promise<ApiResponse<any>> => {
+  try {
+    const res = await instanceAxios.post(`${API_ENDPOINT.TASK.INDEX}`, data);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const updateTask = async (id: string, data: any): Promise<ApiResponse<any>> => {
+  try {
+    const res = await instanceAxios.patch(`${API_ENDPOINT.TASK.DETAIL(id)}`, data);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const deleteTask = async (id: string): Promise<ApiResponse<any>> => {
+  try {
+    const res = await instanceAxios.delete(`${API_ENDPOINT.TASK.DETAIL(id)}`);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};

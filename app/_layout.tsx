@@ -1,9 +1,9 @@
 import "@/global.css";
 import { useAuthStore } from "@/stores/auth-store";
 import {
-    DarkTheme,
-    DefaultTheme,
-    ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
 } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -16,9 +16,9 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useOnlineManager } from "@/hooks/useOnlineManager";
 import {
-    focusManager,
-    QueryClient,
-    QueryClientProvider,
+  focusManager,
+  QueryClient,
+  QueryClientProvider,
 } from "@tanstack/react-query";
 import { Toaster } from "sonner-native";
 
@@ -81,6 +81,14 @@ const AppScreens = () => {
       />
        <Stack.Screen
         name="feedback/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="project-details/[id]"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="create-task"
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen

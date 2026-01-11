@@ -14,3 +14,24 @@ export const getProjects = async (
     return handleApiError(error);
   }
 };
+
+export const getProjectDetail = async (id: string): Promise<ApiResponse<IProject>> => {
+  try {
+    const res = await instanceAxios.get(`${API_ENDPOINT.PROJECT.DETAIL(id)}`);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const updateProject = async (
+  id: string,
+  data: Partial<IProject>
+): Promise<ApiResponse<IProject>> => {
+  try {
+    const res = await instanceAxios.patch(`${API_ENDPOINT.PROJECT.DETAIL(id)}`, data);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};

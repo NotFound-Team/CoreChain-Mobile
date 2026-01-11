@@ -1,5 +1,7 @@
-import FeedbackScreen from '@/components/screens/feedback';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LeaveScreen() {
-  return <FeedbackScreen />
+
+  return <SafeAreaView>OK</SafeAreaView>
 }
+ 

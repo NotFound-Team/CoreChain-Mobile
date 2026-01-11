@@ -1,23 +1,30 @@
 import LoadingOverlay from "@/components/customs/LoadingOverlay";
-import { getTaskDetail } from "@/services/task.service";
+import { getTaskDetail, updateTask } from "@/services/task.service";
 import { TypeTask } from "@/types/task";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"; // Import thêm icon
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Helper: Soft UI Colors (Nền nhạt + Chữ đậm)
 const getStatusStyles = (status: number) => {
   switch (status) {
-    case 1: // In Progress
+    case 2: // In Progress
       return {
         label: "In Progress",
         bg: "bg-blue-100",
         text: "text-blue-700",
         icon: "timer-sand",
       };
-    case 2: // Completed
+    case 3: // Review
+      return {
+        label: "Review",
+        bg: "bg-purple-100",
+        text: "text-purple-700",
+        icon: "eye-outline",
+      };
+    case 4: // Completed
       return {
         label: "Completed",
         bg: "bg-emerald-100",
@@ -140,7 +147,9 @@ export const TaskDetails = ({ id }: { id: string }) => {
                       ? "#1D4ED8"
                       : statusInfo.text.split("-")[1] === "emerald"
                         ? "#047857"
-                        : "#475569"
+                        : statusInfo.text.split("-")[1] === "purple"
+                          ? "#7E22CE"
+                          : "#475569"
                   }
                   style={{ marginRight: 4 }}
                 />
@@ -273,6 +282,43 @@ export const TaskDetails = ({ id }: { id: string }) => {
                     <Ionicons name="image" size={30} color="#94A3B8" />
                   </View>
                 </ScrollView>
+              </View>
+            )}
+
+            {/* Status Update Button */}
+            {(taskDetail.status === 2 || taskDetail.status === 3) && (
+              <View className="mb-6">
+                <TouchableOpacity
+                  onPress={async () => {
+                    try {
+                      setIsLoading(true);
+                      const nextStatus = taskDetail.status === 2 ? 3 : 2;
+                      const res = await updateTask(id, { status: nextStatus });
+                      if (!res.isError) {
+                        Alert.alert("Success", `Status updated to ${nextStatus === 3 ? "Review" : "In Progress"}`);
+                        // Re-fetch data
+                        const updatedRes = await getTaskDetail(id);
+                        if (!updatedRes.isError) setTaskDetail(updatedRes.data);
+                      } else {
+                        Alert.alert("Error", res.message || "Failed to update status");
+                      }
+                    } catch (error) {
+                      console.error("Status update error:", error);
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  className={`w-full h-14 rounded-2xl flex-row items-center justify-center shadow-sm ${taskDetail.status === 2 ? "bg-purple-600" : "bg-blue-600"}`}
+                >
+                  <MaterialCommunityIcons 
+                    name={taskDetail.status === 2 ? "eye-outline" : "play-outline"} 
+                    size={24} 
+                    color="white" 
+                  />
+                  <Text className="text-white font-bold text-base ml-2">
+                    {taskDetail.status === 2 ? "Mark as Review" : "Mark as In Progress"}
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
 
