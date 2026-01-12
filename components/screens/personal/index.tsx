@@ -1,99 +1,79 @@
+import { getPrivateUserDetails } from "@/services/user.service";
+import { useAuthStore } from "@/stores/auth-store";
+import { CompleteUser } from "@/types/user";
 import { Ionicons } from "@expo/vector-icons";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
 import {
-  Image,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { z } from "zod";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const personalDataSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  dob: z.string().min(1, "Date of birth is required"),
-  position: z.string().min(1, "Position is required"),
-  country: z.string().min(1, "Country is required"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
-  fullAddress: z.string().min(5, "Address must be at least 5 characters"),
-});
-
-type PersonalDataForm = z.infer<typeof personalDataSchema>;
 const Personal = () => {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PersonalDataForm>({
-    resolver: zodResolver(personalDataSchema),
-    defaultValues: {
-      firstName: "Tonald",
-      lastName: "Drump",
-      dob: "10 December 1997",
-      position: "Junior Full Stack Developer",
-      country: "Indonesia",
-      state: "DKI Jakarta",
-      city: "Jakarta Selatan",
-      fullAddress: "Jl Mampang Prapatan XIV No 7A, Jakarta Selatan 12790",
-    },
-  });
+  const { user } = useAuthStore();
+  const [userData, setUserData] = useState<CompleteUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const insets = useSafeAreaInsets();
 
-  const onSubmit = (data: PersonalDataForm) => {
-    console.log("Form Data:", data);
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user?.id) {
+        try {
+          const res = await getPrivateUserDetails(user.id);
+          if (res.data) {
+            setUserData(res.data);
+          }
+        } catch (error) {
+          console.error("Error fetching private user details:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchData();
+  }, [user?.id]);
 
-  // Component tái sử dụng cho Input
-  const FormInput = ({
-    label,
-    name,
-    icon,
-    isDropdown = false,
-    multiline = false,
-  }: any) => (
+  const InfoRow = ({ label, value, icon, isCurrency = false }: any) => (
     <View className="mb-4">
       <Text className="text-slate-500 text-xs font-semibold mb-2">{label}</Text>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View
-            className={`flex-row items-center border ${errors[name] ? "border-red-500" : "border-slate-200"} rounded-xl px-4 py-3 bg-white`}
-          >
-            <Ionicons name={icon} size={18} color="#8B5CF6" className="mr-3" />
-            <TextInput
-              className="flex-1 text-slate-800 text-[14px]"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              multiline={multiline}
-              textAlignVertical={multiline ? "top" : "center"}
-              placeholder={`Enter ${label.toLowerCase()}`}
-            />
-            {isDropdown && (
-              <Ionicons name="chevron-down" size={18} color="#8B5CF6" />
-            )}
-          </View>
-        )}
-      />
-      {errors[name] && (
-        <Text className="text-red-500 text-[10px] mt-1">
-          {errors[name]?.message}
+      <View className="flex-row items-center border border-slate-100 rounded-xl px-4 py-3 bg-slate-50">
+        <Ionicons name={icon} size={18} color="#8B5CF6" className="mr-3" />
+        <Text className="flex-1 text-slate-800 text-[14px]">
+          {isCurrency && typeof value === 'number'
+            ? `$${value.toLocaleString()}`
+            : value || "N/A"}
         </Text>
-      )}
+      </View>
     </View>
   );
 
+  const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) => (
+    <View className="mb-4 mt-2">
+      <Text className="font-extrabold text-slate-900 text-base">{title}</Text>
+      <Text className="text-slate-400 text-xs">{subtitle}</Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#8862F2" />
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50">
       {/* Header */}
-      <View className="bg-white px-6 py-4 flex-row items-center border-b border-slate-100">
+      <View
+        className="bg-white px-6 py-4 flex-row items-center border-b border-slate-100"
+        style={{ paddingTop: insets.top + 16 }}
+      >
         <TouchableOpacity
           onPress={() => router.back()}
           className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"
@@ -109,102 +89,96 @@ const Personal = () => {
         <View className="p-5">
           {/* Section: My Personal Data */}
           <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
-            <Text className="font-bold text-slate-900">My Personal Data</Text>
-            <Text className="text-slate-400 text-xs mb-6">
-              Details about my personal data
-            </Text>
+            <SectionTitle
+              title="My Personal Data"
+              subtitle="Details about my personal identity"
+            />
 
-            {/* Avatar Upload */}
-            <View className="items-center mb-8">
-              <View className="relative">
-                <View className="w-24 h-24 bg-purple-100 rounded-2xl overflow-hidden border-2 border-white shadow-sm">
-                  <Image
-                    source={{ uri: "https://i.pravatar.cc/150?u=tonald" }}
-                    className="w-full h-full"
-                  />
-                </View>
-                <TouchableOpacity className="absolute -top-2 -right-2 bg-purple-600 p-1.5 rounded-full border-2 border-white">
-                  <Ionicons name="sync" size={14} color="white" />
-                </TouchableOpacity>
+            {/* Avatar */}
+            <View className="items-center mb-8 mt-2">
+              <View className="w-24 h-24 bg-purple-100 rounded-2xl overflow-hidden border-2 border-white shadow-sm">
+                <Image
+                  source={{
+                    uri: userData?.avatar || "https://i.pravatar.cc/150",
+                  }}
+                  className="w-full h-full"
+                />
               </View>
-              <Text className="mt-3 font-bold text-slate-700 text-xs">
-                Upload Photo
+              <Text className="mt-3 font-bold text-slate-700 text-sm">
+                {userData?.name}
               </Text>
-              <Text className="text-[10px] text-slate-400 text-center mt-1">
-                Format should be in .jpeg .png atleast{"\n"}800x800px and less
-                than 5MB
+              <Text className="text-xs text-slate-400 mt-1">
+                {userData?.employeeId} - {userData?.position?.title}
               </Text>
             </View>
 
-            <FormInput
-              label="First Name"
-              name="firstName"
-              icon="person-outline"
-            />
-            <FormInput
-              label="Last Name"
-              name="lastName"
-              icon="person-outline"
-            />
-            <FormInput
+            <InfoRow label="Full Name" value={userData?.name} icon="person-outline" />
+            <InfoRow label="Email Address" value={userData?.email} icon="mail-outline" />
+            <InfoRow
               label="Date of Birth"
-              name="dob"
+              value={userData?.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString() : "N/A"}
               icon="calendar-outline"
-              isDropdown
             />
-            <FormInput
-              label="Position"
-              name="position"
-              icon="briefcase-outline"
-              isDropdown
+            <InfoRow
+              label="Gender"
+              value={userData?.male === true ? "Male" : userData?.male === false ? "Female" : "N/A"}
+              icon="person-outline"
             />
+            <InfoRow label="Identification Number" value={userData?.personalIdentificationNumber} icon="card-outline" />
+            <InfoRow label="Phone Number" value={userData?.personalPhoneNumber} icon="call-outline" />
+            <InfoRow label="Nationality" value={userData?.nationality} icon="flag-outline" />
+            <InfoRow label="Biometric Data" value={userData?.biometricData} icon="finger-print-outline" />
+          </View>
+
+          {/* Section: Employment */}
+          <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
+            <SectionTitle title="Employment Details" subtitle="Contract and workplace information" />
+            <InfoRow label="Department" value={userData?.department?.name} icon="business-outline" />
+            <InfoRow label="Role" value={userData?.role?.name} icon="shield-checkmark-outline" />
+            <InfoRow label="Contract Code" value={userData?.employeeContractCode} icon="document-text-outline" />
+            <InfoRow label="Status" value={userData?.isActive ? "Active" : "Inactive"} icon="radioButtonOn-outline" />
+          </View>
+
+          {/* Section: Financial */}
+          <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
+            <SectionTitle title="Financial Details" subtitle="Salary and banking information" />
+            <View className="flex-row">
+              <View className="flex-1 mr-2">
+                <InfoRow label="Base Salary" value={userData?.salary} icon="cash-outline" isCurrency />
+              </View>
+              <View className="flex-1 ml-2">
+                <InfoRow label="Net Salary" value={userData?.netSalary} icon="wallet-outline" isCurrency />
+              </View>
+            </View>
+            <InfoRow label="Allowances" value={userData?.allowances} icon="add-circle-outline" isCurrency />
+            <InfoRow label="Bank Account" value={userData?.backAccountNumber} icon="card-outline" />
+            <InfoRow label="Tax ID" value={userData?.personalTaxIdentificationNumber} icon="receipt-outline" />
+          </View>
+
+          {/* Section: Health & Insurance */}
+          <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
+            <SectionTitle title="Health & Insurance" subtitle="Medical records and insurance coverage" />
+            <InfoRow label="Medical History" value={userData?.medicalHistory} icon="medical-outline" />
+            <InfoRow label="Health Insurance" value={userData?.healthInsuranceCode} icon="medkit-outline" />
+            <InfoRow label="Life Insurance" value={userData?.lifeInsuranceCode} icon="heart-outline" />
+            <InfoRow label="Social Insurance" value={userData?.socialInsuranceNumber} icon="people-outline" />
+            {userData?.healthCheckRecordCode && userData.healthCheckRecordCode.length > 0 && (
+              <InfoRow
+                label="Health Check Records"
+                value={userData.healthCheckRecordCode.join(", ")}
+                icon="list-outline"
+              />
+            )}
           </View>
 
           {/* Section: Address */}
           <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-10">
-            <Text className="font-bold text-slate-900">Address</Text>
-            <Text className="text-slate-400 text-xs mb-6">
-              Your current domicile
-            </Text>
-
-            <FormInput
-              label="Country"
-              name="country"
-              icon="checkmark-circle-outline"
-              isDropdown
-            />
-            <FormInput
-              label="State"
-              name="state"
-              icon="checkmark-circle-outline"
-              isDropdown
-            />
-            <FormInput
-              label="City"
-              name="city"
-              icon="checkmark-circle-outline"
-              isDropdown
-            />
-            <FormInput
-              label="Full Address"
-              name="fullAddress"
-              icon="none"
-              multiline
-            />
+            <SectionTitle title="Address" subtitle="Your current domicile" />
+            <InfoRow label="Permanent Address" value={userData?.permanentAddress} icon="location-outline" />
           </View>
         </View>
       </ScrollView>
-
-      {/* Footer Button */}
-      <View className="p-5 bg-white border-t border-slate-100">
-        <TouchableOpacity
-          onPress={handleSubmit(onSubmit)}
-          className="bg-purple-600 py-4 rounded-full shadow-lg shadow-purple-300 items-center"
-        >
-          <Text className="text-white font-bold text-base">Update</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

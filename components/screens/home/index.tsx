@@ -50,7 +50,7 @@ export default function Home() {
             <Link href={"/profile"}>
               <Image
                 source={{
-                  uri: "https://i.pravatar.cc/150?u=tonald",
+                  uri: `${user?.avatar ?? "https://i.pravatar.cc/150?u=tonald"}`,
                 }}
                 style={{ width: 48, height: 48, borderRadius: 24 }}
                 className="bg-pink-200"
@@ -69,7 +69,7 @@ export default function Home() {
                 />
               </View>
               <Text className="text-xs text-[#8862F2] font-medium">
-                Junior Full Stack Developer
+                {user?.positionName}
               </Text>
             </View>
           </View>

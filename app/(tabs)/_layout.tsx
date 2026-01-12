@@ -2,11 +2,11 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Tabs } from "expo-router";
 import {
-  Calendar,
-  ClipboardList,
-  Home,
-  Layers,
-  Receipt,
+    Building2,
+    Calendar,
+    ClipboardList,
+    Home,
+    Receipt
 } from "lucide-react-native";
 import React from "react";
 import { View } from "react-native";
@@ -23,11 +23,6 @@ export default function TabLayout() {
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarLabelStyle: { fontSize: 12 },
         tabBarStyle: { paddingBottom: 4, paddingTop: 15, height: 80 },
-        tabBarIndicatorStyle: {
-          backgroundColor: "#7A5AF8",
-          height: 3,
-          borderRadius: 3,
-        },
       }}
     >
       <Tabs.Screen
@@ -96,13 +91,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="leave"
+        name="department"
         options={{
           title: "",
           tabBarIcon: ({ color, focused }: any) => (
             <View className="flex items-center py-2">
               <View className="mb-2">
-                <Layers color={color} />
+                <Building2 color={color} />
               </View>
               {focused && (
                 <View className="bg-red-500 w-8 h-[2px] rounded-lg"></View>

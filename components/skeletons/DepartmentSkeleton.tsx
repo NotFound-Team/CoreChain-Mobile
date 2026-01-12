@@ -25,58 +25,82 @@ const DepartmentSkeleton = () => {
   }, [opacity]);
 
   return (
-    <View className="bg-white p-4 rounded-2xl mb-3 border border-gray-100 shadow-sm">
-      {/* Header */}
-      <View className="flex-row justify-between items-start mb-2">
-        <Animated.View
-          className="h-6 w-12 rounded-full bg-gray-200"
-          style={{ opacity }}
-        />
-        <Animated.View
-          className="h-4 w-24 bg-gray-200 rounded"
-          style={{ opacity }}
-        />
-      </View>
-
-      {/* Name */}
+    <View className="flex-1">
+      {/* Hero Card Skeleton */}
       <Animated.View
-        className="h-6 w-1/2 bg-gray-200 rounded mb-2"
+        className="h-44 w-full rounded-[32px] bg-gray-200 mb-8"
         style={{ opacity }}
       />
-      
-      {/* Description */}
-      <View className="mb-3 space-y-2">
+
+      {/* Stats Grid Skeleton */}
+      <View className="flex-row gap-4 mb-8">
         <Animated.View
-          className="h-4 w-full bg-gray-200 rounded"
+          className="flex-1 h-20 rounded-3xl bg-gray-100"
           style={{ opacity }}
         />
         <Animated.View
-          className="h-4 w-3/4 bg-gray-200 rounded"
+          className="flex-1 h-20 rounded-3xl bg-gray-100"
           style={{ opacity }}
         />
       </View>
 
-      {/* Stats */}
-      <View className="flex-row items-center gap-4 border-t border-gray-50 pt-3">
-        <View className="flex-row items-center">
-          <Animated.View
-            className="w-4 h-4 bg-gray-200 rounded mr-1"
-            style={{ opacity }}
-          />
-          <Animated.View
-            className="h-3 w-16 bg-gray-200 rounded"
-            style={{ opacity }}
-          />
+      {/* About Section Skeleton */}
+      <View className="mb-8">
+        <Animated.View
+          className="h-6 w-24 bg-gray-200 rounded mb-4"
+          style={{ opacity }}
+        />
+        <Animated.View
+          className="h-24 w-full bg-gray-50 rounded-3xl px-5 py-4"
+          style={{ opacity }}
+        />
+      </View>
+
+      {/* Department Head Skeleton */}
+      <View className="mb-8">
+        <Animated.View
+           className="h-6 w-40 bg-gray-200 rounded mb-4"
+           style={{ opacity }}
+        />
+        <View className="flex-row items-center bg-gray-50 p-4 rounded-3xl border border-gray-100">
+           <Animated.View className="w-14 h-14 bg-gray-200 rounded-2xl mr-4" style={{ opacity }} />
+           <View className="space-y-2">
+              <Animated.View className="h-4 w-32 bg-gray-200 rounded" style={{ opacity }} />
+              <Animated.View className="h-3 w-44 bg-gray-200 rounded" style={{ opacity }} />
+           </View>
         </View>
-        <View className="flex-row items-center">
-          <Animated.View
-            className="w-4 h-4 bg-gray-200 rounded mr-1"
-            style={{ opacity }}
-          />
-          <Animated.View
-            className="h-3 w-16 bg-gray-200 rounded"
-            style={{ opacity }}
-          />
+      </View>
+
+      {/* Team Members Skeleton */}
+      <View className="mb-8">
+        <Animated.View
+           className="h-6 w-36 bg-gray-200 rounded mb-4"
+           style={{ opacity }}
+        />
+        <View className="flex-row flex-wrap gap-4">
+           {[1, 2, 3].map(i => (
+              <View key={i} className="w-[100px] items-center">
+                 <Animated.View className="w-16 h-16 bg-gray-100 rounded-[20px] mb-2" style={{ opacity }} />
+                 <Animated.View className="h-3 w-12 bg-gray-100 rounded" style={{ opacity }} />
+              </View>
+           ))}
+        </View>
+      </View>
+
+      {/* Projects Skeleton */}
+      <View className="mb-8">
+        <Animated.View
+           className="h-6 w-24 bg-gray-200 rounded mb-4"
+           style={{ opacity }}
+        />
+        <View className="space-y-4">
+           {[1, 2].map(i => (
+              <Animated.View 
+                key={i}
+                className="h-32 w-full rounded-[28px] bg-gray-50"
+                style={{ opacity }}
+              />
+           ))}
         </View>
       </View>
     </View>

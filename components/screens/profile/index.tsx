@@ -97,7 +97,7 @@ export default function Profile() {
             <View className="border-4 border-white rounded-[25px] -mt-16 bg-[#E8E1FF] overflow-hidden">
               <Image
                 source={{
-                  uri: "https://img.freepik.com/vector-mien-phi/hinh-minh-hoa-chang-trai-tre-mim-cuoi_1308-174669.jpg",
+                  uri: `${user?.avatar ?? "https://img.freepik.com/vector-mien-phi/hinh-minh-hoa-chang-trai-tre-mim-cuoi_1308-174669.jpg"}`,
                 }}
                 style={{ width: 128, height: 128, borderRadius: 24 }}
                 className="w-32 h-32"
@@ -118,7 +118,7 @@ export default function Profile() {
                 />
               </View>
               <Text className="text-[#8862F2] font-medium mt-1">
-                {user?.roleName || "Product Designer"}
+                {user?.positionName || "Product Designer"}
               </Text>
             </View>
           </View>

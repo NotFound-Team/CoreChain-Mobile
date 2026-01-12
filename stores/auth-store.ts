@@ -1,5 +1,6 @@
 import { SignInFormData } from "@/components/screens/signin/SignInModal";
 import { loginAuth, logoutAuth } from "@/services/auth.service";
+import { getUserDetails } from "@/services/user.service";
 import axios from "axios";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -10,6 +11,8 @@ interface User {
   email: string;
   name: string;
   roleName: string;
+  avatar?: string;
+  positionName?: string;
 }
 
 interface TokenType {
@@ -44,6 +47,19 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       SecureStore.setItem("access_token", access_token);
 
+      // Fetch additional user details
+      let avatar = "";
+      let positionName = "";
+      try {
+        const detailsRes = await getUserDetails(user._id);
+        if (detailsRes.data) {
+          avatar = detailsRes.data.avatar;
+          positionName = detailsRes.data.position?.title;
+        }
+      } catch (err) {
+        console.error("Failed to fetch additional user details:", err);
+      }
+
       set({
         token: { accessToken: access_token },
         isAuthenticated: true,
@@ -52,6 +68,8 @@ export const useAuthStore = create<AuthState>((set) => ({
           id: user._id,
           name: user.name,
           roleName: user.role.name,
+          avatar,
+          positionName,
         },
       });
     } catch (err: any) {
