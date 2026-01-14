@@ -35,6 +35,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Building2 } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { registerGlobals } from '@livekit/react-native';
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
@@ -90,7 +92,7 @@ const AppScreens = () => {
         name="personnel/index"
         options={{ headerShown: false, gestureEnabled: true }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="feedback/index"
         options={{ headerShown: false, gestureEnabled: true }}
       />
@@ -100,6 +102,18 @@ const AppScreens = () => {
       />
       <Stack.Screen
         name="create-task"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="search-user"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="meeting"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="video-meeting"
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
@@ -140,7 +154,7 @@ function SplashView() {
   const animatedBackStyle = useAnimatedStyle(() => {
     const translateX = interpolate(progress.value, [0, 1], [-SCREEN_WIDTH, 0]);
     const translateY = interpolate(progress.value, [0, 1], [-SCREEN_HEIGHT / 2, 0]);
-    
+
     return {
       transform: [
         { translateX },
@@ -160,11 +174,11 @@ function SplashView() {
   return (
     <View style={styles.container}>
       {/* Moving Wide Gradient Background */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.gradientBox,
           animatedBackStyle
-        ]} 
+        ]}
       >
         <LinearGradient
           colors={['#8862F2', '#BFAFFF', '#FFFFFF', '#BFAFFF', '#8862F2', '#BFAFFF', '#FFFFFF']}
@@ -193,8 +207,8 @@ function SplashView() {
 
       <View className="absolute bottom-12 items-center w-full">
         <View className="flex-row items-center space-x-2">
-           <View className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
-           <Text className="text-gray-400 text-[10px] font-bold">POWERED BY BLOCKCHAIN</Text>
+          <View className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+          <Text className="text-gray-400 text-[10px] font-bold">POWERED BY BLOCKCHAIN</Text>
         </View>
       </View>
     </View>
@@ -222,6 +236,8 @@ const styles = StyleSheet.create({
   }
 });
 
+
+registerGlobals();
 
 export default function RootLayout() {
   useOnlineManager();
@@ -255,7 +271,7 @@ export default function RootLayout() {
     if (!isAuthenticated && !inAuthGroup) {
       // Check if first time (mocked with SecureStore for now)
       const hasSeenWelcome = SecureStore.getItem("has_seen_welcome");
-      
+
       if (!hasSeenWelcome) {
         router.replace("/(auth)/welcome");
         // Mark as seen so next time they go to signin
@@ -281,8 +297,8 @@ export default function RootLayout() {
           value={colorScheme === "light" ? DarkTheme : DefaultTheme}
         >
           {/* <SocketProvider> */}
-            <AppScreens />
-            <Toaster />
+          <AppScreens />
+          <Toaster />
           {/* </SocketProvider> */}
           <StatusBar style="auto" />
         </ThemeProvider>
