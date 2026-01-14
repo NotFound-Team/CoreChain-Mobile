@@ -73,17 +73,10 @@ export default function SearchUser() {
     }, [debouncedQuery, currentUserId]);
 
     const handleUserPress = async (userId: string) => {
-        // Create or get private conversation
         const res = await createPrivateConversation(userId);
-        if (!res.isError) {
-            // Depending on what valid response looks like, navigate.
-            // Usually returns the conversation object.
-            // If we just need to go to chat of that USER, we push user id as before?
-            // User request: "pass the user id of partner id to server... then navigate to a chat detail screen"
-            // Assuming /chat/[id] handles fetching msg by partner ID or convo ID.
-            // Based on existing Messages/index.tsx -> router.push(`/chat/${item.user_id}`)
-            // It seems /chat/[id] expects a PARTNER ID (User ID).
-            router.push(`/chat/${userId}`);
+        if (!res.isError && res.data) {
+            const conversationId = res.data.id;
+            router.push(`/chat/${conversationId}`);
         } else {
             console.error("Failed to create conversation", res.message);
         }
