@@ -92,4 +92,11 @@ export const API_ENDPOINT = {
     DETAIL: "/conversations/detail",
     UPLOAD: "/upload",
   },
+
+  MEETING: {
+    INDEX: "/meetings/my",
+    CREATE: "/meetings",
+    JOIN: "/meetings/join",
+    END: "/meetings/end"
+  },
 };

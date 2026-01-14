@@ -24,6 +24,8 @@ import { Toaster } from "sonner-native";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { registerGlobals } from '@livekit/react-native';
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
@@ -79,6 +81,18 @@ const AppScreens = () => {
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
+        name="search-user"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="meeting"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="video-meeting"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
         name="modal"
         options={{ presentation: "modal", title: "Modal" }}
       />
@@ -89,6 +103,8 @@ const AppScreens = () => {
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 2 } },
 });
+
+registerGlobals();
 
 export default function RootLayout() {
   useOnlineManager();

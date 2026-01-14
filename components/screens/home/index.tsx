@@ -87,6 +87,16 @@ export default function Home() {
             <View className="flex-row gap-2">
               <TouchableOpacity
                 className="p-2 bg-white rounded-full shadow-sm"
+                onPress={() => handleNavigate("/meeting")}
+              >
+                <Ionicons
+                  name="videocam-outline"
+                  size={20}
+                  color="#5F6368"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-white rounded-full shadow-sm"
                 onPress={() => handleNavigate("/messages")}
               >
                 <Ionicons
