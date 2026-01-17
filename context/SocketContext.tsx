@@ -70,7 +70,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         };
 
         ws.onerror = (e) => {
-            console.error("WebSocket error:", e);
+            console.error("WebSocket Error Object:", JSON.stringify(e));
         };
 
         socketRef.current = ws;

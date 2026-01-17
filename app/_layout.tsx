@@ -35,7 +35,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Building2 } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { SocketProvider } from "@/context/SocketContext";
+import { requestUserPermission, setupFCMListeners } from "@/services/firebase.service";
 import { registerGlobals } from '@livekit/react-native';
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -286,23 +289,30 @@ export default function RootLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, segments, isShowSplash]);
 
+  useEffect(() => {
+    requestUserPermission();
+    setupFCMListeners()
+  }, []);
+
   if (isShowSplash) {
     return <SplashView />;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider
-          value={colorScheme === "light" ? DarkTheme : DefaultTheme}
-        >
-          {/* <SocketProvider> */}
-          <AppScreens />
-          <Toaster />
-          {/* </SocketProvider> */}
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </QueryClientProvider>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider
+            value={colorScheme === "light" ? DarkTheme : DefaultTheme}
+          >
+            <SocketProvider>
+              <AppScreens />
+              <Toaster />
+            </SocketProvider>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

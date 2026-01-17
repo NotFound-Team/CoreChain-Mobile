@@ -146,7 +146,7 @@ export default function CreateMeetingModal({
             avoidKeyboard
         >
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                behavior={Platform.OS === "ios" ? "padding" : "padding"}
                 className="bg-white rounded-t-[30px] p-6 max-h-[90%]"
             >
                 <View className="flex-row justify-between items-center mb-6">
