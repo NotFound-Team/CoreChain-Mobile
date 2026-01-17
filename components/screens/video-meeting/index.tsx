@@ -54,7 +54,7 @@ const ChatModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => 
   return (
     <Modal visible={isVisible} animationType="slide" transparent>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
         className="flex-1 bg-black/60 justify-end"
       >
         <View className="bg-[#1A1A1A] h-[70%] rounded-t-[35px] p-6 border-t border-white/10">
