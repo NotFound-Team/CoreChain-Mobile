@@ -21,8 +21,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "core.chain",
-      "googleServicesFile": "./google-services.json",
+      "package": "com.corechain.name",
+      // "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",

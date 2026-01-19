@@ -13,6 +13,7 @@ interface User {
   roleName: string;
   avatar?: string;
   positionName?: string;
+  fcmToken?: string;
 }
 
 interface TokenType {
@@ -50,11 +51,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Fetch additional user details
       let avatar = "";
       let positionName = "";
+      let fcmToken = "";
       try {
         const detailsRes = await getUserDetails(user._id);
         if (detailsRes.data) {
           avatar = detailsRes.data.avatar;
           positionName = detailsRes.data.position?.title;
+          fcmToken = detailsRes.data.fcmToken;
         }
       } catch (err) {
         console.error("Failed to fetch additional user details:", err);
@@ -70,6 +73,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           roleName: user.role.name,
           avatar,
           positionName,
+          fcmToken,
         },
       });
     } catch (err: any) {

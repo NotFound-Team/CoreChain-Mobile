@@ -1,7 +1,7 @@
 import { API_ENDPOINT } from "@/configs/api";
 import { handleApiError, handleApiResponse } from "@/helpers/api";
 import { ApiResponse } from "@/types/api";
-import { CompleteUser } from "@/types/user";
+import { CompleteUser, UpdateFcmToken } from "@/types/user";
 import instanceAxios from "@/utils/axios";
 
 export interface UpdatePasswordDto {
@@ -20,7 +20,7 @@ export const getUserDetails = async (id: string): Promise<ApiResponse<any>> => {
 };
 
 export const getPrivateUserDetails = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<CompleteUser>> => {
   try {
     const res = await instanceAxios.get(`${API_ENDPOINT.USER.PRIVATE(id)}`);
@@ -31,12 +31,12 @@ export const getPrivateUserDetails = async (
 };
 
 export const updatePassword = async (
-  data: UpdatePasswordDto
+  data: UpdatePasswordDto,
 ): Promise<ApiResponse<any>> => {
   try {
     const res = await instanceAxios.post(
       `${API_ENDPOINT.USER.CHANGE_PASSWORD}`,
-      data
+      data,
     );
     return handleApiResponse(res);
   } catch (error: any) {
@@ -44,9 +44,30 @@ export const updatePassword = async (
   }
 };
 
-export const searchUsers = async (name: string): Promise<ApiResponse<any[]>> => {
+export const searchUsers = async (
+  name: string,
+): Promise<ApiResponse<any[]>> => {
   try {
-    const res = await instanceAxios.get(`${API_ENDPOINT.USER.INDEX}?name=/${name}/g`);
+    const res = await instanceAxios.get(
+      `${API_ENDPOINT.USER.INDEX}?name=/${name}/g`,
+    );
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const updateFcmToken = async ({
+  fcmToken,
+  id,
+}: UpdateFcmToken & { id: string }) => {
+  try {
+    const res = await instanceAxios.patch(
+      `${API_ENDPOINT.USER.FCM_TOKEN(id)}`,
+      {
+        fcmToken,
+      },
+    );
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);

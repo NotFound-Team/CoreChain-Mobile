@@ -10,7 +10,14 @@ import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { AppStateStatus, Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import {
+  AppStateStatus,
+  Dimensions,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
   interpolate,
   Easing as ReanimatedEasing,
@@ -19,7 +26,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withSpring,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -36,8 +43,7 @@ import { Building2 } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { SocketProvider } from "@/context/SocketContext";
-import { requestUserPermission, setupFCMListeners } from "@/services/firebase.service";
-import { registerGlobals } from '@livekit/react-native';
+// import { registerGlobals } from "@livekit/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const unstable_settings = {
@@ -131,7 +137,7 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 2 } },
 });
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 function SplashView() {
   const progress = useSharedValue(0);
@@ -147,23 +153,23 @@ function SplashView() {
     progress.value = withRepeat(
       withSequence(
         withTiming(1, { duration: 6000, easing: ReanimatedEasing.linear }),
-        withTiming(0, { duration: 6000, easing: ReanimatedEasing.linear })
+        withTiming(0, { duration: 6000, easing: ReanimatedEasing.linear }),
       ),
       -1,
-      false
+      false,
     );
   }, []);
 
   const animatedBackStyle = useAnimatedStyle(() => {
     const translateX = interpolate(progress.value, [0, 1], [-SCREEN_WIDTH, 0]);
-    const translateY = interpolate(progress.value, [0, 1], [-SCREEN_HEIGHT / 2, 0]);
+    const translateY = interpolate(
+      progress.value,
+      [0, 1],
+      [-SCREEN_HEIGHT / 2, 0],
+    );
 
     return {
-      transform: [
-        { translateX },
-        { translateY },
-        { rotate: '-15deg' }
-      ],
+      transform: [{ translateX }, { translateY }, { rotate: "-15deg" }],
     };
   });
 
@@ -177,14 +183,17 @@ function SplashView() {
   return (
     <View style={styles.container}>
       {/* Moving Wide Gradient Background */}
-      <Animated.View
-        style={[
-          styles.gradientBox,
-          animatedBackStyle
-        ]}
-      >
+      <Animated.View style={[styles.gradientBox, animatedBackStyle]}>
         <LinearGradient
-          colors={['#8862F2', '#BFAFFF', '#FFFFFF', '#BFAFFF', '#8862F2', '#BFAFFF', '#FFFFFF']}
+          colors={[
+            "#8862F2",
+            "#BFAFFF",
+            "#FFFFFF",
+            "#BFAFFF",
+            "#8862F2",
+            "#BFAFFF",
+            "#FFFFFF",
+          ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -211,7 +220,9 @@ function SplashView() {
       <View className="absolute bottom-12 items-center w-full">
         <View className="flex-row items-center space-x-2">
           <View className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
-          <Text className="text-gray-400 text-[10px] font-bold">POWERED BY BLOCKCHAIN</Text>
+          <Text className="text-gray-400 text-[10px] font-bold">
+            POWERED BY BLOCKCHAIN
+          </Text>
         </View>
       </View>
     </View>
@@ -221,34 +232,40 @@ function SplashView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   gradientBox: {
-    position: 'absolute',
+    position: "absolute",
     width: SCREEN_WIDTH * 3,
     height: SCREEN_HEIGHT * 3,
     top: -SCREEN_HEIGHT,
     left: -SCREEN_WIDTH,
   },
   content: {
-    alignItems: 'center',
+    alignItems: "center",
     zIndex: 10,
-  }
+  },
 });
 
-
-registerGlobals();
+// registerGlobals();
 
 export default function RootLayout() {
   useOnlineManager();
   const colorScheme = useColorScheme();
   const [isShowSplash, setIsShowSplash] = useState(true);
-  const { isAuthenticated, loadStoredToken } = useAuthStore();
+  const { isAuthenticated, loadStoredToken, user } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+
+  // const checkFcmToken = async () => {
+  //   const currentFcmToken = await getFCMToken();
+  //   if (currentFcmToken !== user?.fcmToken && isAuthenticated) {
+  //     await updateFcmToken({ fcmToken: currentFcmToken!, id: user?.id! });
+  //   }
+  // };
 
   useEffect(() => {
     // Load stored token when app starts
@@ -261,6 +278,10 @@ export default function RootLayout() {
     const timer = setTimeout(() => {
       setIsShowSplash(false);
     }, 2500);
+
+    // load config fcm token
+    // requestUserPermission();
+    // setupFCMListeners();
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,10 +310,9 @@ export default function RootLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, segments, isShowSplash]);
 
-  useEffect(() => {
-    requestUserPermission();
-    setupFCMListeners()
-  }, []);
+  // useEffect(() => {
+  //   checkFcmToken();
+  // }, [user?.id, user?.fcmToken]);
 
   if (isShowSplash) {
     return <SplashView />;

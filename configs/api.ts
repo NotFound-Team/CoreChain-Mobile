@@ -1,5 +1,6 @@
 export const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-export const BASE_URL_COMMUNICATION = process.env.EXPO_PUBLIC_API_URL_COMMUNICATION;
+export const BASE_URL_COMMUNICATION =
+  process.env.EXPO_PUBLIC_API_URL_COMMUNICATION;
 
 export const API_ENDPOINT = {
   AUTH: {
@@ -14,6 +15,7 @@ export const API_ENDPOINT = {
     DETAIL: (id: string) => `/users/${id}`,
     PRIVATE: (id: string) => `/users/private/${id}`,
     PUBLIC: (id: string) => `/users/public/${id}`,
+    FCM_TOKEN: (id: string) => `/users/fcm-token/${id}`,
     CHANGE_PASSWORD: "/users/password/change",
   },
 
@@ -97,6 +99,6 @@ export const API_ENDPOINT = {
     INDEX: "/meetings/my",
     CREATE: "/meetings",
     JOIN: "/meetings/join",
-    END: "/meetings/end"
+    END: "/meetings/end",
   },
 };

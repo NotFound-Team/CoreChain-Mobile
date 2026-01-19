@@ -1,4 +1,3 @@
-
 export interface IUser {
   _id: string;
   name: string;
@@ -85,5 +84,9 @@ export interface PrivateUser {
   personalTaxIdentificationNumber?: string;
   backAccountNumber?: string;
 }
+
+export type UpdateFcmToken = {
+  fcmToken: string;
+};
 
 export interface CompleteUser extends PublicUser, PrivateUser {}
