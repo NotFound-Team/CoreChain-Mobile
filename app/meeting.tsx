@@ -1,6 +1,5 @@
-import { View } from "react-native";
+import MeetingScreen from "@/components/screens/meeting";
 
 export default function Meeting() {
-  // return <MeetingScreen />;
-  return <View>Meeting</View>;
+  return <MeetingScreen />;
 }

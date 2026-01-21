@@ -49,24 +49,6 @@ const createRequestSchema = z.object({
 
 type CreateRequestFormValues = z.infer<typeof createRequestSchema>;
 
-// --- MOCK DATA ---
-const INITIAL_DATA: SalaryRequest[] = [
-  {
-    _id: "1",
-    employee: "user_01",
-    amount: 1000000,
-    reason: "Đóng tiền nhà tháng 4",
-    isApproved: false,
-    returnDate: "2026-04-30T00:00:00.000Z",
-    isDeleted: false,
-    deletedAt: null,
-    createdAt: "2026-01-07T09:05:44.807Z",
-    updatedAt: "2026-01-07T09:05:44.807Z",
-  },
-];
-
-// --- HELPER COMPONENTS ---
-
 const FilterChip = ({
   label,
   active,
@@ -80,13 +62,13 @@ const FilterChip = ({
     onPress={onPress}
     className={cn(
       "px-4 py-2 rounded-full mr-2 border border-gray-200 bg-white",
-      active && "bg-violet-600 border-violet-600"
+      active && "bg-violet-600 border-violet-600",
     )}
   >
     <Text
       className={cn(
         "font-medium text-sm text-gray-500",
-        active && "text-white"
+        active && "text-white",
       )}
     >
       {label}
@@ -101,7 +83,7 @@ const RequestCard = ({ item }: { item: SalaryRequest }) => (
         <View
           className={cn(
             "w-11 h-11 rounded-full items-center justify-center",
-            item.isApproved ? "bg-green-100" : "bg-orange-100"
+            item.isApproved ? "bg-green-100" : "bg-orange-100",
           )}
         >
           {item.isApproved ? (
@@ -120,7 +102,7 @@ const RequestCard = ({ item }: { item: SalaryRequest }) => (
           <Text
             className={cn(
               "text-[10px] font-bold uppercase tracking-wider",
-              item.isApproved ? "text-green-600" : "text-orange-600"
+              item.isApproved ? "text-green-600" : "text-orange-600",
             )}
           >
             {item.isApproved ? "Đã duyệt" : "Chờ duyệt"}
@@ -151,7 +133,7 @@ const RequestCard = ({ item }: { item: SalaryRequest }) => (
 // --- MAIN SCREEN ---
 
 export const Expense = () => {
-  const [requests, setRequests] = useState<SalaryRequest[]>(INITIAL_DATA);
+  const [requests, setRequests] = useState<SalaryRequest[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "APPROVED" | "PENDING">("ALL");
   const [loadingList, setLoadingList] = useState(true);
@@ -195,7 +177,7 @@ export const Expense = () => {
         await salaryAdvance(data);
         await fetchRequestSalary();
         toast.success("Thành công", {
-          description: "Gửi yêu cầu thành công 🎉",
+          description: "Gửi yêu cầu thành công",
         });
         setModalVisible(false);
         reset();
@@ -208,7 +190,8 @@ export const Expense = () => {
         setLoadingSubmit(false);
       }
     },
-    [reset]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [reset],
   );
 
   const handleCloseModal = useCallback(() => {

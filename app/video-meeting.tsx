@@ -1,6 +1,5 @@
-import { View } from "react-native";
+import VideoMeeting from "@/components/screens/video-meeting";
 
 export default function VideoMeetingScreen() {
-  // return <VideoMeeting />
-  return <View>Video meeting</View>;
+  return <VideoMeeting />;
 }
