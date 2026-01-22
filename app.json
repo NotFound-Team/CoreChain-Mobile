@@ -40,20 +40,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      // "@react-native-firebase/app",
-      // [
-      //   "expo-build-properties",
-      //   {
-      //     "ios": {
-      //       "useFrameworks": "static",
-      //       "deploymentTarget": "13.4"
-      //     }
-      //     // "android": {
-      //     //   "compileSdkVersion": 34,
-      //     //   "targetSdkVersion": 34
-      //     // }
-      //   }
-      // ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -72,6 +58,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c2c60fae-5798-4110-a886-48f589daee05"
+      }
     }
   }
 }

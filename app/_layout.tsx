@@ -280,26 +280,38 @@ export default function RootLayout() {
     }
   };
 
+  // Load config fcm token
   useEffect(() => {
-    // Load stored token when app starts
-    loadStoredToken();
-
-    // Hide the native splash screen immediately to show our custom one
-    SplashScreen.hideAsync();
-
-    // Show custom splash for 2.5 seconds
-    const timer = setTimeout(() => {
-      setIsShowSplash(false);
-    }, 2500);
-
-    // load config fcm token
     requestUserPermission();
     setupFCMListeners();
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * - If isAuthenticated = false ==> loadStoredToken
+   * - Display SplashScreen
+   */
+  useEffect(() => {
+    // Load stored token when app starts
+    const init = async () => {
+      if (!isAuthenticated) {
+        await loadStoredToken();
+      }
+
+      SplashScreen.hideAsync();
+
+      setTimeout(() => {
+        setIsShowSplash(false);
+      }, 2500);
+    };
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  /**
+   * - Check hasSeenWelcome
+   * - Check first render isAuthenticated
+   */
   useEffect(() => {
     if (isShowSplash) return;
 
@@ -312,7 +324,6 @@ export default function RootLayout() {
       if (!hasSeenWelcome) {
         router.replace("/(auth)/welcome");
         // Mark as seen so next time they go to signin
-        SecureStore.setItem("has_seen_welcome", "true");
       } else {
         router.replace("/(auth)/signin");
       }
@@ -323,7 +334,11 @@ export default function RootLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, segments, isShowSplash]);
 
+  /**
+   * Check FCM token
+   */
   useEffect(() => {
+    if (!user?.id) return;
     checkFcmToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, user?.fcmToken]);

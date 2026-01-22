@@ -4,6 +4,7 @@ import { getUserDetails } from "@/services/user.service";
 import axios from "axios";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 import { create } from "zustand";
 
 interface User {
@@ -18,6 +19,16 @@ interface User {
 
 interface TokenType {
   accessToken: string;
+}
+
+interface JwtAccessTokenPayload extends JwtPayload {
+  _id: string;
+  name: string;
+  email: string;
+  role: {
+    _id: string;
+    name: string;
+  };
 }
 
 interface AuthState {
@@ -84,7 +95,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (data: any) => {
     try {
       const res = await axios.post("https://api.example.com/register", data);
-      const { accessToken, user } = res.data;
+      const { accessToken } = res.data;
 
       SecureStore.setItem("access_token", accessToken);
       // set({ user, accessToken, isAuthenticated: true });
@@ -103,11 +114,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   loadStoredToken: async () => {
     const token = SecureStore.getItem("access_token");
     if (token) {
+      const decoded: JwtAccessTokenPayload = jwtDecode(token);
       try {
-        const res = await axios.get("https://api.example.com/me", {
-          headers: { Authorization: `Bearer ${token}` },
+        const detailsRes = await getUserDetails(decoded._id);
+        const { avatar, role, fcmToken, position, name, _id, email } =
+          detailsRes.data;
+        set({
+          token: { accessToken: token },
+          isAuthenticated: true,
+          user: {
+            email,
+            id: _id,
+            name,
+            roleName: role.name,
+            avatar,
+            positionName: position.title,
+            fcmToken,
+          },
         });
-        // set({ user: res.data, accessToken: token, isAuthenticated: true });
       } catch {
         await SecureStore.deleteItemAsync("access_token");
         set({ user: null, token: null, isAuthenticated: false });
