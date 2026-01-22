@@ -43,6 +43,7 @@ import { Toaster } from "sonner-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import InAppNotification from "@/components/InAppNotification";
 import { SocketProvider } from "@/context/SocketContext";
 import {
   getFCMToken,
@@ -269,6 +270,11 @@ export default function RootLayout() {
   useOnlineManager();
   const colorScheme = useColorScheme();
   const [isShowSplash, setIsShowSplash] = useState(true);
+  const [inAppNoti, setInAppNoti] = useState({
+    visible: false,
+    title: "",
+    message: "",
+  });
   const { isAuthenticated, loadStoredToken, user } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
@@ -283,7 +289,21 @@ export default function RootLayout() {
   // Load config fcm token
   useEffect(() => {
     requestUserPermission();
-    setupFCMListeners();
+    // setupFCMListeners();
+    const unsubscribe = setupFCMListeners((title, message) => {
+      setInAppNoti({
+        visible: true,
+        title,
+        message,
+      });
+
+      // auto hide sau 3s (UX tốt hơn)
+      setTimeout(() => {
+        setInAppNoti((prev) => ({ ...prev, visible: false }));
+      }, 30000);
+    });
+
+    return unsubscribe;
   }, []);
 
   /**
@@ -355,6 +375,14 @@ export default function RootLayout() {
             value={colorScheme === "light" ? DarkTheme : DefaultTheme}
           >
             <SocketProvider>
+              <InAppNotification
+                visible={inAppNoti.visible}
+                title={inAppNoti.title}
+                message={inAppNoti.message}
+                onClose={() =>
+                  setInAppNoti((prev) => ({ ...prev, visible: false }))
+                }
+              />
               <AppScreens />
               <Toaster />
             </SocketProvider>

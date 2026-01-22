@@ -1,10 +1,10 @@
 import messaging from "@react-native-firebase/messaging";
-import { Alert, PermissionsAndroid, Platform } from "react-native";
+import { PermissionsAndroid, Platform } from "react-native";
 
 export const requestUserPermission = async () => {
   if (Platform.OS === "android" && Platform.Version >= 33) {
     const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
     );
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log("Notification permission granted");
@@ -49,18 +49,21 @@ export const getFCMToken = async () => {
   }
 };
 
-export const setupFCMListeners = () => {
-  messaging().onMessage(async (remoteMessage) => {
-    Alert.alert(
+export const setupFCMListeners = (
+  showInAppNotification: (title: string, message: string) => void,
+) => {
+  const unsubMessage = messaging().onMessage(async (remoteMessage) => {
+    console.log(remoteMessage);
+    showInAppNotification(
       remoteMessage.notification?.title || "Thông báo",
-      remoteMessage.notification?.body || "Bạn có tin mới"
+      remoteMessage.notification?.body || "Bạn có tin mới",
     );
   });
 
-  messaging().onNotificationOpenedApp((remoteMessage) => {
-    Alert.alert(
+  const unsubOpened = messaging().onNotificationOpenedApp((remoteMessage) => {
+    showInAppNotification(
       remoteMessage.notification?.title || "Thông báo",
-      remoteMessage.notification?.body || "Bạn có tin mới"
+      remoteMessage.notification?.body || "Bạn có tin mới",
     );
   });
 
@@ -68,10 +71,15 @@ export const setupFCMListeners = () => {
     .getInitialNotification()
     .then((remoteMessage) => {
       if (remoteMessage) {
-        Alert.alert(
+        showInAppNotification(
           remoteMessage.notification?.title || "Thông báo",
-          remoteMessage.notification?.body || "Bạn có tin mới"
+          remoteMessage.notification?.body || "Bạn có tin mới",
         );
       }
     });
+
+  return () => {
+    unsubMessage();
+    unsubOpened();
+  };
 };
