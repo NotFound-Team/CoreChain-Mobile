@@ -10,9 +10,11 @@ import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+
 import {
   AppStateStatus,
   Dimensions,
+  Image,
   Platform,
   StyleSheet,
   Text,
@@ -39,7 +41,6 @@ import {
 import { Toaster } from "sonner-native";
 
 import { LinearGradient } from "expo-linear-gradient";
-import { Building2 } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { SocketProvider } from "@/context/SocketContext";
@@ -132,8 +133,8 @@ const AppScreens = () => {
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
-        name="modal"
-        options={{ presentation: "modal", title: "Modal" }}
+        name="versioning"
+        options={{ headerShown: false, gestureEnabled: true }}
       />
     </Stack>
   );
@@ -164,6 +165,7 @@ function SplashView() {
       -1,
       false,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedBackStyle = useAnimatedStyle(() => {
@@ -179,6 +181,7 @@ function SplashView() {
     };
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const animatedLogoStyle = useAnimatedStyle(() => {
     return {
       opacity: logoOpacity.value,
@@ -212,8 +215,12 @@ function SplashView() {
           // animatedLogoStyle
         ]}
       >
-        <View className="w-24 h-24 bg-indigo-600 rounded-[32px] items-center justify-center mb-6 shadow-2xl shadow-indigo-200">
-          <Building2 size={48} color="white" />
+        <View className="w-24 h-24 rounded-[32px] items-center justify-center mb-6 shadow-2xl shadow-indigo-200">
+          <Image
+            source={require("../assets/images/icon.png")}
+            className="w-full h-full"
+            resizeMode="contain"
+          />
         </View>
         <Text className="text-gray-900 text-4xl font-extrabold tracking-tighter">
           Core<Text className="text-indigo-600">Chain</Text>
@@ -318,6 +325,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     checkFcmToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, user?.fcmToken]);
 
   if (isShowSplash) {

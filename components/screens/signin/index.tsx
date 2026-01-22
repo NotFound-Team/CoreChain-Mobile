@@ -1,7 +1,14 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useCallback, useState } from "react";
-import { Animated, Dimensions, Text, TouchableOpacity, View } from "react-native";
-const SignInModal = React.lazy(() => import("./SignInModal"));
+import React, { Suspense, useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import SignInModal from "./SignInModal";
 
 const SignIn = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -73,7 +80,9 @@ const SignIn = () => {
         </TouchableOpacity>
       </View>
 
-      <SignInModal isVisible={isModalVisible} onClose={toggleModal} />
+      <Suspense fallback={<ActivityIndicator size="large" />}>
+        <SignInModal isVisible={isModalVisible} onClose={toggleModal} />
+      </Suspense>
     </View>
   );
 };

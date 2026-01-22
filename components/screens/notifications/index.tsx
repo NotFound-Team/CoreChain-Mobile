@@ -1,19 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import {
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+  useSafeAreaInsets
+} from "react-native-safe-area-context";
 
 const NOTIFICATIONS = [
   {
     id: "1",
     title: "New Task Assigned to You!",
-    description: "You have new task for this sprint from Alicia, you can check your task \"Create Onboarding Screen\" by tap here",
+    description:
+      'You have new task for this sprint from Alicia, you can check your task "Create Onboarding Screen" by tap here',
     time: "09.10",
     icon: "document-text",
     iconColor: "#8862F2",
@@ -21,7 +19,8 @@ const NOTIFICATIONS = [
   {
     id: "2",
     title: "Expense has been approved!",
-    description: "Your expense has been been approved by jessica, view expense report here",
+    description:
+      "Your expense has been been approved by jessica, view expense report here",
     time: "09.10",
     icon: "document-text",
     iconColor: "#8862F2",
@@ -29,7 +28,8 @@ const NOTIFICATIONS = [
   {
     id: "3",
     title: "You have invited in meeting!",
-    description: "You have been invited to a meeting. Tap to find the meeting details",
+    description:
+      "You have been invited to a meeting. Tap to find the meeting details",
     time: "09.10",
     icon: "people",
     iconColor: "#8862F2",
@@ -37,13 +37,15 @@ const NOTIFICATIONS = [
 ];
 
 export default function Notifications() {
-  const renderItem = ({ item }: { item: typeof NOTIFICATIONS[0] }) => (
-    <TouchableOpacity 
+  const insets = useSafeAreaInsets();
+
+  const renderItem = ({ item }: { item: (typeof NOTIFICATIONS)[0] }) => (
+    <TouchableOpacity
       className="flex-row items-start px-4 py-4 bg-white border-b border-gray-100"
       activeOpacity={0.7}
     >
       {/* Icon Container */}
-      <View 
+      <View
         className="w-12 h-12 rounded-xl items-center justify-center mr-3"
         style={{ backgroundColor: `${item.iconColor}10` }}
       >
@@ -58,7 +60,7 @@ export default function Notifications() {
           </Text>
           <Text className="text-gray-400 text-[12px]">{item.time}</Text>
         </View>
-        
+
         <Text className="text-gray-500 text-[13px] leading-5">
           {item.description}
         </Text>
@@ -67,18 +69,23 @@ export default function Notifications() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F1F3F8]">
+    <View className="flex-1 bg-[#F1F3F8]">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 pt-8 border-b border-gray-200 bg-white">
-        <TouchableOpacity 
+      <View
+        className="flex-row items-center justify-between px-4 py-4 pt-8 border-b border-gray-200 bg-white"
+        style={{ paddingTop: Math.max(insets.top, 20) }}
+      >
+        <TouchableOpacity
           onPress={() => router.back()}
           className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"
         >
           <Ionicons name="chevron-back" size={24} color="#8862F2" />
         </TouchableOpacity>
-        
-        <Text className="text-[18px] font-bold text-[#1A1C1E]">Notifications</Text>
-        
+
+        <Text className="text-[18px] font-bold text-[#1A1C1E]">
+          Notifications
+        </Text>
+
         <View className="w-10" />
       </View>
 
@@ -90,6 +97,6 @@ export default function Notifications() {
         showsVerticalScrollIndicator={false}
         ListFooterComponent={<View className="h-20" />} // Tạo khoảng trống dưới cùng
       />
-    </SafeAreaView>
+    </View>
   );
 }
