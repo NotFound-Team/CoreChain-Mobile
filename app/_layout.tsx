@@ -43,13 +43,8 @@ import { Toaster } from "sonner-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import InAppNotification from "@/components/InAppNotification";
 import { SocketProvider } from "@/context/SocketContext";
-import {
-  getFCMToken,
-  requestUserPermission,
-  setupFCMListeners,
-} from "@/services/firebase.service";
+import { getFCMToken } from "@/services/firebase.service";
 import { updateFcmToken } from "@/services/user.service";
 import { registerGlobals } from "@livekit/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -287,24 +282,24 @@ export default function RootLayout() {
   };
 
   // Load config fcm token
-  useEffect(() => {
-    requestUserPermission();
-    // setupFCMListeners();
-    const unsubscribe = setupFCMListeners((title, message) => {
-      setInAppNoti({
-        visible: true,
-        title,
-        message,
-      });
+  // useEffect(() => {
+  //   requestUserPermission();
+  //   // setupFCMListeners();
+  //   const unsubscribe = setupFCMListeners((title, message) => {
+  //     setInAppNoti({
+  //       visible: true,
+  //       title,
+  //       message,
+  //     });
 
-      // auto hide sau 3s (UX tốt hơn)
-      setTimeout(() => {
-        setInAppNoti((prev) => ({ ...prev, visible: false }));
-      }, 30000);
-    });
+  //     // auto hide sau 3s (UX tốt hơn)
+  //     setTimeout(() => {
+  //       setInAppNoti((prev) => ({ ...prev, visible: false }));
+  //     }, 30000);
+  //   });
 
-    return unsubscribe;
-  }, []);
+  //   return unsubscribe;
+  // }, []);
 
   /**
    * - If isAuthenticated = false ==> loadStoredToken
@@ -359,8 +354,7 @@ export default function RootLayout() {
    */
   useEffect(() => {
     if (!user?.id) return;
-    checkFcmToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // checkFcmToken();
   }, [user?.id, user?.fcmToken]);
 
   if (isShowSplash) {
@@ -375,14 +369,14 @@ export default function RootLayout() {
             value={colorScheme === "light" ? DarkTheme : DefaultTheme}
           >
             <SocketProvider>
-              <InAppNotification
+              {/* <InAppNotification
                 visible={inAppNoti.visible}
                 title={inAppNoti.title}
                 message={inAppNoti.message}
                 onClose={() =>
                   setInAppNoti((prev) => ({ ...prev, visible: false }))
                 }
-              />
+              /> */}
               <AppScreens />
               <Toaster />
             </SocketProvider>
