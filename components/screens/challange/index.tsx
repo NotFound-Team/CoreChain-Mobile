@@ -6,12 +6,12 @@ import { TypeTask } from "@/types/task";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    FlatList,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProjectItem } from "./ProjectItem";
@@ -56,19 +56,27 @@ export default function Challange() {
   const filteredTasks = useMemo(() => {
     if (!filters) return [];
     let result = [...tasks];
-    if (activeTab === "In Progress") result = result.filter((t) => t?.status === 2);
-    else if (activeTab === "Review") result = result.filter((t) => t?.status === 3);
-    else if (activeTab === "Finish") result = result.filter((t) => t?.status === 4);
-    if (filters.priority !== null) result = result.filter((t) => t?.priority === filters.priority);
-    if (filters.projectId) result = result.filter((t) => t?.projectId === filters.projectId);
+    if (activeTab === "In Progress")
+      result = result.filter((t) => t?.status === 2);
+    else if (activeTab === "Review")
+      result = result.filter((t) => t?.status === 3);
+    else if (activeTab === "Finish")
+      result = result.filter((t) => t?.status === 4);
+    if (filters.priority !== null)
+      result = result.filter((t) => t?.priority === filters.priority);
+    if (filters.projectId)
+      result = result.filter((t) => t?.projectId === filters.projectId);
     return result;
   }, [activeTab, filters, tasks]);
 
   const filteredProjects = useMemo(() => {
     let result = [...projects];
-    if (activeTab === "In Progress") result = result.filter((p) => p?.status === 1);
-    else if (activeTab === "Review") result = result.filter((p) => p?.status === 3);
-    else if (activeTab === "Finish") result = result.filter((p) => p?.status === 2);
+    if (activeTab === "In Progress")
+      result = result.filter((p) => p?.status === 1);
+    else if (activeTab === "Review")
+      result = result.filter((p) => p?.status === 3);
+    else if (activeTab === "Finish")
+      result = result.filter((p) => p?.status === 2);
     return result;
   }, [activeTab, projects]);
 
@@ -91,7 +99,9 @@ export default function Challange() {
           {isManager ? "Projects Insight" : "Challanges Awaiting"}
         </Text>
         <Text className="text-purple-100 text-sm mt-1">
-          {isManager ? "Manage your team efficiently" : "Let's tackle your to do list"}
+          {isManager
+            ? "Manage your team efficiently"
+            : "Let's tackle your to do list"}
         </Text>
         <View className="flex-row justify-between mt-6">
           <View className="bg-white/10 p-4 rounded-3xl items-center flex-1 mx-1">
@@ -104,13 +114,17 @@ export default function Challange() {
           </View>
           <View className="bg-white/10 p-4 rounded-3xl items-center flex-1 mx-1">
             <Text className="text-white text-2xl font-bold">
-              {isManager ? projects.filter(p => p.status === 1).length : tasks.filter(t => t.status === 2).length}
+              {isManager
+                ? projects.filter((p) => p.status === 1).length
+                : tasks.filter((t) => t.status === 2).length}
             </Text>
             <Text className="text-purple-100 text-[10px]">Active</Text>
           </View>
           <View className="bg-white/10 p-4 rounded-3xl items-center flex-1 mx-1">
             <Text className="text-white text-2xl font-bold">
-              {isManager ? projects.filter(p => p.status === 2).length : tasks.filter(t => t.status === 4).length}
+              {isManager
+                ? projects.filter((p) => p.status === 2).length
+                : tasks.filter((t) => t.status === 4).length}
             </Text>
             <Text className="text-purple-100 text-[10px]">Done</Text>
           </View>
@@ -135,7 +149,7 @@ export default function Challange() {
           ))}
         </View>
 
-        {!isManager && (
+        {isManager && (
           <TouchableOpacity
             onPress={() => setIsModalVisible(true)}
             className={`ml-3 w-12 h-12 rounded-2xl items-center justify-center border ${filters.priority !== null ? "bg-[#8862F2] border-[#8862F2]" : "bg-white border-gray-200"}`}
@@ -238,7 +252,7 @@ export default function Challange() {
     } else {
       fetchTaskByMe();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, isManager]);
 
   return (

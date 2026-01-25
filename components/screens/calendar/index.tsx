@@ -5,13 +5,15 @@ import { IProject } from "@/types/project";
 import { TypeTask } from "@/types/task";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
   ScrollView,
   Text,
-  View
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,11 +21,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function CalendarScreenIndex() {
   const insets = useSafeAreaInsets();
   const { user } = useAuthStore();
+  const router = useRouter();
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [projects, setProjects] = useState<IProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(
-    dayjs().format("YYYY-MM-DD")
+    dayjs().format("YYYY-MM-DD"),
   );
   const [viewMode, setViewMode] = useState<"month">("month");
 
@@ -46,7 +49,7 @@ export default function CalendarScreenIndex() {
 
       if (isManager) {
         setProjects(
-          results[0]?.data?.result || results[0]?.data?.projects || []
+          results[0]?.data?.result || results[0]?.data?.projects || [],
         );
         setTasks(results[1]?.data?.result || []);
       } else {
@@ -63,9 +66,19 @@ export default function CalendarScreenIndex() {
     setViewMode(mode);
   }, []);
 
+  const handleNavigate = ({ type, id }: { type: string; id: string }) => {
+    if (isManager) {
+      router.push(
+        type === "task" ? `/task-details/${id}` : `/project-details/${id}`,
+      );
+    } else {
+      router.push(`/task-details/${id}`);
+    }
+  };
+
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, isManager]);
 
   const markedDates = useMemo(() => {
@@ -296,8 +309,11 @@ export default function CalendarScreenIndex() {
         ) : (
           <ScrollView showsVerticalScrollIndicator={false}>
             {itemsOnSelectedDate.map((item, idx) => (
-              <View
-                key={idx}
+              <TouchableOpacity
+                key={item._id}
+                onPress={() =>
+                  handleNavigate({ id: item._id, type: item.type })
+                }
                 className="bg-white p-4 rounded-3xl mb-3 border border-gray-50 flex-row items-center"
               >
                 <View
@@ -314,15 +330,16 @@ export default function CalendarScreenIndex() {
                     className="text-[#1A1C1E] font-bold text-base"
                     numberOfLines={1}
                   >
-                    {item.title || item.name}
+                    {item.type === "task" ? item.title : item.name}
                   </Text>
+                  z``
                   <Text className="text-gray-400 text-xs">
                     {item.isStart ? "Starts today" : "Due today"} •{" "}
                     {item.type === "task" ? "Task" : "Project"}
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
-              </View>
+              </TouchableOpacity>
             ))}
             <View style={{ height: 40 }} />
           </ScrollView>

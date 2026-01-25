@@ -8,11 +8,23 @@ import { Text, TouchableOpacity, View } from "react-native";
 const getStatusStyles = (status: number) => {
   switch (status) {
     case 0:
-      return { label: "Pending", color: "bg-yellow-50", text: "text-yellow-600" };
+      return {
+        label: "Pending",
+        color: "bg-yellow-50",
+        text: "text-yellow-600",
+      };
     case 1:
-      return { label: "In Progress", color: "bg-blue-50/50", text: "text-blue-600" };
+      return {
+        label: "In Progress",
+        color: "bg-blue-50/50",
+        text: "text-blue-600",
+      };
     case 2:
-      return { label: "Completed", color: "bg-green-50", text: "text-green-600" };
+      return {
+        label: "Completed",
+        color: "bg-green-50",
+        text: "text-green-600",
+      };
     default:
       return { label: "Unknown", color: "bg-gray-100", text: "text-gray-600" };
   }
@@ -47,7 +59,7 @@ export const ProjectItem = ({ item }: { item: IProject }) => {
             {item.name}
           </Text>
           <Text className="text-gray-400 text-xs" numberOfLines={1}>
-             {typeof item.manager === 'object' ? item.manager.name : "Manager"}
+            {typeof item.manager === "object" ? item.manager.name : "Manager"}
           </Text>
         </View>
       </View>
@@ -68,8 +80,10 @@ export const ProjectItem = ({ item }: { item: IProject }) => {
 
       {/* Progress Bar */}
       <View className="flex-row justify-between mb-1 items-center">
-         <Text className="text-xs text-gray-500">Progress</Text>
-         <Text className="text-xs font-bold text-gray-700">{item.progress}%</Text>
+        <Text className="text-xs text-gray-500">Progress</Text>
+        <Text className="text-xs font-bold text-gray-700">
+          {Number(item.progress).toFixed(2)}%
+        </Text>
       </View>
       <View className="w-full h-[6px] bg-gray-100 rounded-full mb-4 overflow-hidden">
         <View
@@ -80,10 +94,11 @@ export const ProjectItem = ({ item }: { item: IProject }) => {
 
       <View className="flex-row justify-between items-center pt-2 border-t border-gray-50">
         <View className="flex-row items-center bg-gray-50 px-2 py-1 rounded-lg">
-           <Ionicons name="people-outline" size={14} color="#9CA3AF" />
-           <Text className="text-gray-500 text-[11px] font-medium ml-1">
-             {(Array.isArray(item.teamMembers) ? item.teamMembers.length : 0)} Members
-           </Text>
+          <Ionicons name="people-outline" size={14} color="#9CA3AF" />
+          <Text className="text-gray-500 text-[11px] font-medium ml-1">
+            {Array.isArray(item.teamMembers) ? item.teamMembers.length : 0}{" "}
+            Members
+          </Text>
         </View>
 
         <View className="flex-row items-center bg-gray-50 px-2 py-1 rounded-lg">

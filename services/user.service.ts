@@ -1,7 +1,7 @@
 import { API_ENDPOINT } from "@/configs/api";
 import { handleApiError, handleApiResponse } from "@/helpers/api";
 import { ApiResponse } from "@/types/api";
-import { CompleteUser, UpdateFcmToken } from "@/types/user";
+import { CompleteUser, PublicUser, UpdateFcmToken } from "@/types/user";
 import instanceAxios from "@/utils/axios";
 
 export interface UpdatePasswordDto {
@@ -10,9 +10,20 @@ export interface UpdatePasswordDto {
   newPassword: string;
 }
 
-export const getUserDetails = async (id: string): Promise<ApiResponse<any>> => {
+export const getUserDetails = async (
+  id: string,
+): Promise<ApiResponse<PublicUser>> => {
   try {
     const res = await instanceAxios.get(`${API_ENDPOINT.USER.DETAIL(id)}`);
+    return handleApiResponse<PublicUser>(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const getUserIds = async (ids: string[]) => {
+  try {
+    const res = await instanceAxios.post(`${API_ENDPOINT.USER.IDS}`, { ids });
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);
@@ -44,9 +55,7 @@ export const updatePassword = async (
   }
 };
 
-export const searchUsers = async (
-  name: string,
-): Promise<ApiResponse<any[]>> => {
+export const searchUsers = async (name: string) => {
   try {
     const res = await instanceAxios.get(
       `${API_ENDPOINT.USER.INDEX}?name=/${name}/g`,

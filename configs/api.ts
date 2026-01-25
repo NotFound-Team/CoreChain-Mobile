@@ -12,6 +12,7 @@ export const API_ENDPOINT = {
 
   USER: {
     INDEX: "/users",
+    IDS: "/users/by-ids",
     DETAIL: (id: string) => `/users/${id}`,
     PRIVATE: (id: string) => `/users/private/${id}`,
     PUBLIC: (id: string) => `/users/public/${id}`,

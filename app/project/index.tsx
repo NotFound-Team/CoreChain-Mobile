@@ -15,13 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProjectScreen() {
   const router = useRouter();
   const [projects, setProjects] = useState<IProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const fetchProjects = async () => {
     try {
@@ -35,8 +36,8 @@ export default function ProjectScreen() {
       await Promise.all(
         departments.map(async (department: IDepartment) => {
           const resProjects = await getProjects({ department: department._id });
-          newProjects.push(...resProjects.data.projects);
-        })
+          newProjects.push(...resProjects.data.result);
+        }),
       );
       setProjects(newProjects);
       setIsLoading(false);
@@ -48,7 +49,7 @@ export default function ProjectScreen() {
 
   useEffect(() => {
     fetchProjects();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getStatusColor = (status: number) => {
@@ -107,7 +108,7 @@ export default function ProjectScreen() {
         <View className="flex-row justify-between mb-1">
           <Text className="text-xs text-gray-500">Progress</Text>
           <Text className="text-xs font-medium text-gray-700">
-            {item.progress}%
+            {Number(item.progress).toFixed(2)}%
           </Text>
         </View>
         <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -157,9 +158,12 @@ export default function ProjectScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F9FE]">
+    <View className="flex-1 bg-[#F8F9FE]">
       {/* Header */}
-      <View className="px-6 pt-4 pb-4 flex-row items-center bg-white border-b border-gray-100 gap-3">
+      <View
+        className="px-6 pt-4 pb-4 flex-row items-center bg-white border-b border-gray-100 gap-3"
+        style={{ paddingTop: insets.top + 16 }}
+      >
         <TouchableOpacity onPress={() => router.back()} className="p-1 -ml-2">
           <Ionicons name="arrow-back" size={24} color="#1F2937" />
         </TouchableOpacity>
@@ -201,6 +205,6 @@ export default function ProjectScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

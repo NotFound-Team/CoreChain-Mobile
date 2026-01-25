@@ -24,7 +24,6 @@ import { toast } from "sonner-native";
 import * as zod from "zod";
 
 const taskSchema = zod.object({
-  name: zod.string().min(1, "Name is required"),
   title: zod.string().min(1, "Title is required"),
   description: zod.string().min(1, "Description is required"),
   assignedTo: zod.string().min(1, "Assignee is required"),
@@ -95,7 +94,7 @@ export default function CreateTaskScreen() {
 
           // Deduplicate
           const uniqueMembers = Array.from(
-            new Map(allMembers.map((m) => [m._id, m])).values()
+            new Map(allMembers.map((m) => [m._id, m])).values(),
           );
           setMembers(uniqueMembers);
         }
@@ -117,7 +116,6 @@ export default function CreateTaskScreen() {
         if (!res.isError && res.data) {
           const task = res.data;
           reset({
-            name: task.name,
             title: task.title,
             description: task.description,
             assignedTo:
@@ -171,7 +169,7 @@ export default function CreateTaskScreen() {
     name: keyof TaskFormData,
     label: string,
     placeholder: string,
-    multiline = false
+    multiline = false,
   ) => (
     <View className="mb-4">
       <Text className="text-gray-500 font-bold text-xs uppercase mb-2 ml-1">
@@ -189,6 +187,7 @@ export default function CreateTaskScreen() {
               onBlur={onBlur}
               value={value?.toString()}
               placeholder={placeholder}
+              placeholderTextColor="#98A2B3"
               multiline={multiline}
               numberOfLines={multiline ? 4 : 1}
               textAlignVertical={multiline ? "top" : "center"}
@@ -276,13 +275,12 @@ export default function CreateTaskScreen() {
           className="flex-1 px-6 pt-6"
           showsVerticalScrollIndicator={false}
         >
-          {renderInput("name", "Task Name", "Enter task name")}
           {renderInput("title", "Title", "E.g. Design Dashboard")}
           {renderInput(
             "description",
             "Description",
             "Add more details...",
-            true
+            true,
           )}
 
           {/* Assigned To Selection */}
