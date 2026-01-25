@@ -33,11 +33,40 @@ export default function Home() {
     router.push(href);
   };
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     router.replace("/(auth)/signin");
+  // const fetchTaskByMeToday = async () => {
+  //   const nowISO = new Date().toISOString();
+
+  //   try {
+  //     // setIsLoading(true);
+  //     console.log(user?.id);
+  //     const response = await getTasks({
+  //       assignedTo: user?.id,
+  //       status: 1,
+  //       // startDate: {
+  //       //   lte: dayjs().endOf("day").toISOString(),
+  //       // },
+  //       // dueDate: {
+  //       //   gte: dayjs().startOf("day").toISOString(),
+  //       // },
+  //       // sort: "dueDate",
+  //       current: 1,
+  //       pageSize: 10,
+  //     });
+  //     if (!response.isError) {
+  //       console.log(response);
+  //       // setTasks(response.data.result || []);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching tasks:", error);
+  //   } finally {
+  //     // setIsLoading(false);
+  //     setIsRefreshing(false);
   //   }
-  // }, [isAuthenticated]);
+  // };
+
+  // useEffect(() => {
+  //   fetchTaskByMeToday();
+  // }, []);
 
   return (
     <View className="flex-1 bg-[#F8F9FE]">
@@ -78,11 +107,7 @@ export default function Home() {
               className="p-2 bg-white rounded-full shadow-sm"
               onPress={() => handleNavigate("/meeting")}
             >
-              <Ionicons
-                name="videocam-outline"
-                size={20}
-                color="#5F6368"
-              />
+              <Ionicons name="videocam-outline" size={20} color="#5F6368" />
             </TouchableOpacity>
             <TouchableOpacity
               className="p-2 bg-white rounded-full shadow-sm"

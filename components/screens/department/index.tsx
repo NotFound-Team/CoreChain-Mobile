@@ -1,6 +1,6 @@
 import DepartmentSkeleton from "@/components/skeletons/DepartmentSkeleton";
 import { getDepartments } from "@/services/department.service";
-import { getUserDetails } from "@/services/user.service";
+import { getUserDetails, getUserIds } from "@/services/user.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { IDepartment } from "@/types/department";
 import { Ionicons } from "@expo/vector-icons";
@@ -49,41 +49,54 @@ export default function Department() {
           const dept = detailRes.data;
           setDepartment(dept);
 
-          // 3. Fetch Manager Profile
+          // 3. Fetch parallel manager and employees
           const managerId =
             typeof dept.manager === "string"
               ? dept.manager
-              : (dept.manager as any)._id || dept.manager;
-          if (managerId) {
-            const mRes = await getUserDetails(managerId);
-            if (!mRes.isError) setManagerProfile(mRes.data);
+              : (dept.manager as any)?._id || dept.manager;
+
+          const managerPromise = managerId
+            ? getUserDetails(managerId)
+            : Promise.resolve(null);
+
+          const employeesPromise =
+            Array.isArray(dept.employees) && dept.employees.length > 0
+              ? getUserIds(dept.employees)
+              : Promise.resolve(null);
+
+          const projectsPromise =
+            Array.isArray(dept.projectIds) && dept.projectIds.length > 0
+              ? (async () => {
+                  const { getProjectDetail } =
+                    await import("@/services/project.service");
+
+                  const projects = await Promise.all(
+                    dept.projectIds.map(async (id: string) => {
+                      const res = await getProjectDetail(id);
+                      return res.isError ? null : res.data;
+                    }),
+                  );
+
+                  return projects.filter(Boolean);
+                })()
+              : Promise.resolve([]);
+
+          const [mRes, resEmployees, projects] = await Promise.all([
+            managerPromise,
+            employeesPromise,
+            projectsPromise,
+          ]);
+
+          if (mRes && !mRes.isError) {
+            setManagerProfile(mRes.data);
           }
 
-          // 4. Fetch Employee Profiles
-          if (Array.isArray(dept.employees) && dept.employees.length > 0) {
-            const employeeIds = dept.employees.map((e: any) =>
-              typeof e === "string" ? e : (e as any)._id,
-            );
-            const profiles = await Promise.all(
-              employeeIds.map(async (id: string) => {
-                const res = await getUserDetails(id);
-                return res.isError ? null : res.data;
-              }),
-            );
-            setEmployeeProfiles(profiles.filter((p) => p !== null));
+          if (resEmployees && !resEmployees.isError) {
+            setEmployeeProfiles(resEmployees.data);
           }
 
-          // 5. Fetch Project Profiles
-          if (Array.isArray(dept.projectIds) && dept.projectIds.length > 0) {
-            const { getProjectDetail } =
-              await import("@/services/project.service");
-            const projectList = await Promise.all(
-              dept.projectIds.map(async (id: string) => {
-                const res = await getProjectDetail(id);
-                return res.isError ? null : res.data;
-              }),
-            );
-            setProjects(projectList.filter((p) => p !== null));
+          if (projects.length > 0) {
+            setProjects(projects);
           }
         }
       }

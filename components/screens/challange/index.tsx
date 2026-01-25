@@ -149,18 +149,16 @@ export default function Challange() {
           ))}
         </View>
 
-        {isManager && (
-          <TouchableOpacity
-            onPress={() => setIsModalVisible(true)}
-            className={`ml-3 w-12 h-12 rounded-2xl items-center justify-center border ${filters.priority !== null ? "bg-[#8862F2] border-[#8862F2]" : "bg-white border-gray-200"}`}
-          >
-            <Ionicons
-              name="options-outline"
-              size={24}
-              color={filters.priority !== null ? "white" : "#8862F2"}
-            />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={() => setIsModalVisible(true)}
+          className={`ml-3 w-12 h-12 rounded-2xl items-center justify-center border ${filters.priority !== null ? "bg-[#8862F2] border-[#8862F2]" : "bg-white border-gray-200"}`}
+        >
+          <Ionicons
+            name="options-outline"
+            size={24}
+            color={filters.priority !== null ? "white" : "#8862F2"}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );

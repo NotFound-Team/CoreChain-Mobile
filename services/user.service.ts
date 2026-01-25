@@ -55,10 +55,14 @@ export const updatePassword = async (
   }
 };
 
-export const searchUsers = async (name: string) => {
+export const searchUsers = async (
+  name: string,
+  signal: AbortSignal | undefined,
+) => {
   try {
     const res = await instanceAxios.get(
       `${API_ENDPOINT.USER.INDEX}?name=/${name}/g`,
+      { signal },
     );
     return handleApiResponse(res);
   } catch (error: any) {

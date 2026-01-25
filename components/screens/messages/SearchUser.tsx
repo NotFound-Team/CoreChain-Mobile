@@ -1,16 +1,18 @@
+import { useDebounce } from "@/hooks/useDebounce";
+import { TaskQueue } from "@/queue/task-queue";
 import { createPrivateConversation } from "@/services/conversation.service";
 import { searchUsers } from "@/services/user.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
-    FlatList,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EmptyState from "./EmptyState";
@@ -21,23 +23,23 @@ interface User {
   name: string;
   avatar?: string;
 }
-
+const queue = new TaskQueue(1);
 // Simple debounce hook implementation
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+// function useDebounce<T>(value: T, delay: number): T {
+//   const [debouncedValue, setDebouncedValue] = useState(value);
 
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+//   React.useEffect(() => {
+//     const handler = setTimeout(() => {
+//       setDebouncedValue(value);
+//     }, delay);
 
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
+//     return () => {
+//       clearTimeout(handler);
+//     };
+//   }, [value, delay]);
 
-  return debouncedValue;
-}
+//   return debouncedValue;
+// }
 
 export default function SearchUser() {
   const [query, setQuery] = useState("");
@@ -47,36 +49,71 @@ export default function SearchUser() {
   const { user } = useAuthStore();
   const currentUserId = user?.id;
 
+  const abortRef = useRef<AbortController | null>(null);
+
   // Effect to handle search
   React.useEffect(() => {
-    // Nếu query trống, reset kết quả và dừng loading
     if (!debouncedQuery.trim()) {
       setResults([]);
       setIsLoading(false);
       return;
     }
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-    const fetchUsers = async () => {
-      setIsLoading(true); // Bắt đầu loading khi gọi API
+    queue.enqueue(async (signal) => {
+      setIsLoading(true);
+
       try {
-        const res = await searchUsers(debouncedQuery);
+        const res = await searchUsers(debouncedQuery, controller.signal);
+
+        if (signal?.aborted) return;
 
         if (!res.isError) {
           const users = res.data?.result || [];
-          // Lọc user hiện tại
-          const filteredUsers = currentUserId
+          const filtered = currentUserId
             ? users.filter((u: User) => u._id !== currentUserId)
             : users;
-          setResults(filteredUsers);
+
+          setResults(filtered);
         }
-      } catch (error) {
-        console.error("Search error:", error);
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("Search error:", err);
+        }
       } finally {
-        setIsLoading(false); // Kết thúc loading dù thành công hay lỗi
+        if (!signal?.aborted) {
+          setIsLoading(false);
+        }
       }
+    }, controller.signal);
+
+    return () => {
+      controller.abort();
     };
 
-    fetchUsers();
+    // const fetchUsers = async () => {
+    //   setIsLoading(true); // Bắt đầu loading khi gọi API
+    //   try {
+    //     const res = await searchUsers(debouncedQuery);
+
+    //     if (!res.isError) {
+    //       const users = res.data?.result || [];
+    //       // Lọc user hiện tại
+    //       const filteredUsers = currentUserId
+    //         ? users.filter((u: User) => u._id !== currentUserId)
+    //         : users;
+    //       setResults(filteredUsers);
+    //     }
+    //   } catch (error) {
+    //     console.error("Search error:", error);
+    //   } finally {
+    //     setIsLoading(false); // Kết thúc loading dù thành công hay lỗi
+    //   }
+    // };
+
+    // fetchUsers();
   }, [debouncedQuery, currentUserId]);
 
   const handleUserPress = async (userId: string) => {

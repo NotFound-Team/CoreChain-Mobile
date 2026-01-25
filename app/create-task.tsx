@@ -1,5 +1,6 @@
 import { getDepartments } from "@/services/department.service";
 import { createTask, getTaskDetail, updateTask } from "@/services/task.service";
+import { getUserIds } from "@/services/user.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -80,23 +81,20 @@ export default function CreateTaskScreen() {
           // Assuming employees might be objects or we need to fetch them
           // For now, let's assume if objects are there, use them, otherwise use search
           const allMembers: any[] = [];
+          const userIds = new Set<string>();
           res.data.result.forEach((dept: any) => {
             if (Array.isArray(dept.employees)) {
               dept.employees.forEach((emp: any) => {
                 if (typeof emp === "object") {
                   allMembers.push(emp);
                 } else {
-                  allMembers.push({ _id: emp, name: `User ID: ${emp}` });
+                  userIds.add(emp);
                 }
               });
             }
           });
-
-          // Deduplicate
-          const uniqueMembers = Array.from(
-            new Map(allMembers.map((m) => [m._id, m])).values(),
-          );
-          setMembers(uniqueMembers);
+          const usersRes = await getUserIds(Array.from(userIds));
+          setMembers(usersRes.data);
         }
       } catch (error) {
         console.error("Error fetching members:", error);
