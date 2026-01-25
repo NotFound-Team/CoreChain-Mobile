@@ -72,6 +72,7 @@ const SignInModal = ({ isVisible, onClose }: any) => {
       <BottomSheet.Content heightPercentage={0.7}>
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
           <KeyboardAvoidingView
+            enabled={Platform.OS === "android"}
             behavior={Platform.OS === "ios" ? "padding" : "padding"}
             style={{ flex: 1, justifyContent: "flex-end" }}
             keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -160}

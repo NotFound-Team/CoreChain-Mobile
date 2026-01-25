@@ -141,7 +141,7 @@ const VideoMeetingContent = () => {
           return (
             <View style={{ width: '48%', height: 180, margin: '1%', borderRadius: 24, overflow: 'hidden', backgroundColor: '#2A2A2A' }}>
               {isRealTrack ? (
-                <VideoTrack trackRef={track as any} style={{ flex: 1 }} />
+                <VideoTrack mirror={true} trackRef={track as any} style={{ flex: 1 }} />
               ) : (
                 <View className="flex-1 items-center justify-center bg-gray-800">
                   <Ionicons name="person" size={40} color="white" opacity={0.3} />
