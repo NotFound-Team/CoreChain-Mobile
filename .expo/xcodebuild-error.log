@@ -1,0 +1,7 @@
+** BUILD FAILED **
+
+
+The following build commands failed:
+	PhaseScriptExecution [CP-User]\ Generate\ app.config\ for\ prebuilt\ Constants.manifest /Users/VanThuan/Library/Developer/Xcode/DerivedData/CoreChain-ezlnzhunvyzqnjdmqhdhyudtsnvc/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/EXConstants.build/Script-46EB2E0002A8B0.sh (in target 'EXConstants' from project 'Pods')
+	Building workspace CoreChain with scheme CoreChain and configuration Debug
+(2 failures)

@@ -74,8 +74,12 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
 
 const instanceAxios = createAxiosInstance(process.env.EXPO_PUBLIC_API_URL as string);
 
+
+
 const instanceCommunication = createAxiosInstance(process.env.EXPO_PUBLIC_API_URL_COMMUNICATION as string);
+
+const instanceNotification = createAxiosInstance(process.env.EXPO_PUBLIC_NOTIFICATION_URL as string);
 
 export default instanceAxios;
 
-export { instanceCommunication };
+export { instanceCommunication, instanceNotification };

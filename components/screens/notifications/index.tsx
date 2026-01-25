@@ -1,72 +1,111 @@
+import { getAllNotifications, NotificationItem } from "@/services/notification.service";
+import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import {
   useSafeAreaInsets
 } from "react-native-safe-area-context";
 
-const NOTIFICATIONS = [
-  {
-    id: "1",
-    title: "New Task Assigned to You!",
-    description:
-      'You have new task for this sprint from Alicia, you can check your task "Create Onboarding Screen" by tap here',
-    time: "09.10",
-    icon: "document-text",
-    iconColor: "#8862F2",
-  },
-  {
-    id: "2",
-    title: "Expense has been approved!",
-    description:
-      "Your expense has been been approved by jessica, view expense report here",
-    time: "09.10",
-    icon: "document-text",
-    iconColor: "#8862F2",
-  },
-  {
-    id: "3",
-    title: "You have invited in meeting!",
-    description:
-      "You have been invited to a meeting. Tap to find the meeting details",
-    time: "09.10",
-    icon: "people",
-    iconColor: "#8862F2",
-  },
+const ICONS = [
+  "notifications",
+  "document-text",
+  "people",
+  "chatbubble-ellipses",
+  "calendar",
+] as const;
+
+const COLORS = [
+  "#8862F2",
+  "#4CAF50",
+  "#FF9800",
+  "#03A9F4",
+  "#E91E63",
 ];
 
-export default function Notifications() {
-  const insets = useSafeAreaInsets();
+const getIconAndColor = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
 
-  const renderItem = ({ item }: { item: (typeof NOTIFICATIONS)[0] }) => (
+  return {
+    icon: ICONS[Math.abs(hash) % ICONS.length],
+    iconColor: COLORS[Math.abs(hash) % COLORS.length],
+  };
+};
+
+
+
+export default function Notifications() {
+
+  const insets = useSafeAreaInsets();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const user = useAuthStore((state) => state.user);
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await getAllNotifications(user?.id as string);
+        console.log("get on notification", res);
+        
+        const mappedData: NotificationItem[] = (res.data || []).map((item: NotificationItem) => {
+          const { icon, iconColor } = getIconAndColor(item.id);
+          return {
+            ...item,
+            icon,
+            iconColor,
+          };
+        });
+
+        setNotifications(mappedData);
+      } catch (error) {
+        console.log("Fetch notifications error:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const renderItem = ({ item }: { item: NotificationItem }) => (
     <TouchableOpacity
       className="flex-row items-start px-4 py-4 bg-white border-b border-gray-100"
       activeOpacity={0.7}
     >
-      {/* Icon Container */}
+      {/* Icon */}
       <View
         className="w-12 h-12 rounded-xl items-center justify-center mr-3"
-        style={{ backgroundColor: `${item.iconColor}10` }}
+        style={{ backgroundColor: `${item.iconColor}15` }}
       >
-        <Ionicons name={item.icon as any} size={24} color={item.iconColor} />
+        <Ionicons
+          name={item.icon ?? "notifications"}
+          size={24}
+          color={item.iconColor ?? "#8862F2"}
+        />
       </View>
 
-      {/* Content Container */}
+      {/* Content */}
       <View className="flex-1">
         <View className="flex-row justify-between items-center mb-1">
           <Text className="text-[15px] font-bold text-[#1A1C1E] flex-1 mr-2">
             {item.title}
           </Text>
-          <Text className="text-gray-400 text-[12px]">{item.time}</Text>
+          <Text className="text-gray-400 text-[12px]">
+            {new Date(item.created_at).toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
         </View>
 
         <Text className="text-gray-500 text-[13px] leading-5">
-          {item.description}
+          {item.body}
         </Text>
       </View>
     </TouchableOpacity>
   );
+
+
 
   return (
     <View className="flex-1 bg-[#F1F3F8]">
@@ -91,7 +130,7 @@ export default function Notifications() {
 
       {/* List Notifications */}
       <FlatList
-        data={NOTIFICATIONS}
+        data={notifications}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
