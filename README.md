@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-  <b>Blockchain-powered Human Resource Management Platform</b>
+  <b>Blockchain-integrated Human Resource Management System</b>
 </p>
 
 ---
@@ -61,16 +61,16 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ### 🧠 Backend Services
 
-- **Main Server**: NestJS
+- **Core Server**: NestJS
 - **Communication & Notification Service**: Golang
-- **Architecture**: Modular / Microservice-oriented
+- **Architecture**: Modular / Microservices-oriented
 - **Authentication**: JWT, HTTP-only Cookies
 
 ---
 
 ### ⛓️ Blockchain Layer
 
-- **Network**: Ethereum (Sepolia Testnet)
+- **Network**: Ethereum Testnet
 - **Smart Contract Language**: Solidity
 - **Tools**:
   - Truffle
@@ -142,15 +142,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### ⏱️ 4. Attendance & Activity Tracking
-
-- Check-in / Check-out
-- Attendance history
-- Verifiable records via Smart Contracts
-
----
-
-### 📋 5. Task & Workflow Management
+### 📋 4. Task & Workflow Management
 
 - Task assignment & tracking
 - Workflow status management
@@ -158,7 +150,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### ⛓️ 6. Blockchain & Smart Contract Integration
+### ⛓️ 5. Blockchain & Smart Contract Integration
 
 - Immutable HR records
 - Transparent transaction history
@@ -166,7 +158,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 💬 7. Real-time Communication & Notification
+### 💬 6. Real-time Communication & Notification
 
 - Internal chat & messaging
 - Real-time notifications
@@ -418,7 +410,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ```
 
-## 🖼️ DEMO SCREENSHOT / PREVIEW
+## DEMO SCREENSHOT / PREVIEW
 
 ### 🌐 Landing Page
 
