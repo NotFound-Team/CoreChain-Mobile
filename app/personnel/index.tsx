@@ -1,82 +1,44 @@
+import { getKpiCal, getSalaryCal } from "@/services/personnel.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { IKpiInfo, ISalaryInfo } from "@/types/personnel";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import {
-    useSafeAreaInsets
-} from "react-native-safe-area-context";
-
-// Mock Data Types based on user request and existing types
-interface ISalaryInfo {
-  id: string;
-  employeeId: string;
-  baseSalary: number;
-  allowances: number;
-  bonus: number;
-  totalSalary: number;
-  paymentDate: string;
-  status: "Paid" | "Pending";
-}
-
-interface IKpiInfo {
-  id: string;
-  employeeId: string;
-  period: string;
-  score: number;
-  rating: string;
-  feedback: string;
-}
-
-// Mock Data
-const MOCK_SALARY: ISalaryInfo = {
-  id: "sal_001",
-  employeeId: "user_123", // Will match current user dynamically
-  baseSalary: 5000000,
-  allowances: 1500000,
-  bonus: 500000,
-  totalSalary: 7000000,
-  paymentDate: "2024-04-25",
-  status: "Paid",
-};
-
-const MOCK_KPI: IKpiInfo = {
-  id: "kpi_001",
-  employeeId: "user_123",
-  period: "Q1 2024",
-  score: 85.5,
-  rating: "Exceeds Expectations",
-  feedback: "Excellent performance in project delivery.",
-};
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function PersonnelScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [salary, setSalary] = useState<ISalaryInfo | null>(null);
-  const [kpi, setKpi] = useState<IKpiInfo | null>(null);
+  const [kpi, setKpi] = useState<IKpiInfo | number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const insets = useSafeAreaInsets();
 
   const fetchData = async () => {
+    if (!user?.id) return;
     try {
       setIsLoading(true);
-      // Simulate API calls: @Get('salary/:id') and @Get('kpi/:id')
-      // effectively: fetchSalary(user.id) and fetchKpi(user.id)
+      const [salaryRes, kpiRes] = await Promise.all([
+        getSalaryCal(user.id),
+        getKpiCal(user.id),
+      ]);
+      console.log("Salary Response:", salaryRes);
+      console.log("KPI Response:", kpiRes);
+      if (!salaryRes.isError) {
+        setSalary(salaryRes.data);
+      }
+      if (!kpiRes.isError) {
+        setKpi(kpiRes.data);
+      }
 
-      setTimeout(() => {
-        // In a real app, we would use user.id to fetch specific data
-        // For mock, we just use the static mock objects
-        setSalary({ ...MOCK_SALARY, employeeId: user?.id || "unknown" });
-        setKpi({ ...MOCK_KPI, employeeId: user?.id || "unknown" });
-
-        setIsLoading(false);
-      }, 800);
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -108,9 +70,7 @@ export default function PersonnelScreen() {
         >
           <Ionicons name="chevron-back" size={24} color="#8862F2" />
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-[#1A1C1E]">
-          Payroll & Tax
-        </Text>
+        <Text className="text-lg font-bold text-[#1A1C1E]">Payroll & Tax</Text>
         <View className="w-10" />
       </View>
 
@@ -144,30 +104,34 @@ export default function PersonnelScreen() {
             <Text className="text-gray-400 text-center py-4">
               Loading salary...
             </Text>
+          ) : !salary ? (
+            <Text className="text-gray-400 text-center py-4">
+              No salary information available.
+            </Text>
           ) : (
             <View className="space-y-3">
               <View className="flex-row justify-between border-b border-gray-50 pb-2">
                 <Text className="text-gray-500">Base Salary</Text>
                 <Text className="font-semibold text-gray-800">
-                  {formatCurrency(salary?.baseSalary || 0)}
+                  {formatCurrency(salary.baseSalary || 0)}
                 </Text>
               </View>
               <View className="flex-row justify-between border-b border-gray-50 pb-2">
                 <Text className="text-gray-500">Allowances</Text>
                 <Text className="font-semibold text-gray-800">
-                  {formatCurrency(salary?.allowances || 0)}
+                  {formatCurrency(salary.allowances || 0)}
                 </Text>
               </View>
               <View className="flex-row justify-between border-b border-gray-50 pb-2">
                 <Text className="text-gray-500">Bonus</Text>
                 <Text className="font-semibold text-gray-800">
-                  {formatCurrency(salary?.bonus || 0)}
+                  {formatCurrency(salary.bonus || 0)}
                 </Text>
               </View>
               <View className="flex-row justify-between pt-2">
                 <Text className="text-gray-900 font-bold">Total Received</Text>
                 <Text className="font-bold text-green-600 text-lg">
-                  {formatCurrency(salary?.totalSalary || 0)}
+                  {formatCurrency(salary.totalSalary || 0)}
                 </Text>
               </View>
             </View>
@@ -184,7 +148,9 @@ export default function PersonnelScreen() {
               <Text className="text-lg font-bold text-gray-900">
                 KPI Performance
               </Text>
-              <Text className="text-gray-400 text-xs">{kpi?.period}</Text>
+              <Text className="text-gray-400 text-xs">
+                {typeof kpi === "object" ? kpi?.period : "Current Period"}
+              </Text>
             </View>
           </View>
 
@@ -192,34 +158,45 @@ export default function PersonnelScreen() {
             <Text className="text-gray-400 text-center py-4">
               Loading KPI...
             </Text>
+          ) : kpi === null ? (
+            <Text className="text-gray-400 text-center py-4">
+              No KPI data available.
+            </Text>
           ) : (
             <View>
               <View className="items-center py-4">
                 <View className="w-24 h-24 rounded-full border-4 border-blue-100 items-center justify-center mb-2">
                   <Text className="text-3xl font-bold text-blue-600">
-                    {kpi?.score}
+                    {typeof kpi === "number" ? kpi : kpi?.score}
                   </Text>
                 </View>
                 <Text className="text-gray-500 text-sm">Overall Score</Text>
               </View>
 
-              <View className="bg-gray-50 p-3 rounded-xl mb-3">
-                <Text className="text-gray-500 text-xs uppercase mb-1 font-bold">
-                  Rating
-                </Text>
-                <Text className="text-gray-800 font-medium">{kpi?.rating}</Text>
-              </View>
+              {typeof kpi === "object" && kpi?.rating && (
+                <View className="bg-gray-50 p-3 rounded-xl mb-3">
+                  <Text className="text-gray-500 text-xs uppercase mb-1 font-bold">
+                    Rating
+                  </Text>
+                  <Text className="text-gray-800 font-medium">
+                    {kpi.rating}
+                  </Text>
+                </View>
+              )}
 
-              <View className="bg-gray-50 p-3 rounded-xl">
-                <Text className="text-gray-500 text-xs uppercase mb-1 font-bold">
-                  Feedback
-                </Text>
-                <Text className="text-gray-800 font-medium italic">
-                  &quot;{kpi?.feedback}&quot;
-                </Text>
-              </View>
+              {typeof kpi === "object" && kpi?.feedback && (
+                <View className="bg-gray-50 p-3 rounded-xl">
+                  <Text className="text-gray-500 text-xs uppercase mb-1 font-bold">
+                    Feedback
+                  </Text>
+                  <Text className="text-gray-800 font-medium italic">
+                    &quot;{kpi.feedback}&quot;
+                  </Text>
+                </View>
+              )}
             </View>
           )}
+
         </View>
       </ScrollView>
     </View>

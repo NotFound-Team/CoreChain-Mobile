@@ -55,3 +55,24 @@ export interface IPersonnel {
 }
 
 export type TQueryPersonnelSalary = Partial<IPersonnel> & IPagination;
+
+export interface ISalaryInfo {
+  id: string;
+  employeeId: string;
+  baseSalary: number;
+  allowances: number;
+  bonus: number;
+  totalSalary: number;
+  paymentDate: string;
+  status: "Paid" | "Pending";
+}
+
+export interface IKpiInfo {
+  id: string;
+  employeeId: string;
+  period: string;
+  score: number;
+  rating: string;
+  feedback: string;
+}
+

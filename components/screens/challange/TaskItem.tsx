@@ -16,20 +16,18 @@ const getPriorityStyles = (priority: number) => {
 const getStatusStyles = (status: number) => {
   switch (status) {
     case 1:
-      return { label: "To Do", color: "bg-gray-100", text: "text-gray-600" };
-    case 2:
       return {
         label: "In Progress",
         color: "bg-blue-50/50",
         text: "text-blue-600",
       };
-    case 3:
+    case 2:
       return {
         label: "Review",
         color: "bg-purple-50",
         text: "text-purple-600",
       };
-    case 4:
+    case 3:
       return { label: "Done", color: "bg-green-50", text: "text-green-600" };
     default:
       return { label: "Unknown", color: "bg-gray-100", text: "text-gray-600" };
@@ -96,7 +94,7 @@ export const TaskItem = ({ item }: { item: any }) => {
       <View className="w-full h-[6px] bg-gray-100 rounded-full mb-4 overflow-hidden">
         <View
           className="h-full bg-[#8862F2]"
-          style={{ width: item.status >= 3 ? "100%" : "40%" }}
+          style={{ width: item.status >= 2 ? "100%" : "40%" }}
         />
       </View>
 

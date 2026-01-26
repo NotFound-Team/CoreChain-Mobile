@@ -11,15 +11,18 @@ export default function Profile() {
     CONTACT: [
       {
         icon: "mail",
-        label: user?.email || "Tonald@gmail.com",
+        label: user?.email || "user@gmail.com",
         color: "#8862F2",
       },
-      { icon: "location", label: "Taman Anggrek", color: "#8862F2" },
     ],
     ACCOUNT: [
-      { icon: "person", label: "Update Public Profile", href: "/update-profile" },
+      {
+        icon: "person",
+        label: "Update Public Profile",
+        href: "/update-profile",
+      },
       { icon: "person", label: "Personal Data", href: "/personal" },
-      { icon: "folder", label: "Office Assets" },
+      // { icon: "folder", label: "Office Assets" },
       { icon: "card", label: "Payroll & Tax", href: "/personnel" },
     ],
     SETTINGS: [
@@ -68,7 +71,7 @@ export default function Profile() {
           {item.label}
         </Text>
       </View>
-      {!item.isLogout && (
+      {!item.isLogout && item.icon !== "mail" && (
         <Ionicons name="chevron-forward" size={18} color="#D1D5DB" />
       )}
     </TouchableOpacity>
@@ -109,7 +112,7 @@ export default function Profile() {
             <View className="items-center mt-4">
               <View className="flex-row items-center">
                 <Text className="text-xl font-bold text-[#1A1C1E]">
-                  {user?.name || "Tonald Drump"}
+                  {user?.name || "User Name"}
                 </Text>
                 <Ionicons
                   name="checkmark-circle"

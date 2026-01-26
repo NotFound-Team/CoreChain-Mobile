@@ -16,31 +16,30 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Helper: Soft UI Colors (Nền nhạt + Chữ đậm)
 const getStatusStyles = (status: number) => {
   switch (status) {
-    case 2: // In Progress
+    case 1: // In Progress
       return {
         label: "In Progress",
         bg: "bg-blue-100",
         text: "text-blue-700",
         icon: "timer-sand",
       };
-    case 3: // Review
+    case 2: // Review
       return {
         label: "Review",
         bg: "bg-purple-100",
         text: "text-purple-700",
         icon: "eye-outline",
       };
-    case 4: // Completed
+    case 3: // Done
       return {
-        label: "Completed",
+        label: "Done",
         bg: "bg-emerald-100",
         text: "text-emerald-700",
         icon: "check-circle-outline",
       };
-    default: // Todo
+    default: // Unknown/Todo
       return {
         label: "To Do",
         bg: "bg-slate-100",
@@ -135,13 +134,88 @@ export const TaskDetails = ({ id }: { id: string }) => {
     ? getPriorityStyles(taskDetail.priority)
     : null;
 
+  const handleUpdateStatus = async (nextStatus: number) => {
+    try {
+      setIsLoading(true);
+      const res = await updateTask(id, { status: nextStatus });
+      if (!res.isError) {
+        Alert.alert(
+          "Success",
+          `Status updated to ${
+            nextStatus === 2
+              ? "Review"
+              : nextStatus === 3
+                ? "Done"
+                : "In Progress"
+          }`,
+        );
+        // Re-fetch data
+        const response = await getTaskDetail(id);
+        if (!response.isError) {
+          setTaskDetail(response.data);
+        }
+      } else {
+        Alert.alert("Error", res.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const showStatusMenu = () => {
+    if (!taskDetail) return;
+
+    const options = [];
+    if (taskDetail.status === 1) {
+      options.push({
+        text: "Move to Review",
+        onPress: () => handleUpdateStatus(2),
+      });
+      if (isManager) {
+        options.push({
+          text: "Mark as Done",
+          onPress: () => handleUpdateStatus(3),
+        });
+      }
+    } else if (taskDetail.status === 2) {
+      options.push({
+        text: "Move to In Progress",
+        onPress: () => handleUpdateStatus(1),
+      });
+      if (isManager) {
+        options.push({
+          text: "Mark as Done",
+          onPress: () => handleUpdateStatus(3),
+        });
+      }
+    } else if (taskDetail.status === 3) {
+      if (isManager) {
+        options.push({
+          text: "Re-open (In Progress)",
+          onPress: () => handleUpdateStatus(1),
+        });
+      }
+    }
+
+    if (options.length === 0) {
+      Alert.alert("Info", "No status actions available for this task.");
+      return;
+    }
+
+    Alert.alert("Update Status", "Choose a status for this task", [
+      ...options,
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
   return (
     <View className="flex-1 bg-[#F8FAFC]">
       {isLoading && <LoadingOverlay visible={isLoading} />}
 
       {taskDetail && statusInfo && priorityInfo && (
         <>
-          {/* Header trong suốt, đẹp hơn */}
           <SafeAreaView className="bg-[#F8FAFC] z-10">
             <View className="flex-row items-center justify-between px-5 py-2">
               <TouchableOpacity
@@ -153,7 +227,10 @@ export const TaskDetails = ({ id }: { id: string }) => {
               <Text className="text-lg font-bold text-slate-800">
                 Task Details
               </Text>
-              <TouchableOpacity className="w-10 h-10 items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm">
+              <TouchableOpacity
+                onPress={showStatusMenu}
+                className="w-10 h-10 items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm"
+              >
                 <Ionicons
                   name="ellipsis-horizontal"
                   size={22}
@@ -354,47 +431,39 @@ export const TaskDetails = ({ id }: { id: string }) => {
             )}
 
             {/* Status Update Button */}
-            {(taskDetail.status === 2 || taskDetail.status === 3) && (
+            {(taskDetail.status === 1 || taskDetail.status === 2) && (
               <View className="mb-6">
                 <TouchableOpacity
-                  onPress={async () => {
-                    try {
-                      setIsLoading(true);
-                      const nextStatus = taskDetail.status === 2 ? 3 : 2;
-                      const res = await updateTask(id, { status: nextStatus });
-                      if (!res.isError) {
-                        Alert.alert(
-                          "Success",
-                          `Status updated to ${nextStatus === 3 ? "Review" : "In Progress"}`,
-                        );
-                        // Re-fetch data
-                        const updatedRes = await getTaskDetail(id);
-                        if (!updatedRes.isError) setTaskDetail(updatedRes.data);
-                      } else {
-                        Alert.alert(
-                          "Error",
-                          res.message || "Failed to update status",
-                        );
-                      }
-                    } catch (error) {
-                      console.error("Status update error:", error);
-                    } finally {
-                      setIsLoading(false);
-                    }
+                  onPress={() => {
+                    const nextStatus =
+                      taskDetail.status === 1 ? 2 : isManager ? 3 : 1;
+                    handleUpdateStatus(nextStatus);
                   }}
-                  className={`w-full h-14 rounded-2xl flex-row items-center justify-center shadow-sm ${taskDetail.status === 2 ? "bg-purple-600" : "bg-blue-600"}`}
+                  className={`w-full h-14 rounded-2xl flex-row items-center justify-center shadow-sm ${
+                    taskDetail.status === 1
+                      ? "bg-purple-600"
+                      : isManager
+                        ? "bg-emerald-600"
+                        : "bg-blue-600"
+                  }`}
                 >
                   <MaterialCommunityIcons
                     name={
-                      taskDetail.status === 2 ? "eye-outline" : "play-outline"
+                      taskDetail.status === 1
+                        ? "eye-outline"
+                        : isManager
+                          ? "check-circle-outline"
+                          : "timer-sand"
                     }
                     size={24}
                     color="white"
                   />
                   <Text className="text-white font-bold text-base ml-2">
-                    {taskDetail.status === 2
+                    {taskDetail.status === 1
                       ? "Mark as Review"
-                      : "Mark as In Progress"}
+                      : isManager
+                        ? "Mark as Done"
+                        : "Mark as In Progress"}
                   </Text>
                 </TouchableOpacity>
               </View>
