@@ -20,10 +20,14 @@ export const getAllNotifications = async (
   userId: string
 ): Promise<ApiResponse<NotificationItem[]>> => {
   try {
+    console.log(`calling: ${API_ENDPOINT.NOTIFICATION.INDEX}${userId}`)
     const res = await instanceNotification.get(
-      `${API_ENDPOINT.NOTIFICATION.INDEX}/${userId}`
+      `${API_ENDPOINT.NOTIFICATION.INDEX}${userId}`
     );
-    console.log("Noti", res)
+    res.data = {
+      "data": res.data.data.notifications
+    }
+    console.log("Noti", res.data, res.status)
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);
