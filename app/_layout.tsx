@@ -309,8 +309,13 @@ export default function RootLayout() {
     // setupFCMListeners();
     const unsubscribe = setupFCMListeners((title, message, data) => {
       // Suppress only if on the SAME chat screen
-      if (data?.conversation_id && pathname.includes(`/chat/${data.conversation_id}`)) {
-        console.log("Suppressing FCM notification because already on this chat screen");
+      if (
+        data?.conversation_id &&
+        pathname.includes(`/chat/${data.conversation_id}`)
+      ) {
+        console.log(
+          "Suppressing FCM notification because already on this chat screen",
+        );
         return;
       }
 
@@ -318,12 +323,14 @@ export default function RootLayout() {
         visible: true,
         title,
         message,
-        onPress: data?.conversation_id ? () => {
-          router.push({
-            pathname: `/chat/${data.conversation_id}`,
-            params: { fromNotification: 'true' }
-          } as any);
-        } : undefined
+        onPress: data?.conversation_id
+          ? () => {
+              router.push({
+                pathname: `/chat/${data.conversation_id}`,
+                params: { fromNotification: "true" },
+              } as any);
+            }
+          : undefined,
       });
 
       // auto hide sau 5s
