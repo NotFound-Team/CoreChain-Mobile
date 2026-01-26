@@ -1,4 +1,5 @@
 import { TaskItem } from "@/components/screens/challange/TaskItem";
+import { getDetailDepartment } from "@/services/department.service";
 import { getProjectDetail, updateProject } from "@/services/project.service";
 import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
@@ -9,14 +10,14 @@ import dayjs from "dayjs";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
@@ -25,7 +26,9 @@ export default function ProjectDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuthStore();
-  const [project, setProject] = useState<IProject | null>(null);
+  const [project, setProject] = useState<
+    (IProject & { departmentName?: string }) | null
+  >(null);
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -44,7 +47,20 @@ export default function ProjectDetailScreen() {
       ]);
 
       if (!projRes.isError) {
-        setProject(projRes.data);
+        const projectData = projRes.data;
+        if (projectData.department) {
+          const deptRes = await getDetailDepartment(projectData.department);
+          if (!deptRes.isError) {
+            setProject({
+              ...projectData,
+              departmentName: deptRes.data.name,
+            });
+          } else {
+            setProject(projectData);
+          }
+        } else {
+          setProject(projectData);
+        }
       }
       if (!taskRes.isError) {
         setTasks(taskRes.data.result || []);
@@ -68,9 +84,9 @@ export default function ProjectDetailScreen() {
 
   const filteredTasks = tasks.filter((task) => {
     if (activeTab === "All") return true;
-    if (activeTab === "In Progress") return task.status === 2;
-    if (activeTab === "Review") return task.status === 3;
-    if (activeTab === "Finish") return task.status === 4;
+    if (activeTab === "In Progress") return task.status === 1;
+    if (activeTab === "Review") return task.status === 2;
+    if (activeTab === "Finish") return task.status === 3;
     return true;
   });
 
@@ -97,8 +113,8 @@ export default function ProjectDetailScreen() {
     if (!project) return;
     Alert.alert("Project Actions", "Choose an action for this project", [
       {
-        text: project.status === 1 ? "Mark as Review" : "Mark as In Progress",
-        onPress: () => handleUpdateStatus(project.status === 1 ? 2 : 1), // Assuming 1: In Progress, 2: Review (matching user request)
+        text: project.status === 1 ? "Mark as Review" : "Mark as Done",
+        onPress: () => handleUpdateStatus(project.status === 1 ? 2 : 3), 
       },
       {
         text: "Report Project",
@@ -176,7 +192,9 @@ export default function ProjectDetailScreen() {
       case 1:
         return { label: "In Progress", color: "bg-blue-50 text-blue-600" };
       case 2:
-        return { label: "Completed", color: "bg-green-50 text-green-600" };
+        return { label: "Review", color: "bg-purple-50 text-purple-600" };
+      case 3:
+        return { label: "Done", color: "bg-green-50 text-green-600" };
       default:
         return { label: "Unknown", color: "bg-gray-50 text-gray-600" };
     }
@@ -279,15 +297,7 @@ export default function ProjectDetailScreen() {
                 Current Progress
               </Text>
               <Text className="text-gray-500 text-[11px]">
-                {Number(
-                  Math.round(
-                    (tasks.filter((t) => t.status === 4).length /
-                      (tasks.length || 1)) *
-                      100 *
-                      100,
-                  ) / 100,
-                ).toFixed(2)}
-                % Tasks Done
+                {tasks.filter((t) => t.status === 3).length} / {tasks.length} Tasks Done
               </Text>
             </View>
             <Text className="text-2xl font-black text-[#8862F2]">
@@ -332,7 +342,7 @@ export default function ProjectDetailScreen() {
                       <Ionicons name="business" size={16} color="#F59E0B" />
                     </View>
                     <Text className="text-[#1A1C1E] font-bold text-sm">
-                      {project.department || "General"}
+                      {project.departmentName || project.department || "General"}
                     </Text>
                   </View>
                 </View>

@@ -1,7 +1,7 @@
 import { API_ENDPOINT } from "@/configs/api";
 import { handleApiError, handleApiResponse } from "@/helpers/api";
 import { ApiResponse } from "@/types/api";
-import { TQueryPersonnelSalary, TSalaryAdvanceCreate } from "@/types/personnel";
+import { IKpiInfo, ISalaryInfo, TQueryPersonnelSalary, TSalaryAdvanceCreate } from "@/types/personnel";
 import instanceAxios from "@/utils/axios";
 
 export const salaryAdvance = async (
@@ -34,3 +34,26 @@ export const getSalaryList = async (
     return handleApiError(error);
   }
 };
+
+export const getSalaryCal = async (
+  id: string
+): Promise<ApiResponse<ISalaryInfo>> => {
+  try {
+    const res = await instanceAxios.get(API_ENDPOINT.PERSONNEL.SALARY_CAL(id));
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const getKpiCal = async (
+  id: string
+): Promise<ApiResponse<IKpiInfo>> => {
+  try {
+    const res = await instanceAxios.get(API_ENDPOINT.PERSONNEL.KPI_CAL(id));
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+

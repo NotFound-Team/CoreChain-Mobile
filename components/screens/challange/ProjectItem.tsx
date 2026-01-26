@@ -21,7 +21,13 @@ const getStatusStyles = (status: number) => {
       };
     case 2:
       return {
-        label: "Completed",
+        label: "Review",
+        color: "bg-purple-50",
+        text: "text-purple-600",
+      };
+    case 3:
+      return {
+        label: "Done",
         color: "bg-green-50",
         text: "text-green-600",
       };

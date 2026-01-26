@@ -7,10 +7,12 @@ import instanceAxios from "@/utils/axios";
 export const getTasks = async (
   params: TaskQueryParams,
 ): Promise<ApiResponse<any>> => {
+  console.log("getTasks params:", params);
   try {
     const res = await instanceAxios.get(`${API_ENDPOINT.TASK.INDEX}`, {
       params,
     });
+    console.log("getTasks response:", res.data);
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);
