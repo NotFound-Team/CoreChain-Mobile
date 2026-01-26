@@ -1,4 +1,4 @@
-# 🔗 CORECHAIN
+<h1 align="center">🔗 CORECHAIN</h1>
 
 <div align="center">
   <img src="assets/images/icon.png" width="160" alt="CoreChain Logo"/>
