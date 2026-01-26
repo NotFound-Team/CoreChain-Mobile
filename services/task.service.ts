@@ -5,7 +5,7 @@ import { TaskQueryParams } from "@/types/task";
 import instanceAxios from "@/utils/axios";
 
 export const getTasks = async (
-  params: TaskQueryParams
+  params: TaskQueryParams,
 ): Promise<ApiResponse<any>> => {
   try {
     const res = await instanceAxios.get(`${API_ENDPOINT.TASK.INDEX}`, {
@@ -22,7 +22,7 @@ export const getTaskDetail = async (id: string): Promise<ApiResponse<any>> => {
     const res = await instanceAxios.get(`${API_ENDPOINT.TASK.DETAIL(id)}`);
     return handleApiResponse(res);
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
     return handleApiError(error);
   }
 };
@@ -36,9 +36,15 @@ export const createTask = async (data: any): Promise<ApiResponse<any>> => {
   }
 };
 
-export const updateTask = async (id: string, data: any): Promise<ApiResponse<any>> => {
+export const updateTask = async (
+  id: string,
+  data: any,
+): Promise<ApiResponse<any>> => {
   try {
-    const res = await instanceAxios.patch(`${API_ENDPOINT.TASK.DETAIL(id)}`, data);
+    const res = await instanceAxios.patch(
+      `${API_ENDPOINT.TASK.DETAIL(id)}`,
+      data,
+    );
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);
@@ -48,6 +54,20 @@ export const updateTask = async (id: string, data: any): Promise<ApiResponse<any
 export const deleteTask = async (id: string): Promise<ApiResponse<any>> => {
   try {
     const res = await instanceAxios.delete(`${API_ENDPOINT.TASK.DETAIL(id)}`);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};
+
+export const getTasksByDay = async (
+  startDate?: string,
+  dueDate?: string,
+): Promise<ApiResponse<any>> => {
+  try {
+    const res = await instanceAxios.get(`${API_ENDPOINT.TASK.BY_DAY}`, {
+      params: { startDate, dueDate },
+    });
     return handleApiResponse(res);
   } catch (error: any) {
     return handleApiError(error);

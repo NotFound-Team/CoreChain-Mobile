@@ -1,3 +1,5 @@
+import { SortOrder } from "./common";
+
 export interface TypeTask {
   _id: string;
   title: string;
@@ -11,7 +13,7 @@ export interface TypeTask {
   projectId: string;
   priority: number;
   status: number;
-  startDate: Date;
+  startDate: Date | string;
   dueDate: Date;
   isDeleted: boolean;
   createdAt: Date;
@@ -30,4 +32,10 @@ export interface TypeTask {
 export interface TaskQueryParams extends Partial<TypeTask> {
   current?: number | string;
   pageSize?: number | string;
+  sort?: string | Record<string, SortOrder>;
+
+  // populate
+  populate?: string | string[];
+  // projection
+  fields?: string;
 }

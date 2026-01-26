@@ -114,6 +114,10 @@ const AppScreens = () => {
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
+        name="update-profile"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
         name="project-details/[id]"
         options={{ headerShown: false, gestureEnabled: true }}
       />
@@ -386,7 +390,7 @@ export default function RootLayout() {
               <AppScreens />
               <Toaster />
             </SocketProvider>
-            <StatusBar style="auto" />
+            <StatusBar style={Platform.OS === "ios" ? "dark" : "auto"} />
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

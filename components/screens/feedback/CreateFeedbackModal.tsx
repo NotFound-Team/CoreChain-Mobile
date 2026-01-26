@@ -1,4 +1,5 @@
 import { BottomSheet } from "@/components/BottomSheet";
+import { useKeyboard } from "@/hooks/useKeyboard";
 import { createFeedback, updateFeedback } from "@/services/feedback.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { IFeedback } from "@/types/feedback";
@@ -9,6 +10,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   Alert,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -49,6 +51,7 @@ export const CreateFeedbackModal = ({
 }: CreateFeedbackModalProps) => {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const { isKeyboardOpen } = useKeyboard();
 
   const {
     control,
@@ -124,131 +127,138 @@ export const CreateFeedbackModal = ({
   return (
     <BottomSheet visible={isVisible} onClose={onClose}>
       <BottomSheet.Overlay />
-      <BottomSheet.Content heightPercentage={0.8}>
-        <View className="flex-row justify-between items-center mb-6">
-          <Text className="text-2xl font-bold text-gray-800">
-            {initialData ? "Update Feedback" : "New Feedback"}
-          </Text>
-          <TouchableOpacity
-            onPress={onClose}
-            className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
-          >
-            <Ionicons name="close" size={24} color="#666" />
-          </TouchableOpacity>
-        </View>
+      <BottomSheet.Content heightPercentage={isKeyboardOpen ? 0.95 : 0.65}>
+        <ScrollView
+        // keyboardShouldPersistTaps="handled"
+        // contentContainerStyle={{
+        //   paddingBottom: 32,
+        // }}
+        >
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-2xl font-bold text-gray-800">
+              {initialData ? "Update Feedback" : "New Feedback"}
+            </Text>
+            <TouchableOpacity
+              onPress={onClose}
+              className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
+            >
+              <Ionicons name="close" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
 
-        <View className="mb-4">
-          <Text className="text-gray-500 mb-2 font-medium">Category</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
-              <TouchableOpacity
-                key={cat}
-                onPress={() => setValue("category", cat)}
-                className={`px-4 py-2 rounded-full border ${
-                  category === cat
-                    ? "bg-[#8862F2] border-[#8862F2]"
-                    : "bg-white border-gray-200"
-                }`}
-              >
-                <Text
-                  className={`${
-                    category === cat ? "text-white" : "text-gray-600"
-                  } font-medium text-xs`}
+          <View className="mb-4">
+            <Text className="text-gray-500 mb-2 font-medium">Category</Text>
+            <View className="flex-row flex-wrap gap-2">
+              {CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => setValue("category", cat)}
+                  className={`px-4 py-2 rounded-full border ${
+                    category === cat
+                      ? "bg-[#8862F2] border-[#8862F2]"
+                      : "bg-white border-gray-200"
+                  }`}
                 >
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    className={`${
+                      category === cat ? "text-white" : "text-gray-600"
+                    } font-medium text-xs`}
+                  >
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
 
-        <View className="mb-4">
-          <Text className="text-gray-500 mb-2 font-medium">Title</Text>
-          <Controller
-            control={control}
-            name="title"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                value={value}
-                onChangeText={onChange}
-                placeholder="What's this about?"
-                className={`w-full bg-gray-50 p-4 rounded-xl border ${
-                  errors.title ? "border-red-500" : "border-gray-100"
-                } text-base`}
-                placeholderTextColor="#9CA3AF"
-              />
+          <View className="mb-4">
+            <Text className="text-gray-500 mb-2 font-medium">Title</Text>
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="What's this about?"
+                  className={`w-full bg-gray-50 p-4 rounded-xl border ${
+                    errors.title ? "border-red-500" : "border-gray-100"
+                  } text-base`}
+                  placeholderTextColor="#9CA3AF"
+                />
+              )}
+            />
+            {errors.title && (
+              <Text className="text-red-500 text-xs mt-1">
+                {errors.title.message}
+              </Text>
             )}
-          />
-          {errors.title && (
-            <Text className="text-red-500 text-xs mt-1">
-              {errors.title.message}
-            </Text>
-          )}
-        </View>
+          </View>
 
-        <View className="mb-4 flex-1">
-          <Text className="text-gray-500 mb-2 font-medium">Content</Text>
-          <Controller
-            control={control}
-            name="content"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                value={value}
-                onChangeText={onChange}
-                placeholder="Tell us more details..."
-                multiline
-                textAlignVertical="top"
-                className={`w-full flex-1 bg-gray-50 p-4 rounded-xl border ${
-                  errors.content ? "border-red-500" : "border-gray-100"
-                } text-base`}
-                placeholderTextColor="#9CA3AF"
-              />
+          <View className="mb-4 min-h-[120px]">
+            <Text className="text-gray-500 mb-2 font-medium">Content</Text>
+            <Controller
+              control={control}
+              name="content"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="Tell us more details..."
+                  multiline
+                  textAlignVertical="top"
+                  className={`w-full flex-1 bg-gray-50 p-4 rounded-xl border ${
+                    errors.content ? "border-red-500" : "border-gray-100"
+                  } text-base`}
+                  placeholderTextColor="#9CA3AF"
+                />
+              )}
+            />
+            {errors.content && (
+              <Text className="text-red-500 text-xs mt-1">
+                {errors.content.message}
+              </Text>
             )}
-          />
-          {errors.content && (
-            <Text className="text-red-500 text-xs mt-1">
-              {errors.content.message}
-            </Text>
-          )}
-        </View>
+          </View>
 
-        <TouchableOpacity
-          onPress={() => setValue("isAnonymous", !isAnonymous)}
-          className="flex-row items-center mb-6 bg-gray-50 p-3 rounded-xl self-start"
-        >
-          <View
-            className={`w-5 h-5 rounded border ${
-              isAnonymous
-                ? "bg-[#8862F2] border-[#8862F2]"
-                : "border-gray-300 bg-white"
-            } items-center justify-center mr-2`}
+          <TouchableOpacity
+            onPress={() => setValue("isAnonymous", !isAnonymous)}
+            className="flex-row items-center mb-6 bg-gray-50 p-3 rounded-xl self-start"
           >
-            {isAnonymous && (
-              <Ionicons name="checkmark" size={14} color="white" />
-            )}
-          </View>
-          <Text className="text-gray-600">Send anonymously</Text>
-          <Ionicons
-            name="lock-closed-outline"
-            size={14}
-            color="#666"
-            style={{ marginLeft: 6 }}
-          />
-        </TouchableOpacity>
+            <View
+              className={`w-5 h-5 rounded border ${
+                isAnonymous
+                  ? "bg-[#8862F2] border-[#8862F2]"
+                  : "border-gray-300 bg-white"
+              } items-center justify-center mr-2`}
+            >
+              {isAnonymous && (
+                <Ionicons name="checkmark" size={14} color="white" />
+              )}
+            </View>
+            <Text className="text-gray-600">Send anonymously</Text>
+            <Ionicons
+              name="lock-closed-outline"
+              size={14}
+              color="#666"
+              style={{ marginLeft: 6 }}
+            />
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={handleSubmit(onSubmit)}
-          disabled={isLoading}
-          className="w-full bg-[#8862F2] py-4 rounded-2xl items-center shadow-lg shadow-purple-200"
-        >
-          {isLoading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white font-bold text-lg">
-              {initialData ? "Update Feedback" : "Send Feedback"}
-            </Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSubmit(onSubmit)}
+            disabled={isLoading}
+            className="w-full bg-[#8862F2] py-4 rounded-2xl items-center shadow-lg shadow-purple-200"
+          >
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-bold text-lg">
+                {initialData ? "Update Feedback" : "Send Feedback"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
       </BottomSheet.Content>
     </BottomSheet>
   );

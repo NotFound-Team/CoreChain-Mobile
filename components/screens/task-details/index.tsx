@@ -1,10 +1,19 @@
 import LoadingOverlay from "@/components/customs/LoadingOverlay";
 import { getTaskDetail, updateTask } from "@/services/task.service";
+import { getUserDetails } from "@/services/user.service";
+import { useAuthStore } from "@/stores/auth-store";
 import { TypeTask } from "@/types/task";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"; // Import thêm icon
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Helper: Soft UI Colors (Nền nhạt + Chữ đậm)
@@ -67,9 +76,21 @@ const getPriorityStyles = (priority: number) => {
   }
 };
 
+type TaskWithAssigned =
+  | (TypeTask & {
+      assignedTo: {
+        name: string;
+        email: string;
+        avatar?: string;
+      } | null;
+    })
+  | null;
+
 export const TaskDetails = ({ id }: { id: string }) => {
-  const [taskDetail, setTaskDetail] = useState<TypeTask | null>(null);
+  const [taskDetail, setTaskDetail] = useState<TaskWithAssigned>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { user } = useAuthStore();
+  const isManager = user?.roleName === "MANAGER";
 
   useEffect(() => {
     const fetchTaskDetails = async () => {
@@ -77,6 +98,18 @@ export const TaskDetails = ({ id }: { id: string }) => {
         setIsLoading(true);
         const response = await getTaskDetail(id);
         if (!response.isError) {
+          console.log("TASK DETAILS", response.data);
+          if (isManager) {
+            const resUser = await getUserDetails(response.data.assignedTo);
+            if (!resUser.isError) {
+              const { name, email, avatar } = resUser.data;
+              response.data.assignedTo = {
+                name,
+                email,
+                avatar,
+              };
+            }
+          }
           setTaskDetail(response.data);
         }
       } catch (error) {
@@ -86,6 +119,7 @@ export const TaskDetails = ({ id }: { id: string }) => {
       }
     };
     fetchTaskDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (!taskDetail && !isLoading) {
@@ -249,6 +283,40 @@ export const TaskDetails = ({ id }: { id: string }) => {
               </TouchableOpacity>
             </View>
 
+            {isManager && (
+              <View className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6 flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1">
+                  <Image
+                    source={{
+                      uri: `https://ui-avatars.com/api/?name=${taskDetail.assignedTo.email}&background=0D8ABC&color=fff&size=128`,
+                    }}
+                    className="w-12 h-12 rounded-full border-2 border-slate-50"
+                  />
+                  <View className="ml-3 flex-1">
+                    <Text className="text-slate-400 text-xs mb-0.5">
+                      Assigned to
+                    </Text>
+                    <Text
+                      className="font-bold text-slate-800 text-base"
+                      numberOfLines={1}
+                    >
+                      {taskDetail.assignedTo.email.split("@")[0]}
+                    </Text>
+                    <Text className="text-slate-400 text-xs" numberOfLines={1}>
+                      {taskDetail.assignedTo.email}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity className="bg-slate-50 p-2 rounded-full">
+                  <Ionicons
+                    name="chatbubble-ellipses-outline"
+                    size={20}
+                    color="#64748B"
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+
             {/* Description */}
             <View className="mb-8">
               <Text className="text-lg font-bold text-slate-800 mb-3">
@@ -295,12 +363,18 @@ export const TaskDetails = ({ id }: { id: string }) => {
                       const nextStatus = taskDetail.status === 2 ? 3 : 2;
                       const res = await updateTask(id, { status: nextStatus });
                       if (!res.isError) {
-                        Alert.alert("Success", `Status updated to ${nextStatus === 3 ? "Review" : "In Progress"}`);
+                        Alert.alert(
+                          "Success",
+                          `Status updated to ${nextStatus === 3 ? "Review" : "In Progress"}`,
+                        );
                         // Re-fetch data
                         const updatedRes = await getTaskDetail(id);
                         if (!updatedRes.isError) setTaskDetail(updatedRes.data);
                       } else {
-                        Alert.alert("Error", res.message || "Failed to update status");
+                        Alert.alert(
+                          "Error",
+                          res.message || "Failed to update status",
+                        );
                       }
                     } catch (error) {
                       console.error("Status update error:", error);
@@ -310,13 +384,17 @@ export const TaskDetails = ({ id }: { id: string }) => {
                   }}
                   className={`w-full h-14 rounded-2xl flex-row items-center justify-center shadow-sm ${taskDetail.status === 2 ? "bg-purple-600" : "bg-blue-600"}`}
                 >
-                  <MaterialCommunityIcons 
-                    name={taskDetail.status === 2 ? "eye-outline" : "play-outline"} 
-                    size={24} 
-                    color="white" 
+                  <MaterialCommunityIcons
+                    name={
+                      taskDetail.status === 2 ? "eye-outline" : "play-outline"
+                    }
+                    size={24}
+                    color="white"
                   />
                   <Text className="text-white font-bold text-base ml-2">
-                    {taskDetail.status === 2 ? "Mark as Review" : "Mark as In Progress"}
+                    {taskDetail.status === 2
+                      ? "Mark as Review"
+                      : "Mark as In Progress"}
                   </Text>
                 </TouchableOpacity>
               </View>

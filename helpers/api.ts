@@ -2,7 +2,7 @@ import { ApiResponse, HttpStatus } from "@/types/api";
 
 export const handleApiError = (error: any): ApiResponse<any> => {
   console.error("API error", error);
-  
+
   if (error.response) {
     return {
       data: null,
@@ -27,21 +27,20 @@ export const handleApiError = (error: any): ApiResponse<any> => {
   }
 };
 
-export const handleApiResponse = (res: any): ApiResponse<any> => {
+export function handleApiResponse<T>(res: any): ApiResponse<T> {
   if (res && res.data) {
     return {
-      data: res.data.data || null,
+      data: res.data.data ?? null,
       isError: false,
-      status: res.data.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      message: res.data.message || "No message provided",
-    };
-  } else {
-    return {
-      data: null,
-      isError: true,
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: "Unexpected API response format",
+      status: res.data.statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      message: res.data.message ?? "No message provided",
     };
   }
-};
 
+  return {
+    data: null,
+    isError: true,
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: "Unexpected API response format",
+  };
+}

@@ -1,20 +1,21 @@
 import { BottomSheet } from "@/components/BottomSheet";
+import { useKeyboard } from "@/hooks/useKeyboard";
 import { searchUsers } from "@/services/user.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
-    DateTimePickerEvent,
+  DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface User {
@@ -50,6 +51,7 @@ export default function CreateMeetingModal({
   const [startDate, setStartDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
+  const { isKeyboardOpen } = useKeyboard();
 
   const currentUser = useAuthStore((state) => state.user);
 
@@ -142,7 +144,7 @@ export default function CreateMeetingModal({
   return (
     <BottomSheet visible={isVisible} onClose={onClose}>
       <BottomSheet.Overlay />
-      <BottomSheet.Content heightPercentage={0.55}>
+      <BottomSheet.Content heightPercentage={isKeyboardOpen ? 0.85 : 0.55}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "padding"}
         >

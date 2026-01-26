@@ -17,6 +17,7 @@ export default function Profile() {
       { icon: "location", label: "Taman Anggrek", color: "#8862F2" },
     ],
     ACCOUNT: [
+      { icon: "person", label: "Update Public Profile", href: "/update-profile" },
       { icon: "person", label: "Personal Data", href: "/personal" },
       { icon: "folder", label: "Office Assets" },
       { icon: "card", label: "Payroll & Tax", href: "/personnel" },
