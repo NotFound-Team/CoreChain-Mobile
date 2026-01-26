@@ -92,6 +92,8 @@ export const API_ENDPOINT = {
     INDEX: "/conversations",
     PRIVATE: "/conversations/private",
     DETAIL: "/conversations/detail",
+    MESSAGES: "/messages",
+    UNREAD_COUNT: "/conversations/unread-count",
     UPLOAD: "/upload",
   },
 
@@ -101,7 +103,7 @@ export const API_ENDPOINT = {
     JOIN: "/meetings/join",
     END: "/meetings/end",
   },
-  NOTIFICATION:{
+  NOTIFICATION: {
     INDEX: "/"
   }
 };

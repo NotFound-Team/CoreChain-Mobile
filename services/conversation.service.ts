@@ -12,6 +12,8 @@ export interface Conversation {
     is_group: boolean;
     last_message_at?: string;
     last_message_content?: string;
+    last_message_type?: string;
+    last_message_file_name?: string;
     last_message_id?: number;
     last_message_sender_id?: string;
     last_read_message_id?: number;
@@ -27,9 +29,10 @@ export interface Conversation {
 
 export interface Message {
     id?: number;
-    temp_id?: string;
+    client_msg_id?: string;
     conversation_id: number;
     sender_id: string;
+    sender_name?: string;
     content: string;
     type: string;
     created_at: string;
@@ -41,9 +44,10 @@ export interface Message {
 }
 
 export interface OutgoingMessage {
-    temp_id: string;
+    client_msg_id: string;
     conversation_id: number;
     sender_id: string;
+    sender_name: string;
     content: string;
     type: string;
 }
@@ -77,6 +81,31 @@ export const getConversationDetail = async (id: string): Promise<ApiResponse<Con
         return handleApiResponse(res);
     } catch (error: any) {
         console.log("get conversation detail error", error)
+        return handleApiError(error);
+    }
+};
+
+export const getConversationMessages = async (conversationId: number, beforeId?: number): Promise<ApiResponse<Message[]>> => {
+    try {
+        let url = `${API_ENDPOINT.CONVERSATION.MESSAGES}?conversation_id=${conversationId}`;
+        if (beforeId) {
+            url += `&before_id=${beforeId}`;
+        }
+        const res = await instanceCommunication.get(url);
+        return handleApiResponse(res);
+    } catch (error: any) {
+        console.log("get messages error", error);
+        return handleApiError(error);
+    }
+};
+
+export const getUnreadCount = async (): Promise<ApiResponse<{ unread_count: number }>> => {
+    try {
+        const res = await instanceCommunication.get(API_ENDPOINT.CONVERSATION.UNREAD_COUNT);
+        console.log("get unread count: ", res.data);
+        return handleApiResponse(res);
+    } catch (error: any) {
+        console.log("get unread count error", error);
         return handleApiError(error);
     }
 };
