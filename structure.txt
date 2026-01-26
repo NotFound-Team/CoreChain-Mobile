@@ -1,0 +1,236 @@
+.
+├── GoogleService-Info.plist
+├── README.md
+├── android
+│   ├── app
+│   │   ├── build.gradle
+│   │   ├── debug.keystore
+│   │   ├── google-services.json
+│   │   ├── proguard-rules.pro
+│   │   └── src
+│   │       ├── debug
+│   │       ├── debugOptimized
+│   │       └── main
+│   ├── build.gradle
+│   ├── gradle
+│   │   └── wrapper
+│   │       ├── gradle-wrapper.jar
+│   │       └── gradle-wrapper.properties
+│   ├── gradle.properties
+│   ├── gradlew
+│   ├── gradlew.bat
+│   └── settings.gradle
+├── app
+│   ├── (auth)
+│   │   ├── signin.tsx
+│   │   └── welcome.tsx
+│   ├── (tabs)
+│   │   ├── _layout.tsx
+│   │   ├── calendar.tsx
+│   │   ├── challange.tsx
+│   │   ├── department.tsx
+│   │   ├── expense.tsx
+│   │   └── index.tsx
+│   ├── +not-found.tsx
+│   ├── _layout.tsx
+│   ├── changepassword.tsx
+│   ├── chat
+│   │   └── [id].tsx
+│   ├── create-task.tsx
+│   ├── department
+│   │   └── index.tsx
+│   ├── feedback
+│   │   └── index.tsx
+│   ├── meeting.tsx
+│   ├── messages.tsx
+│   ├── notifications.tsx
+│   ├── personal.tsx
+│   ├── personnel
+│   │   └── index.tsx
+│   ├── profile.tsx
+│   ├── project
+│   │   └── index.tsx
+│   ├── project-details
+│   │   └── [id].tsx
+│   ├── search-user.tsx
+│   ├── task-details
+│   │   └── [id].tsx
+│   ├── update-profile.tsx
+│   ├── versioning.tsx
+│   └── video-meeting.tsx
+├── app.json
+├── assets
+│   └── images
+│       ├── android-icon-background.png
+│       ├── android-icon-foreground.png
+│       ├── android-icon-monochrome.png
+│       ├── banner-wellcome.png
+│       ├── favicon.png
+│       ├── icon.png
+│       ├── onboarding-1.png
+│       ├── onboarding-2.png
+│       ├── onboarding-3.png
+│       ├── onboarding-4.png
+│       ├── partial-react-logo.png
+│       ├── react-logo.png
+│       ├── react-logo@2x.png
+│       ├── react-logo@3x.png
+│       └── splash-icon.png
+├── babel.config.js
+├── commitlint.config.mjs
+├── components
+│   ├── BottomSheet.tsx
+│   ├── BottomSheetModal.tsx
+│   ├── InAppNotification.tsx
+│   ├── Toast.tsx
+│   ├── customs
+│   │   ├── Checkbox.tsx
+│   │   ├── CustomAlert.tsx
+│   │   ├── Input.tsx
+│   │   └── LoadingOverlay.tsx
+│   ├── external-link.tsx
+│   ├── haptic-tab.tsx
+│   ├── hello-wave.tsx
+│   ├── parallax-scroll-view.tsx
+│   ├── screens
+│   │   ├── calendar
+│   │   │   └── index.tsx
+│   │   ├── calendar-working
+│   │   │   └── index.tsx
+│   │   ├── challange
+│   │   │   ├── FilterModal.tsx
+│   │   │   ├── ProjectItem.tsx
+│   │   │   ├── TaskItem.tsx
+│   │   │   ├── TaskItemSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── changepassword
+│   │   │   └── index.tsx
+│   │   ├── department
+│   │   │   ├── UserDetailModal.tsx
+│   │   │   └── index.tsx
+│   │   ├── expense
+│   │   │   ├── CreateRequestModal.tsx
+│   │   │   ├── RequestListSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── feedback
+│   │   │   ├── CreateFeedbackModal.tsx
+│   │   │   ├── FeedbackSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── home
+│   │   │   └── index.tsx
+│   │   ├── leave
+│   │   │   └── index.tsx
+│   │   ├── meeting
+│   │   │   ├── CreateMeetingModal.tsx
+│   │   │   └── index.tsx
+│   │   ├── messages
+│   │   │   ├── ChatDetail.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── SearchUser.tsx
+│   │   │   ├── UserItemSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── notifications
+│   │   │   └── index.tsx
+│   │   ├── personal
+│   │   │   └── index.tsx
+│   │   ├── profile
+│   │   │   └── index.tsx
+│   │   ├── signin
+│   │   │   ├── SignInModal.tsx
+│   │   │   └── index.tsx
+│   │   ├── task-details
+│   │   │   └── index.tsx
+│   │   ├── update-profile
+│   │   │   └── index.tsx
+│   │   ├── versioning
+│   │   │   └── index.tsx
+│   │   ├── video-meeting
+│   │   │   └── index.tsx
+│   │   └── welcome
+│   │       └── Onboarding.tsx
+│   ├── skeletons
+│   │   ├── DepartmentSkeleton.tsx
+│   │   └── ProjectSkeleton.tsx
+│   ├── themed-text.tsx
+│   ├── themed-view.tsx
+│   └── ui
+│       ├── collapsible.tsx
+│       ├── icon-symbol.ios.tsx
+│       └── icon-symbol.tsx
+├── configs
+│   ├── api.ts
+│   └── route.ts
+├── constants
+│   └── theme.ts
+├── context
+│   └── SocketContext.tsx
+├── eas.json
+├── eslint.config.js
+├── expo-env.d.ts
+├── global.css
+├── google-services.json
+├── helpers
+│   └── api.ts
+├── hooks
+│   ├── mutations
+│   │   └── index.ts
+│   ├── queries
+│   │   └── index.ts
+│   ├── use-color-scheme.ts
+│   ├── use-color-scheme.web.ts
+│   ├── use-theme-color.ts
+│   ├── useAppState.ts
+│   ├── useDebounce.tsx
+│   ├── useKeyboard.ts
+│   ├── useOnlineManager.ts
+│   └── useSocket.ts
+├── libs
+│   ├── cn.ts
+│   └── firebase.ts
+├── metro.config.js
+├── mocks
+│   ├── departments.ts
+│   ├── project.ts
+│   ├── salary-request.ts
+│   └── task.ts
+├── nativewind-env.d.ts
+├── package-lock.json
+├── package.json
+├── queue
+│   └── task-queue.ts
+├── scripts
+│   └── reset-project.js
+├── services
+│   ├── auth.service.ts
+│   ├── conversation.service.ts
+│   ├── department.service.ts
+│   ├── feedback.service.ts
+│   ├── file.service.ts
+│   ├── firebase.service.ts
+│   ├── meeting.service.ts
+│   ├── notification.service.ts
+│   ├── personnel.service.ts
+│   ├── position.service.ts
+│   ├── project.service.ts
+│   ├── task.service.ts
+│   └── user.service.ts
+├── stores
+│   └── auth-store.ts
+├── structure.txt
+├── tailwind.config.js
+├── tsconfig.json
+├── types
+│   ├── api.ts
+│   ├── common.ts
+│   ├── department.ts
+│   ├── feedback.ts
+│   ├── personnel.ts
+│   ├── position.ts
+│   ├── project.ts
+│   ├── report.ts
+│   ├── task.ts
+│   └── user.ts
+└── utils
+    └── axios.ts
+
+61 directories, 173 files

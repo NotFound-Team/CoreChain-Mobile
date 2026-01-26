@@ -1,50 +1,427 @@
-# Welcome to your Expo app 👋
+# 🔗 CORECHAIN
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<div align="center">
+  <img src="assets/images/icon.png" width="160" alt="CoreChain Logo"/>
+</div>
 
-## Get started
+<p align="center">
+  <b>Blockchain-powered Human Resource Management Platform</b>
+</p>
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🧭 OVERVIEW
 
-2. Start the app
+**CoreChain** is a mobile-first, blockchain-enabled platform designed to modernize and optimize  
+**Human Resource Management (HRM)** through enhanced **security, transparency, and automation**.
 
-   ```bash
-   npx expo start
-   ```
+The project follows an **All-in-One architecture**, integrating **Mobile**, **Web**, **Backend**,  
+**Blockchain**, and **Real-time services** into a unified ecosystem.
 
-In the output, you'll find options to open the app in a
+By leveraging **Blockchain and Smart Contracts**, CoreChain ensures  
+**immutable, verifiable, and trustable HR data**, significantly reducing manual effort and operational risks.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## ⚠️ PROBLEMS & SOLUTIONS
 
-## Get a fresh project
+### ❌ Existing Problems
 
-When you're ready, run:
+1. Poor data security
+2. Lack of transparency and traceability
+3. Time-consuming and labor-intensive HR processes
 
-```bash
-npm run reset-project
+### ✅ CoreChain Solutions
+
+1. Enhanced data security through cryptography and access control
+2. Transparency and trust via Smart Contracts
+3. Immutable records stored on blockchain
+4. Optimized and automated HRM workflows
+
+---
+
+## 🧰 TECH STACK
+
+### 📱 Mobile Application
+
+- **Framework**: React Native (Expo)
+- **Language**: TypeScript
+- **Routing**: Expo Router
+- **Architecture**: Feature-based / Modular
+- **Platform**: iOS / Android
+
+---
+
+### 🌐 Web Application
+
+- **Framework**: Next.js
+- **Language**: TypeScript
+
+---
+
+### 🧠 Backend Services
+
+- **Main Server**: NestJS
+- **Communication & Notification Service**: Golang
+- **Architecture**: Modular / Microservice-oriented
+- **Authentication**: JWT, HTTP-only Cookies
+
+---
+
+### ⛓️ Blockchain Layer
+
+- **Network**: Ethereum (Sepolia Testnet)
+- **Smart Contract Language**: Solidity
+- **Tools**:
+  - Truffle
+  - Ganache
+- **Blockchain SDK**:
+  - Web3.js
+  - Ethers.js
+- **Infrastructure Provider**: Chainstack
+
+---
+
+### 🔔 Real-time Communication & Notification
+
+- WebSocket
+- WebRTC
+- Firebase Cloud Messaging (FCM)
+
+---
+
+### 🗄️ Database & Caching
+
+- PostgreSQL – Primary relational database
+- MongoDB – Document-based storage
+- Redis – Cache, session, queue handling
+
+---
+
+### 📡 Message Broker
+
+- Apache Kafka – Event-driven service communication
+
+---
+
+### ☁️ Deployment & Infrastructure
+
+- AWS EC2
+- AWS Application Load Balancer (ALB)
+- Render
+
+---
+
+## 🧩 SYSTEM FUNCTIONAL MODULES
+
+### 🔐 1. Identity & Security Module
+
+- User authentication & authorization
+- Role-Based Access Control (RBAC)
+- Secure session management
+- Account locking & forced logout
+- Password recovery & security policies
+
+---
+
+### 🏗️ 2. Infrastructure & Core Services
+
+- API Gateway
+- Inter-service communication
+- Centralized logging & configuration
+- Kafka-based event streaming
+
+---
+
+### 👥 3. Human Resource Management (HRM Core)
+
+- Employee profile management
+- Organizational structure
+- Employment lifecycle tracking
+- Blockchain-backed record verification
+
+---
+
+### ⏱️ 4. Attendance & Activity Tracking
+
+- Check-in / Check-out
+- Attendance history
+- Verifiable records via Smart Contracts
+
+---
+
+### 📋 5. Task & Workflow Management
+
+- Task assignment & tracking
+- Workflow status management
+- Audit logs & history
+
+---
+
+### ⛓️ 6. Blockchain & Smart Contract Integration
+
+- Immutable HR records
+- Transparent transaction history
+- On-chain verification of sensitive operations
+
+---
+
+### 💬 7. Real-time Communication & Notification
+
+- Internal chat & messaging
+- Real-time notifications
+- Push notifications via FCM
+
+---
+
+## 🗂️ PROJECT STRUCTURE
+
+### 📱 Mobile Application (React Native / Expo)
+
+```
+.                                   // Project root for CoreChain Mobile (React Native + Expo)
+├── GoogleService-Info.plist        // iOS Firebase config (GoogleService-Info.plist)
+├── README.md                       // Project README (this file)
+├── android                         // Android native project (generated by Expo / React Native)
+│   ├── app
+│   │   ├── build.gradle            // Android app build configuration
+│   │   ├── debug.keystore          // Debug signing key
+│   │   ├── google-services.json    // Android Firebase config
+│   │   ├── proguard-rules.pro      // ProGuard rules for release builds
+│   │   └── src
+│   │       ├── debug               // debug source set
+│   │       ├── debugOptimized      // optimized debug build sources
+│   │       └── main                // main Android source set
+│   ├── build.gradle                // Top-level Gradle build file
+│   ├── gradle
+│   │   └── wrapper
+│   │       ├── gradle-wrapper.jar
+│   │       └── gradle-wrapper.properties
+│   ├── gradle.properties
+│   ├── gradlew                     // Gradle wrapper (Unix)
+│   ├── gradlew.bat                 // Gradle wrapper (Windows)
+│   └── settings.gradle
+├── app                             // App routes / screens (expo-router layout)
+│   ├── (auth)                      // Auth flow group (sign in / welcome)
+│   │   ├── signin.tsx              // Sign-in screen
+│   │   └── welcome.tsx             // Welcome/onboarding entry
+│   ├── (tabs)                      // Tabbed navigation group
+│   │   ├── _layout.tsx             // Tab layout wrapper
+│   │   ├── calendar.tsx
+│   │   ├── challange.tsx
+│   │   ├── department.tsx
+│   │   ├── expense.tsx
+│   │   └── index.tsx               // Tab landing
+│   ├── +not-found.tsx              // 404 / Not found route
+│   ├── _layout.tsx                 // App-level layout wrapper
+│   ├── changepassword.tsx
+│   ├── chat
+│   │   └── [id].tsx                // Chat detail (dynamic route by id)
+│   ├── create-task.tsx
+│   ├── department
+│   │   └── index.tsx               // Department listing / detail
+│   ├── feedback
+│   │   └── index.tsx               // Feedback flow
+│   ├── meeting.tsx
+│   ├── messages.tsx
+│   ├── notifications.tsx
+│   ├── personal.tsx
+│   ├── personnel
+│   │   └── index.tsx               // Personnel list
+│   ├── profile.tsx
+│   ├── project
+│   │   └── index.tsx               // Project list
+│   ├── project-details
+│   │   └── [id].tsx                // Project detail (dynamic)
+│   ├── search-user.tsx
+│   ├── task-details
+│   │   └── [id].tsx                // Task detail (dynamic)
+│   ├── update-profile.tsx
+│   ├── versioning.tsx
+│   └── video-meeting.tsx           // WebRTC / video meeting screen
+├── app.json                        // Expo app config
+├── assets
+│   └── images
+│       ├── android-icon-background.png
+│       ├── android-icon-foreground.png
+│       ├── android-icon-monochrome.png
+│       ├── banner-wellcome.png
+│       ├── favicon.png
+│       ├── icon.png                // Primary app icon (used by README; update if changed)
+│       ├── onboarding-1.png
+│       ├── onboarding-2.png
+│       ├── onboarding-3.png
+│       ├── onboarding-4.png
+│       ├── partial-react-logo.png
+│       ├── react-logo.png
+│       ├── react-logo@2x.png
+│       ├── react-logo@3x.png
+│       └── splash-icon.png         // Splash screen icon
+├── babel.config.js                 // Babel config (JS/TS transpilation)
+├── commitlint.config.mjs
+├── components                      // Reusable UI components and component groups
+│   ├── BottomSheet.tsx             // Generic bottom sheet wrapper
+│   ├── BottomSheetModal.tsx
+│   ├── InAppNotification.tsx
+│   ├── Toast.tsx
+│   ├── customs                     // Custom form controls and small components
+│   │   ├── Checkbox.tsx
+│   │   ├── CustomAlert.tsx
+│   │   ├── Input.tsx
+│   │   └── LoadingOverlay.tsx
+│   ├── external-link.tsx
+│   ├── haptic-tab.tsx
+│   ├── hello-wave.tsx
+│   ├── parallax-scroll-view.tsx
+│   ├── screens                     // Feature screen components grouped by feature
+│   │   ├── calendar
+│   │   │   └── index.tsx
+│   │   ├── calendar-working
+│   │   │   └── index.tsx
+│   │   ├── challange
+│   │   │   ├── FilterModal.tsx
+│   │   │   ├── ProjectItem.tsx
+│   │   │   ├── TaskItem.tsx
+│   │   │   ├── TaskItemSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── changepassword
+│   │   │   └── index.tsx
+│   │   ├── department
+│   │   │   ├── UserDetailModal.tsx
+│   │   │   └── index.tsx
+│   │   ├── expense
+│   │   │   ├── CreateRequestModal.tsx
+│   │   │   ├── RequestListSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── feedback
+│   │   │   ├── CreateFeedbackModal.tsx
+│   │   │   ├── FeedbackSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── home
+│   │   │   └── index.tsx
+│   │   ├── leave
+│   │   │   └── index.tsx
+│   │   ├── meeting
+│   │   │   ├── CreateMeetingModal.tsx
+│   │   │   └── index.tsx
+│   │   ├── messages
+│   │   │   ├── ChatDetail.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── SearchUser.tsx
+│   │   │   ├── UserItemSkeleton.tsx
+│   │   │   └── index.tsx
+│   │   ├── notifications
+│   │   │   └── index.tsx
+│   │   ├── personal
+│   │   │   └── index.tsx
+│   │   ├── profile
+│   │   │   └── index.tsx
+│   │   ├── signin
+│   │   │   ├── SignInModal.tsx
+│   │   │   └── index.tsx
+│   │   ├── task-details
+│   │   │   └── index.tsx
+│   │   ├── update-profile
+│   │   │   └── index.tsx
+│   │   ├── versioning
+│   │   │   └── index.tsx
+│   │   ├── video-meeting
+│   │   │   └── index.tsx
+│   │   └── welcome
+│   │       └── Onboarding.tsx
+│   ├── skeletons                    // Loading skeleton components
+│   │   ├── DepartmentSkeleton.tsx
+│   │   └── ProjectSkeleton.tsx
+│   ├── themed-text.tsx
+│   ├── themed-view.tsx
+│   └── ui
+│       ├── collapsible.tsx
+│       ├── icon-symbol.ios.tsx     // iOS-specific icon component
+│       └── icon-symbol.tsx
+├── configs
+│   ├── api.ts                       // API endpoints and client config
+│   └── route.ts                     // Route definitions used by app
+├── constants
+│   └── theme.ts                     // Theme constants (colors, spacing)
+├── context
+│   └── SocketContext.tsx            // WebSocket context provider
+├── eas.json                         // Expo Application Services config (builds)
+├── eslint.config.js
+├── expo-env.d.ts                    // Expo TypeScript environment definitions
+├── global.css                       // Shared global styles for web (if used)
+├── google-services.json             // Firebase config for Android
+├── helpers
+│   └── api.ts                       // Thin API helper wrapper
+├── hooks                            // Custom React hooks for app logic
+│   ├── mutations
+│   │   └── index.ts
+│   ├── queries
+│   │   └── index.ts
+│   ├── use-color-scheme.ts
+│   ├── use-color-scheme.web.ts
+│   ├── use-theme-color.ts
+│   ├── useAppState.ts
+│   ├── useDebounce.tsx
+│   ├── useKeyboard.ts
+│   ├── useOnlineManager.ts
+│   └── useSocket.ts
+├── libs
+│   ├── cn.ts                        // classNames helper
+│   └── firebase.ts                  // Firebase initialization & helpers
+├── metro.config.js                  // Metro bundler config (React Native)
+├── mocks                            // Mock data used in development / storybooks
+│   ├── departments.ts
+│   ├── project.ts
+│   ├── salary-request.ts
+│   └── task.ts
+├── nativewind-env.d.ts
+├── package-lock.json
+├── package.json                     // npm/Yarn package manifest
+├── queue
+│   └── task-queue.ts                // Simple in-app task queue utility
+├── scripts
+│   └── reset-project.js             // Dev helper script to reset local state
+├── services                         // Business-layer services (API clients & domain logic)
+│   ├── auth.service.ts
+│   ├── conversation.service.ts
+│   ├── department.service.ts
+│   ├── feedback.service.ts
+│   ├── file.service.ts
+│   ├── firebase.service.ts
+│   ├── meeting.service.ts
+│   ├── notification.service.ts
+│   ├── personnel.service.ts
+│   ├── position.service.ts
+│   ├── project.service.ts
+│   ├── task.service.ts
+│   └── user.service.ts
+├── stores
+│   └── auth-store.ts                // Simple local state store for authentication
+├── structure.txt                    // Original tree output (raw)
+├── tailwind.config.js               // Tailwind config (if using web)
+├── tsconfig.json                    // TypeScript config
+├── types                            // Shared TypeScript types/interfaces
+│   ├── api.ts
+│   ├── common.ts
+│   ├── department.ts
+│   ├── feedback.ts
+│   ├── personnel.ts
+│   ├── position.ts
+│   ├── project.ts
+│   ├── report.ts
+│   ├── task.ts
+│   └── user.ts
+└── utils
+    └── axios.ts                     // Preconfigured Axios instance
+
+61 directories, 173 files               // Total (as reported by tree)
+
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🖼️ DEMO SCREENSHOT / PREVIEW
 
-## Learn more
+### 🌐 Landing Page
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<div align="center">
+  <img src="assets/images/web.png" width="100%"/>
+</div>
