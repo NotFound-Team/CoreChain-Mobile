@@ -1,6 +1,6 @@
 import { useSocket } from "@/hooks/useSocket";
 import { getUnreadCount } from "@/services/conversation.service";
-import { getMeetings, Meeting } from "@/services/meeting.service";
+import { getMeetings, joinMeeting, Meeting } from "@/services/meeting.service";
 import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { TypeTask } from "@/types/task";
@@ -17,11 +17,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const MEETINGS = [
-  { id: 1, title: "Townhall Meeting", time: "01:30 AM - 02:00 AM" },
-  { id: 2, title: "Dashboard Report", time: "01:30 AM - 02:00 AM" },
-];
 
 export default function Home() {
   const { user } = useAuthStore();
@@ -61,6 +56,24 @@ export default function Home() {
     router.push(href);
   };
 
+  const handleJoinMeeting = async (roomName: string) => {
+    try {
+      const res = await joinMeeting(roomName);
+      if (!res.isError && res.data) {
+        router.push({
+          pathname: "/video-meeting",
+          params: {
+            token: res.data.token,
+            url: res.data.server_url,
+            roomName: res.data.room_name,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error joining meeting:", error);
+    }
+  };
+
   const fetchHomeData = async () => {
     try {
       setIsRefreshing(true);
@@ -82,7 +95,10 @@ export default function Home() {
 
       // Handle meetings
       if (!meetingsRes.isError && meetingsRes.data) {
-        setMeetings(meetingsRes.data);
+        const todayMeetings = meetingsRes.data.filter((m: Meeting) =>
+          dayjs(m.start_time).isSame(dayjs(), "day")
+        );
+        setMeetings(todayMeetings);
       }
     } catch (error) {
       console.error("Error fetching home data:", error);
@@ -280,7 +296,7 @@ export default function Home() {
                   </View>
                   <TouchableOpacity
                     className="bg-[#8862F2] px-4 py-2 rounded-full"
-                    onPress={() => router.push("/video-meeting")}
+                    onPress={() => handleJoinMeeting(item.room_name)}
                   >
                     <Text className="text-white font-medium text-xs">
                       Join Meet
@@ -395,7 +411,7 @@ export default function Home() {
                   </TouchableOpacity>
                 ))}
                 <TouchableOpacity
-                  onPress={() => handleNavigate(`/challange` as Href)}
+                  onPress={() => handleNavigate("/challange" as Href)}
                   className="flex-row items-center justify-center gap-2 py-4 mb-4 rounded-2xl border border-dashed border-[#8862F2] bg-[#F5F2FF]"
                 >
                   <Text className="text-[#8862F2] font-bold text-sm">
