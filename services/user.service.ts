@@ -86,3 +86,15 @@ export const updateFcmToken = async ({
     return handleApiError(error);
   }
 };
+
+export const updatePublicUser = async (
+  id: string,
+  data: { name?: string; avatar?: string },
+) => {
+  try {
+    const res = await instanceAxios.patch(API_ENDPOINT.USER.PUBLIC(id), data);
+    return handleApiResponse(res);
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+};

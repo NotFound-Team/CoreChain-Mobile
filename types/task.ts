@@ -13,7 +13,7 @@ export interface TypeTask {
   projectId: string;
   priority: number;
   status: number;
-  startDate: Date;
+  startDate: Date | string;
   dueDate: Date;
   isDeleted: boolean;
   createdAt: Date;

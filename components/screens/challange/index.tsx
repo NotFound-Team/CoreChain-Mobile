@@ -1,10 +1,12 @@
+/* eslint-disable no-unused-expressions */
 import { getProjects } from "@/services/project.service";
 import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { IProject } from "@/types/project";
 import { TypeTask } from "@/types/task";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+
 import {
   FlatList,
   RefreshControl,
@@ -19,66 +21,94 @@ import { TaskItem } from "./TaskItem";
 import { TaskItemSkeleton } from "./TaskItemSkeleton";
 
 const FilterModal = React.lazy(() => import("./FilterModal"));
-
+const PAGE_SIZE = 10;
 export default function Challange() {
   const [activeTab, setActiveTab] = useState("All");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [projects, setProjects] = useState<IProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
   const { user } = useAuthStore();
   const insets = useSafeAreaInsets();
 
   const isManager = user?.roleName === "MANAGER";
 
-  const [filters, setFilters] = useState({
+  const initialFilters = {
     priority: null as number | null,
     projectId: null as string | null,
     sortBy: "dueDate",
-  });
+    dateType: "dueDate" as "createdAt" | "startDate" | "dueDate",
+    startDate: null as Date | null,
+    endDate: null as Date | null,
+  };
+
+  const [filters, setFilters] = useState(initialFilters);
 
   const [tempFilters, setTempFilters] = useState(filters);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
     setIsRefreshing(true);
-
-    // Call API reload
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 2000);
+    setPage(1);
+    setHasMore(true);
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const uniqueProjectIds = useMemo(() => {
-    return Array.from(new Set(tasks.map((t) => t?.projectId).filter(Boolean)));
-  }, [tasks]);
+  // const uniqueProjectIds = useMemo(() => {
+  //   return Array.from(new Set(tasks.map((t) => t?.projectId).filter(Boolean)));
+  // }, [tasks]);
 
-  const filteredTasks = useMemo(() => {
-    if (!filters) return [];
-    let result = [...tasks];
-    if (activeTab === "In Progress")
-      result = result.filter((t) => t?.status === 2);
-    else if (activeTab === "Review")
-      result = result.filter((t) => t?.status === 3);
-    else if (activeTab === "Finish")
-      result = result.filter((t) => t?.status === 4);
-    if (filters.priority !== null)
-      result = result.filter((t) => t?.priority === filters.priority);
-    if (filters.projectId)
-      result = result.filter((t) => t?.projectId === filters.projectId);
-    return result;
-  }, [activeTab, filters, tasks]);
+  const getStatusFilter = () => {
+    switch (activeTab) {
+      case "In Progress":
+        return isManager ? 1 : 2;
+      case "Review":
+        return 3;
+      case "Finish":
+        return isManager ? 2 : 4;
+      default:
+        return undefined;
+    }
+  };
 
-  const filteredProjects = useMemo(() => {
-    let result = [...projects];
-    if (activeTab === "In Progress")
-      result = result.filter((p) => p?.status === 1);
-    else if (activeTab === "Review")
-      result = result.filter((p) => p?.status === 3);
-    else if (activeTab === "Finish")
-      result = result.filter((p) => p?.status === 2);
-    return result;
-  }, [activeTab, projects]);
+  const getFilterParams = () => {
+    const params: any = {};
+
+    // Status
+    const status = getStatusFilter();
+    if (status) params.status = status;
+
+    // Priority
+    if (filters.priority !== null) {
+      params.priority = filters.priority;
+    }
+
+    // Project ID
+    if (filters.projectId) {
+      params.projectId = filters.projectId;
+    }
+
+    // Date Filtering - Assuming API handles simple GTE/LTE or exact match if needed
+    // For specific ranges, we might need to adjust based on backend capabilities.
+    // Here we pass specific date fields if they align with creating complex queries or just a ref.
+    // A common pattern if the backend supports constructing ranges via specific keys:
+    if (filters.startDate) {
+      params[`${filters.dateType}`] = filters.startDate;
+    }
+    if (filters.endDate) {
+      // Checking if we filter by Date type, ensuring end of day
+      params[`${filters.dateType}`] = filters.endDate;
+    }
+
+    // Sort
+    if (filters.sortBy) {
+      params.sort = filters.sortBy;
+    }
+
+    return params;
+  };
 
   const handleApplyFilters = useCallback(() => {
     setFilters(tempFilters);
@@ -162,6 +192,11 @@ export default function Challange() {
       </View>
     </View>
   );
+  const handleLoadMore = () => {
+    console.log("Load more triggered");
+    if (isLoadingMore || !hasMore) return;
+    setPage((prev) => prev + 1);
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -194,12 +229,12 @@ export default function Challange() {
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
-            onRefresh={isManager ? fetchProjects : fetchTaskByMe}
+            onRefresh={onRefresh}
             colors={["#8862F2", "#8862F2"]}
             tintColor="#8862F2"
           />
         }
-        data={(isManager ? filteredProjects : filteredTasks) as any}
+        data={(isManager ? projects : tasks) as any}
         keyExtractor={(item: any) => item?._id || Math.random().toString()}
         renderItem={({ item }: { item: any }) =>
           isManager ? (
@@ -210,37 +245,72 @@ export default function Challange() {
         }
         ListHeaderComponent={renderHeader}
         contentContainerStyle={{ paddingBottom: 100 }}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={isLoadingMore ? <TaskItemSkeleton /> : null}
       />
     );
   };
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (loadMore = false) => {
     try {
-      setIsLoading(true);
-      const response = await getProjects({ manager: user?.id });
-      if (!response.isError) {
-        setProjects(response.data.result || []);
+      if (loadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
       }
-    } catch (error) {
-      console.error("Error fetching projects:", error);
+
+      const res = await getProjects({
+        manager: user?.id,
+        current: page,
+        pageSize: PAGE_SIZE,
+        ...getFilterParams(),
+      });
+
+      if (!res.isError) {
+        const { result, meta } = res.data;
+
+        setProjects((prev) => (loadMore ? [...prev, ...result] : result));
+
+        setHasMore(meta?.current < meta?.pages);
+      }
+    } catch (e) {
+      console.error("Fetch project error:", e);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
+      setIsLoadingMore(false);
     }
   };
 
-  const fetchTaskByMe = async () => {
+  const fetchTaskByMe = async (loadMore = false) => {
     try {
-      setIsLoading(true);
-      const response = await getTasks({ assignedTo: user?.id });
-      if (!response.isError) {
-        setTasks(response.data.result || []);
+      if (loadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
       }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
+
+      const res = await getTasks({
+        assignedTo: user?.id,
+        current: page,
+        pageSize: PAGE_SIZE,
+        ...getFilterParams(),
+      });
+
+      if (!res.isError) {
+        const { result, meta } = res.data;
+
+        setTasks((prev) => (loadMore ? [...prev, ...result] : result));
+
+        setHasMore(meta?.current < meta?.pages);
+      }
+    } catch (e) {
+      console.error("Fetch task error:", e);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
+      setIsLoadingMore(false);
     }
   };
 
@@ -251,15 +321,20 @@ export default function Challange() {
       fetchTaskByMe();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, isManager]);
+  }, [user?.id, isManager, activeTab, filters]);
+
+  useEffect(() => {
+    if (page === 1) {
+      isManager ? fetchProjects() : fetchTaskByMe();
+    } else {
+      isManager ? fetchProjects(true) : fetchTaskByMe(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   return (
     <View className="flex-1 bg-[#F8F9FE]">
       {renderContent()}
-
-      {/* <Pressable onPress={() => handlePress("6832717fc58badba71ee8214")} className="w-full">
-            <Text>OK</Text>
-          </Pressable> */}
 
       <FilterModal
         visible={isModalVisible}
@@ -267,6 +342,7 @@ export default function Challange() {
         onClose={handleCloseModal}
         onApply={handleApplyFilters}
         onFilterChange={setTempFilters}
+        onClear={() => setTempFilters(initialFilters)}
       />
     </View>
   );

@@ -18,6 +18,7 @@ export const API_ENDPOINT = {
     PUBLIC: (id: string) => `/users/public/${id}`,
     FCM_TOKEN: (id: string) => `/users/fcm-token/${id}`,
     CHANGE_PASSWORD: "/users/password/change",
+    UPDATE: (id: string) => `/users/public/${id}`,
   },
 
   DEPARTMENT: {
@@ -54,6 +55,7 @@ export const API_ENDPOINT = {
   TASK: {
     INDEX: "/tasks",
     DETAIL: (id: string) => `/tasks/${id}`,
+    BY_DAY: "/tasks/by-day",
   },
 
   PROJECT: {

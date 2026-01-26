@@ -34,26 +34,37 @@ export default function CalendarScreenIndex() {
 
   const fetchData = async () => {
     if (!user?.id) return;
+
     try {
       setIsLoading(true);
-      const promises: Promise<any>[] = [];
 
       if (isManager) {
-        promises.push(getProjects({ manager: user.id }));
-        promises.push(getTasks({}));
-      } else {
-        promises.push(getTasks({ assignedTo: user.id }));
-      }
+        // 1. Lấy projects
+        const projectRes = await getProjects({ manager: user.id });
+        const projectList: IProject[] =
+          projectRes?.data?.result || projectRes?.data?.projects || [];
 
-      const results = await Promise.all(promises);
+        setProjects(projectList);
 
-      if (isManager) {
-        setProjects(
-          results[0]?.data?.result || results[0]?.data?.projects || [],
-        );
-        setTasks(results[1]?.data?.result || []);
+        // 2. Lấy tasks theo từng projectId
+        if (projectList.length > 0) {
+          const taskPromises = projectList.map((project) =>
+            getTasks({ projectId: project._id }),
+          );
+
+          const taskResults = await Promise.all(taskPromises);
+
+          const taskList: TypeTask[] = taskResults
+            .map((res) => res?.data?.result || [])
+            .flat();
+
+          setTasks(taskList);
+        } else {
+          setTasks([]);
+        }
       } else {
-        setTasks(results[0]?.data?.result || []);
+        const taskRes = await getTasks({ assignedTo: user.id });
+        setTasks(taskRes?.data?.result || []);
       }
     } catch (error) {
       console.error("Error fetching calendar data:", error);
@@ -223,7 +234,7 @@ export default function CalendarScreenIndex() {
             }}
           />
         ) : (
-          <View>Week</View>
+          <Text>Week</Text>
           // <View className="flex-row justify-between px-2 py-4">
           //   {Array.from({ length: 7 }, (_, i) => {
           //     const date = dayjs(selectedDate).startOf("week").add(i, "day");

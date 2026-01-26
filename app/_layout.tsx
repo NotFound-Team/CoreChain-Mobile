@@ -45,6 +45,13 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import InAppNotification from "@/components/InAppNotification";
 import { SocketProvider } from "@/context/SocketContext";
+import {
+  getFCMToken,
+  requestUserPermission,
+  setupFCMListeners,
+} from "@/services/firebase.service";
+import { updateFcmToken } from "@/services/user.service";
+import { registerGlobals } from "@livekit/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const unstable_settings = {
@@ -104,6 +111,10 @@ const AppScreens = () => {
       />
       <Stack.Screen
         name="feedback/index"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
+        name="update-profile"
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
@@ -257,7 +268,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// registerGlobals();
+registerGlobals();
 
 export default function RootLayout() {
   useOnlineManager();
@@ -272,32 +283,32 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
 
-  // const checkFcmToken = async () => {
-  //   const currentFcmToken = await getFCMToken();
-  //   if (currentFcmToken !== user?.fcmToken && isAuthenticated) {
-  //     await updateFcmToken({ fcmToken: currentFcmToken!, id: user?.id! });
-  //   }
-  // };
+  const checkFcmToken = async () => {
+    const currentFcmToken = await getFCMToken();
+    if (currentFcmToken !== user?.fcmToken && isAuthenticated) {
+      await updateFcmToken({ fcmToken: currentFcmToken!, id: user?.id! });
+    }
+  };
 
   // Load config fcm token
-  // useEffect(() => {
-  //   requestUserPermission();
-  //   // setupFCMListeners();
-  //   const unsubscribe = setupFCMListeners((title, message) => {
-  //     setInAppNoti({
-  //       visible: true,
-  //       title,
-  //       message,
-  //     });
+  useEffect(() => {
+    requestUserPermission();
+    // setupFCMListeners();
+    const unsubscribe = setupFCMListeners((title, message) => {
+      setInAppNoti({
+        visible: true,
+        title,
+        message,
+      });
 
-  //     // auto hide sau 3s (UX tốt hơn)
-  //     setTimeout(() => {
-  //       setInAppNoti((prev) => ({ ...prev, visible: false }));
-  //     }, 30000);
-  //   });
+      // auto hide sau 3s (UX tốt hơn)
+      setTimeout(() => {
+        setInAppNoti((prev) => ({ ...prev, visible: false }));
+      }, 30000);
+    });
 
-  //   return unsubscribe;
-  // }, []);
+    return unsubscribe;
+  }, []);
 
   /**
    * - If isAuthenticated = false ==> loadStoredToken
@@ -352,7 +363,8 @@ export default function RootLayout() {
    */
   useEffect(() => {
     if (!user?.id) return;
-    // checkFcmToken();
+    checkFcmToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, user?.fcmToken]);
 
   if (isShowSplash) {
