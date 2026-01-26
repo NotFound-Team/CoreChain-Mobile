@@ -1,3 +1,5 @@
+import { useSocket } from "@/hooks/useSocket";
+import { getUnreadCount } from "@/services/conversation.service";
 import { getMeetings, Meeting } from "@/services/meeting.service";
 import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
@@ -27,8 +29,31 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { onMessage, offMessage } = useSocket();
+
+  const fetchUnreadCount = async () => {
+    const res = await getUnreadCount();
+    if (!res.isError && res.data) {
+      setUnreadCount(res.data.total_unread_count);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+
+    const handleNewMessage = (data: any) => {
+      // Refetch unread count when a new message or mark_as_read event arrives
+      fetchUnreadCount();
+    };
+
+    onMessage(handleNewMessage);
+    return () => offMessage(handleNewMessage);
+  }, [onMessage, offMessage]);
+
   const onRefresh = () => {
     setIsRefreshing(true);
+    fetchUnreadCount();
     fetchHomeData();
   };
 
@@ -113,7 +138,7 @@ export default function Home() {
               <Ionicons name="videocam-outline" size={20} color="#5F6368" />
             </TouchableOpacity>
             <TouchableOpacity
-              className="p-2 bg-white rounded-full shadow-sm"
+              className="p-2 bg-white rounded-full shadow-sm relative"
               onPress={() => handleNavigate("/messages")}
             >
               <Ionicons
@@ -121,6 +146,13 @@ export default function Home() {
                 size={20}
                 color="#5F6368"
               />
+              {unreadCount > 0 && (
+                <View className="absolute top-0 -right-[2px] bg-red-500 rounded-full min-w-[18px] h-[18px] items-center justify-center px-1 border-2 border-white">
+                  <Text className="text-white text-[8px] font-bold">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               className="p-2 bg-white rounded-full shadow-sm"

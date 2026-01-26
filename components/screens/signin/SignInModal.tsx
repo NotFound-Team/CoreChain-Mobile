@@ -76,6 +76,7 @@ const SignInModal = ({ isVisible, onClose }: any) => {
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
           <KeyboardAvoidingView
             style={{ flex: 1 }}
+            enabled={Platform.OS === "android"}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <ScrollView

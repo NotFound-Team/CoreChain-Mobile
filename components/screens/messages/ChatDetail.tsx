@@ -1,5 +1,5 @@
 import { useSocket } from "@/hooks/useSocket";
-import { getConversationDetail, Message, uploadFile } from "@/services/conversation.service";
+import { getConversationDetail, getConversationMessages, Message, uploadFile } from "@/services/conversation.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -8,7 +8,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { Image } from "expo-image";
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -22,83 +22,242 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ChatDetail() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, fromNotification, messageData } = useLocalSearchParams<{ id: string; fromNotification?: string; messageData?: string }>();
     const [headerInfo, setHeaderInfo] = useState<{ name: string; avatar: string }>({ name: "Chat", avatar: "" });
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputMessage, setInputMessage] = useState("");
     const [isUploading, setIsUploading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [playingAudioId, setPlayingAudioId] = useState<string | number | null>(null);
     const soundRef = useRef<Audio.Sound | null>(null);
+    const lastTrackedReadId = useRef<number | null>(null);
     const { user } = useAuthStore();
-    const { socket } = useSocket();
+    const { socket, onMessage, offMessage } = useSocket();
 
-    // 1. Fetch data ban đầu
-    useEffect(() => {
-        const fetchConversation = async () => {
-            if (!id) return;
-            const res = await getConversationDetail(id);
-            if (!res.isError && res.data) {
-                const convo = res.data;
-                setHeaderInfo({
-                    name: convo.name || "Chat",
-                    avatar: convo.avatar || `https://ui-avatars.com/api/?name=${convo.name || "Chat"}&background=random`
-                });
+    const normalizeMessage = useCallback((msg: Message): Message => {
+        const newMsg = { ...msg };
+        if (!newMsg.created_at || newMsg.created_at.startsWith("0001-01-01")) {
+            newMsg.created_at = new Date().toISOString();
+        }
+        return newMsg;
+    }, []);
 
-                if (convo.messages) {
-                    setMessages([...convo.messages]);
-                }
-            }
-        };
-        fetchConversation();
-    }, [id]);
+    const markAsRead = useCallback((lastMessageId: number) => {
+        if (!socket || !id || !user?.id) return;
+        if (lastTrackedReadId.current && lastMessageId <= lastTrackedReadId.current) return;
 
-    useEffect(() => {
-        if (!socket) return;
-
-        const handleSocketMessage = (event: MessageEvent) => {
-            try {
-                const data = JSON.parse(event.data);
-                if (Number(data.conversation_id) === Number(id)) {
-                    setMessages(prev => {
-                        const isMyEcho = data.sender_id === user?.id && data.temp_id;
-                        const existingIndex = isMyEcho ? prev.findIndex(m => m.temp_id === data.temp_id) : -1;
-
-                        if (existingIndex !== -1) {
-                            const updatedMessages = [...prev];
-                            updatedMessages[existingIndex] = { ...data, is_pending: false };
-                            return updatedMessages;
-                        }
-
-                        return [data, ...prev];
-                    });
-                }
-            } catch (error) {
-                console.error("Error parsing socket message:", error);
-            }
-        };
-
-        socket.addEventListener("message", handleSocketMessage);
-        return () => socket.removeEventListener("message", handleSocketMessage);
+        console.log(`Sending mark_as_read for convo ${id}, msg ${lastMessageId}`);
+        socket.send(JSON.stringify({
+            type: "mark_as_read",
+            conversation_id: Number(id),
+            sender_id: user.id,
+            last_read_message_id: lastMessageId
+        }));
+        lastTrackedReadId.current = lastMessageId;
     }, [socket, id, user?.id]);
+
+    // Automatically mark newest confirmed messages as read
+    useEffect(() => {
+        const newestWithId = messages.find(m => m.id);
+        if (newestWithId && newestWithId.id) {
+            markAsRead(newestWithId.id);
+        }
+    }, [messages, markAsRead]);
+
+    const mergeMessages = useCallback((newMessages: Message[]) => {
+        setMessages(prev => {
+            const messageMap = new Map<string, Message>();
+
+            prev.forEach(m => {
+                const msg = normalizeMessage(m);
+                if (msg.client_msg_id) {
+                    messageMap.set(msg.client_msg_id, msg);
+                } else if (msg.id) {
+                    messageMap.set(`id-${msg.id}`, msg);
+                }
+            });
+
+            newMessages.forEach(m => {
+                const msg = normalizeMessage(m);
+                msg.is_pending = false;
+
+                const key = msg.client_msg_id || (msg.id ? `id-${msg.id}` : null);
+                if (!key) return;
+
+                if (messageMap.has(key)) {
+                    const existing = messageMap.get(key)!;
+                    if (!existing.id && msg.id) {
+                        messageMap.set(key, { ...existing, ...msg, is_pending: false });
+                    } else if (existing.id && !msg.id) {
+                    } else {
+                        messageMap.set(key, { ...existing, ...msg, is_pending: false });
+                    }
+                } else {
+                    messageMap.set(key, msg);
+                }
+            });
+
+            const merged = Array.from(messageMap.values());
+            return merged.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        });
+    }, [normalizeMessage]);
+
+    const fetchConversation = useCallback(async (isRetry = false, retryCount = 0) => {
+        if (!id) return;
+        const retryDelays = [1500, 1200, 1000];
+        const maxRetries = 3;
+
+        console.log(`${isRetry ? "Retrying" : "Fetching"} conversation detail for id:`, id, "attempt:", retryCount + 1);
+
+        const res = await getConversationDetail(id);
+        if (!res.isError && res.data) {
+            const convo = res.data;
+            setHeaderInfo({
+                name: convo.name || "Chat",
+                avatar: convo.avatar || `https://ui-avatars.com/api/?name=${convo.name || "Chat"}&background=random`
+            });
+
+            if (convo.messages) {
+                console.log(`Fetched ${convo.messages.length} messages`);
+                mergeMessages(convo.messages);
+            }
+
+            // Mark as read immediately when visiting
+            if (convo.last_message_id) {
+                markAsRead(convo.last_message_id);
+            }
+
+            const hasMessagesWithoutId = convo.messages?.some((m: Message) => !m.id) || false;
+            console.log("Has messages without ID:", hasMessagesWithoutId);
+
+            if (fromNotification === "true" && hasMessagesWithoutId && retryCount < maxRetries) {
+                setTimeout(() => {
+                    fetchConversation(true, retryCount + 1);
+                }, retryDelays[retryCount]);
+            }
+        }
+    }, [id, fromNotification, mergeMessages, markAsRead]);
+
+    const handleLoadMore = useCallback(async () => {
+        if (isLoadingMore || !hasMore || !id) return;
+
+        // Find the oldest message with an ID
+        const oldestMessage = [...messages].reverse().find(m => m.id);
+        if (!oldestMessage || !oldestMessage.id) return;
+
+        setIsLoadingMore(true);
+        console.log("Loading more messages before ID:", oldestMessage.id);
+
+        try {
+            const res = await getConversationMessages(Number(id), oldestMessage.id);
+            if (!res.isError && res.data) {
+                console.log(`Fetched ${res.data.length} older messages`);
+                if (res.data.length > 0) {
+                    mergeMessages(res.data);
+                }
+
+                if (res.data.length < 20) {
+                    setHasMore(false);
+                }
+            } else {
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Load more error:", error);
+            setHasMore(false);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    }, [messages, id, isLoadingMore, hasMore, mergeMessages]);
+
+    useEffect(() => {
+        if (fromNotification === "true" && messageData) {
+            try {
+                const notificationMsg = JSON.parse(messageData);
+                console.log("Adding notification message immediately:", notificationMsg);
+                mergeMessages([notificationMsg]);
+            } catch (e) {
+                console.error("Failed to parse messageData", e);
+            }
+        }
+
+        fetchConversation();
+
+        const syncTimeout = setTimeout(() => {
+            console.log("Performing final background sync...");
+            fetchConversation(true);
+        }, 3000);
+
+        return () => clearTimeout(syncTimeout);
+    }, [id, fromNotification, messageData, fetchConversation, mergeMessages]);
+
+    useEffect(() => {
+        const handleSocketMessage = (data: any) => {
+            console.log("ChatDetail received socket message:", data);
+
+            // Skip non-message types like mark_as_read
+            if (data.type === "mark_as_read") return;
+
+            if (Number(data.conversation_id) === Number(id)) {
+                setMessages(prev => {
+                    const msg = normalizeMessage(data);
+                    msg.is_pending = false;
+
+                    const isMyEcho = msg.sender_id && user?.id && String(msg.sender_id) === String(user.id) && msg.client_msg_id;
+                    const existingTempIndex = isMyEcho ? prev.findIndex(m => String(m.client_msg_id) === String(msg.client_msg_id)) : -1;
+
+                    if (existingTempIndex !== -1) {
+                        console.log("Resolving pending message:", msg.client_msg_id);
+                        const updatedMessages = [...prev];
+                        updatedMessages[existingTempIndex] = {
+                            ...prev[existingTempIndex],
+                            ...msg,
+                            is_pending: false,
+                        };
+                        return updatedMessages;
+                    }
+
+                    if (msg.id && prev.some(m => m.id === msg.id)) {
+                        console.log("Duplicate message ignored (id):", msg.id);
+                        return prev;
+                    }
+
+                    // Mark as read immediately if it's a new message from someone else
+                    // (But we send it for our own echoes too to keep it simple, it's safe)
+                    if (msg.id) {
+                        markAsRead(msg.id);
+                    }
+
+                    return [msg, ...prev];
+                });
+            }
+        };
+
+        onMessage(handleSocketMessage);
+        return () => offMessage(handleSocketMessage);
+    }, [onMessage, offMessage, id, user?.id, normalizeMessage]);
 
     const handleSendMessage = () => {
         if (!inputMessage.trim() || !socket || !id || !user?.id) return;
 
-        const tempId = Date.now().toString();
+        const clientMsgId = `user-${user.id}-msg-${Date.now().toString()}`;
         const content = inputMessage.trim();
 
         const outgoingMessage = {
-            temp_id: tempId,
+            client_msg_id: clientMsgId,
             conversation_id: Number(id),
             content: content,
             type: "text",
-            sender_id: user.id
+            sender_id: user.id,
+            sender_name: user.name
         };
 
         const tempMsg: Message = {
-            temp_id: tempId,
+            client_msg_id: clientMsgId,
             content: content,
             sender_id: user.id,
+            sender_name: user.name,
             conversation_id: Number(id),
             type: "text",
             created_at: new Date().toISOString(),
@@ -122,17 +281,19 @@ export default function ChatDetail() {
             if (result.canceled) return;
 
             const asset = result.assets[0];
-            const tempId = `media-${Date.now()}`;
+            const clientMsgId = `media-${Date.now()}`;
             setIsUploading(true);
 
             const tempMsg: Message = {
-                temp_id: tempId,
+                client_msg_id: clientMsgId,
                 conversation_id: Number(id),
                 sender_id: user.id,
+                sender_name: user.name,
                 content: "",
                 type: "file",
                 file_name: asset.fileName || (asset.type === 'video' ? 'video.mp4' : 'image.jpg'),
                 file_type: asset.mimeType || (asset.type === 'video' ? 'video/mp4' : 'image/jpeg'),
+                file_url: asset.uri, // Local URI for immediate preview
                 created_at: new Date().toISOString(),
                 is_pending: true,
             };
@@ -142,11 +303,13 @@ export default function ChatDetail() {
             if (!uploadRes.isError && uploadRes.data?.data) {
                 const fileData = uploadRes.data.data;
                 const outgoingFileMessage = {
-                    temp_id: tempId,
+                    client_msg_id: clientMsgId,
                     conversation_id: Number(id),
                     sender_id: user.id,
+                    sender_name: user.name,
                     type: "file",
                     content: "",
+                    file_id: fileData.file_id,
                     file_path: fileData.file_id,
                     file_name: fileData.file_name,
                     file_type: fileData.file_type,
@@ -155,7 +318,7 @@ export default function ChatDetail() {
 
                 socket.send(JSON.stringify(outgoingFileMessage));
             } else {
-                setMessages(prev => prev.filter(m => m.temp_id !== tempId));
+                setMessages(prev => prev.filter(m => m.client_msg_id !== clientMsgId));
             }
         } catch (error) {
             console.error("Pick media error:", error);
@@ -169,17 +332,16 @@ export default function ChatDetail() {
         if (!audioUrl) return;
 
         try {
-            // Stop current sound if playing
             if (soundRef.current) {
                 await soundRef.current.unloadAsync();
                 soundRef.current = null;
-                if (playingAudioId === (msg.id || msg.temp_id)) {
+                if (playingAudioId === (msg.id || msg.client_msg_id)) {
                     setPlayingAudioId(null);
                     return;
                 }
             }
 
-            setPlayingAudioId(msg.id || msg.temp_id || null);
+            setPlayingAudioId(msg.id || msg.client_msg_id || null);
             const { sound } = await Audio.Sound.createAsync(
                 { uri: audioUrl },
                 { shouldPlay: true }
@@ -219,13 +381,14 @@ export default function ChatDetail() {
             if (result.canceled) return;
 
             const asset = result.assets[0];
-            const tempId = `file-${Date.now()}`;
+            const clientMsgId = `file-${Date.now()}`;
             setIsUploading(true);
 
             const tempMsg: Message = {
-                temp_id: tempId,
+                client_msg_id: clientMsgId,
                 conversation_id: Number(id),
                 sender_id: user.id,
+                sender_name: user.name,
                 content: "",
                 type: "file",
                 file_name: asset.name,
@@ -240,12 +403,13 @@ export default function ChatDetail() {
             if (!uploadRes.isError && uploadRes.data?.data) {
                 const fileData = uploadRes.data.data;
                 const outgoingFileMessage = {
-                    temp_id: tempId,
+                    client_msg_id: clientMsgId,
                     conversation_id: Number(id),
                     sender_id: user.id,
+                    sender_name: user.name,
                     type: "file",
                     content: "",
-                    file_path: fileData.file_id, // Chính là object key trong MinIO
+                    file_path: fileData.file_id,
                     file_name: fileData.file_name,
                     file_type: fileData.file_type,
                     file_size: fileData.file_size
@@ -253,7 +417,7 @@ export default function ChatDetail() {
 
                 socket.send(JSON.stringify(outgoingFileMessage));
             } else {
-                setMessages(prev => prev.filter(m => m.temp_id !== tempId));
+                setMessages(prev => prev.filter(m => m.client_msg_id !== clientMsgId));
                 console.error("Upload failed");
             }
         } catch (error: any) {
@@ -269,11 +433,17 @@ export default function ChatDetail() {
     };
 
     const renderItem = ({ item }: { item: Message }) => {
-        const isMine = item.sender_id === user?.id;
-        const isImage = item.type === "file" && item.file_type?.startsWith("image/");
-        const isVideo = item.type === "file" && item.file_type?.startsWith("video/");
-        const isAudio = item.type === "file" && item.file_type?.startsWith("audio/");
+        const isMine = item.sender_id && user?.id && String(item.sender_id) === String(user.id);
         const mediaSource = item.file_url || item.file_path;
+
+        const isImage = item.type === "file" && item.file_type?.startsWith("image/") && !!mediaSource;
+        const isVideo = item.type === "file" && item.file_type?.startsWith("video/") && !!mediaSource;
+        const isAudio = item.type === "file" && item.file_type?.startsWith("audio/") && !!mediaSource;
+
+        const isFile = item.type === "file";
+        const isMediaResolved = isImage || isVideo || isAudio;
+        const showAsDocument = isFile && !isMediaResolved;
+
         return (
             <View className={`mb-3 max-w-[85%] rounded-2xl px-3 py-2 ${isMine ? "self-end bg-[#8862F2]" : "self-start bg-white shadow-sm"}`}>
                 {/* Text Content */}
@@ -321,7 +491,7 @@ export default function ChatDetail() {
                         <View className="flex-row items-center">
                             <TouchableOpacity onPress={() => handlePlayAudio(item)}>
                                 <Ionicons
-                                    name={playingAudioId === (item.id || item.temp_id) ? "pause-circle" : "play-circle"}
+                                    name={playingAudioId === (item.id || item.client_msg_id) ? "pause-circle" : "play-circle"}
                                     size={40}
                                     color={isMine ? "white" : "#8862F2"}
                                 />
@@ -332,7 +502,7 @@ export default function ChatDetail() {
                                 </Text>
                                 <View className="h-1 bg-gray-300 rounded-full mt-1 overflow-hidden">
                                     <View
-                                        className={`h-1 bg-purple-500 rounded-full ${playingAudioId === (item.id || item.temp_id) ? "w-1/2" : "w-0"}`}
+                                        className={`h-1 bg-purple-500 rounded-full ${playingAudioId === (item.id || item.client_msg_id) ? "w-1/2" : "w-0"}`}
                                     />
                                 </View>
                             </View>
@@ -340,18 +510,15 @@ export default function ChatDetail() {
                     </View>
                 )}
 
-                {/* File Content (PDF, Zip, etc.) */}
-                {item.type === "file" && !isImage && (
-                    <View className={`flex-row items-center p-2 rounded-xl ${isMine ? "bg-white/20" : "bg-gray-100"}`}>
-                        <Ionicons name="document" size={28} color={isMine ? "white" : "#8862F2"} />
-                        <View className="ml-2 flex-1">
-                            <Text numberOfLines={1} className={`font-medium ${isMine ? "text-white" : "text-[#1A1C1E]"}`}>
-                                {item.file_name}
-                            </Text>
-                            <Text className={`text-[10px] ${isMine ? "text-purple-200" : "text-gray-500"}`}>
-                                {item.file_type?.split('/')[1]?.toUpperCase()}
-                            </Text>
-                        </View>
+                {/* File Content (PDF, Zip, etc.) or Fallback for pending media */}
+                {showAsDocument && (
+                    <View className="flex-row items-center">
+                        <Text className={`text-[15px] ${isMine ? "text-white" : "text-[#1A1C1E]"}`}>
+                            {`file: ${item.file_name || "Attachment"}`}
+                        </Text>
+                        {item.is_pending && (
+                            <ActivityIndicator size="small" color={isMine ? "white" : "#8862F2"} className="ml-2" />
+                        )}
                     </View>
                 )}
 
@@ -395,11 +562,16 @@ export default function ChatDetail() {
                 <FlatList
                     data={messages}
                     renderItem={renderItem}
-                    keyExtractor={(item) => (item.id?.toString() || item.temp_id || Math.random().toString())}
+                    keyExtractor={(item) => (item.id?.toString() || item.client_msg_id || Math.random().toString())}
                     className="flex-1 bg-[#F8F9FB]"
                     contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 20 }}
                     inverted
                     showsVerticalScrollIndicator={false}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={isLoadingMore ? (
+                        <ActivityIndicator color="#8862F2" style={{ marginVertical: 10 }} />
+                    ) : null}
                 />
 
                 {/* Input Area */}

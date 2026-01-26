@@ -5,7 +5,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -45,6 +45,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import InAppNotification from "@/components/InAppNotification";
 import { SocketProvider } from "@/context/SocketContext";
+import { useChatNotification } from "@/hooks/useChatNotification";
 import {
   getFCMToken,
   requestUserPermission,
@@ -270,16 +271,28 @@ const styles = StyleSheet.create({
 
 registerGlobals();
 
+const NotificationListener = ({ setInAppNoti }: { setInAppNoti: any }) => {
+  useChatNotification(setInAppNoti);
+  return null;
+};
+
 export default function RootLayout() {
   useOnlineManager();
   const colorScheme = useColorScheme();
   const [isShowSplash, setIsShowSplash] = useState(true);
-  const [inAppNoti, setInAppNoti] = useState({
+  const [inAppNoti, setInAppNoti] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    onPress?: () => void;
+  }>({
     visible: false,
     title: "",
     message: "",
   });
+
   const { isAuthenticated, loadStoredToken, user } = useAuthStore();
+  const pathname = usePathname();
   const segments = useSegments();
   const router = useRouter();
 
@@ -294,21 +307,33 @@ export default function RootLayout() {
   useEffect(() => {
     requestUserPermission();
     // setupFCMListeners();
-    const unsubscribe = setupFCMListeners((title, message) => {
+    const unsubscribe = setupFCMListeners((title, message, data) => {
+      // Suppress only if on the SAME chat screen
+      if (data?.conversation_id && pathname.includes(`/chat/${data.conversation_id}`)) {
+        console.log("Suppressing FCM notification because already on this chat screen");
+        return;
+      }
+
       setInAppNoti({
         visible: true,
         title,
         message,
+        onPress: data?.conversation_id ? () => {
+          router.push({
+            pathname: `/chat/${data.conversation_id}`,
+            params: { fromNotification: 'true' }
+          } as any);
+        } : undefined
       });
 
-      // auto hide sau 3s (UX tốt hơn)
+      // auto hide sau 5s
       setTimeout(() => {
         setInAppNoti((prev) => ({ ...prev, visible: false }));
-      }, 30000);
+      }, 5000);
     });
 
     return unsubscribe;
-  }, []);
+  }, [pathname]); // Depend on pathname to ensure correct suppression state
 
   /**
    * - If isAuthenticated = false ==> loadStoredToken
@@ -379,10 +404,12 @@ export default function RootLayout() {
             value={colorScheme === "light" ? DarkTheme : DefaultTheme}
           >
             <SocketProvider>
+              <NotificationListener setInAppNoti={setInAppNoti} />
               <InAppNotification
                 visible={inAppNoti.visible}
                 title={inAppNoti.title}
                 message={inAppNoti.message}
+                onPress={inAppNoti.onPress}
                 onClose={() =>
                   setInAppNoti((prev) => ({ ...prev, visible: false }))
                 }

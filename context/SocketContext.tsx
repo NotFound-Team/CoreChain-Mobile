@@ -6,6 +6,8 @@ interface SocketContextType {
     isConnected: boolean;
     connect: () => Promise<void>;
     disconnect: () => void;
+    onMessage: (callback: (data: any) => void) => void;
+    offMessage: (callback: (data: any) => void) => void;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -13,6 +15,8 @@ const SocketContext = createContext<SocketContextType>({
     isConnected: false,
     connect: async () => { },
     disconnect: () => { },
+    onMessage: () => { },
+    offMessage: () => { },
 });
 
 export const useSocketContext = () => useContext(SocketContext);
@@ -28,6 +32,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const socketRef = useRef<WebSocket | null>(null);
     const reconnectTimeoutRef = useRef<any>(null);
     const reconnectCountRef = useRef(0);
+    const listenersRef = useRef<((data: any) => void)[]>([]);
+
+    const onMessage = React.useCallback((callback: (data: any) => void) => {
+        listenersRef.current.push(callback);
+    }, []);
+
+    const offMessage = React.useCallback((callback: (data: any) => void) => {
+        listenersRef.current = listenersRef.current.filter(l => l !== callback);
+    }, []);
 
     const connect = React.useCallback(async () => {
         if (socketRef.current?.readyState === WebSocket.OPEN ||
@@ -52,6 +65,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         ws.onmessage = (event) => {
             console.log("WebSocket message:", event.data);
+            try {
+                const data = JSON.parse(event.data);
+                listenersRef.current.forEach(listener => listener(data));
+            } catch (error) {
+                console.error("Error parsing WebSocket message:", error);
+            }
         };
 
         ws.onclose = (e) => {
@@ -102,7 +121,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, [isAuthenticated, accessToken]);
 
     return (
-        <SocketContext.Provider value={{ socket, isConnected, connect, disconnect }}>
+        <SocketContext.Provider value={{ socket, isConnected, connect, disconnect, onMessage, offMessage }}>
             {children}
         </SocketContext.Provider>
     );

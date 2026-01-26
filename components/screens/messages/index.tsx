@@ -1,11 +1,12 @@
 import { useSocket } from "@/hooks/useSocket";
 import { Conversation, getConversations } from "@/services/conversation.service";
+import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   FlatList,
   RefreshControl,
@@ -16,21 +17,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Messages() {
-   const insets = useSafeAreaInsets();
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const { user } = useAuthStore();
   const { socket, isConnected } = useSocket();
-
-  useEffect(() => {
-    // Get current user ID from token or store
-    const getCurrentUser = async () => {
-      // Ideally this should come from a user context or store
-      // For now, we decode token or assume the user service handles it
-      // But since we use conversation.service which relies on token, 
-      // we just need to know who "I" am to format the display if needed.
-      // For this task, we will just fetch the conversations.
-    };
-    getCurrentUser();
-  }, []);
 
   const {
     data: conversationsData,
@@ -45,50 +34,60 @@ export default function Messages() {
     },
   });
 
-  const renderItem = ({ item }: { item: Conversation }) => (
-    <TouchableOpacity
-      className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100"
-      activeOpacity={0.7}
-      onPress={() => router.push(`/chat/${item.id}`)}
-    >
-      <View className="w-14 h-14 rounded-full overflow-hidden bg-[#FDE7E7]">
-        <Image
-          source={{ uri: item.avatar || `https://ui-avatars.com/api/?name=${item.name}&background=random` }}
-          style={{ width: "100%", height: "100%" }}
-          contentFit="cover"
-        />
-      </View>
+  const renderItem = ({ item }: { item: Conversation }) => {
+    const isMine = item.last_message_sender_id && user?.id && String(item.last_message_sender_id) === String(user.id);
 
-      <View className="flex-1 ml-3">
-        <View className="flex-row justify-between items-center">
-          <Text className="text-[16px] font-bold text-[#1A1C1E]">
-            {item.name}
-          </Text>
-          <Text className="text-gray-400 text-[12px]">
-            {dayjs(item.last_message_at).format("HH:mm")}
-          </Text>
+    let content = item.last_message_content || "";
+    if (item.last_message_type === "file") {
+      content = `File: ${item.last_message_file_name || "Attachment"}`;
+    }
+
+    const snippet = isMine ? `You: ${content}` : content;
+
+    return (
+      <TouchableOpacity
+        className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100"
+        activeOpacity={0.7}
+        onPress={() => router.push(`/chat/${item.id}`)}
+      >
+        <View className="w-14 h-14 rounded-full overflow-hidden bg-[#FDE7E7]">
+          <Image
+            source={{ uri: item.avatar || `https://ui-avatars.com/api/?name=${item.name}&background=random` }}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+          />
         </View>
 
-        <View className="flex-row justify-between items-center mt-1">
-          <Text
-            className="text-gray-500 text-[13px] flex-1 mr-2"
-            numberOfLines={1}
-          >
-            {/* Type check needs adjustment since API doesn't return type directly? Or use content check */}
-            {item.last_message_content}
-          </Text>
+        <View className="flex-1 ml-3">
+          <View className="flex-row justify-between items-center">
+            <Text className="text-[16px] font-bold text-[#1A1C1E]">
+              {item.name}
+            </Text>
+            <Text className="text-gray-400 text-[12px]">
+              {dayjs(item.last_message_at).format("HH:mm")}
+            </Text>
+          </View>
 
-          {(item.unread_count || 0) > 0 && (
-            <View className="bg-[#FF5A5F] w-5 h-5 rounded-full items-center justify-center">
-              <Text className="text-white text-[10px] font-bold">
-                {item.unread_count}
-              </Text>
-            </View>
-          )}
+          <View className="flex-row justify-between items-center mt-1">
+            <Text
+              className="text-gray-500 text-[13px] flex-1 mr-2"
+              numberOfLines={1}
+            >
+              {snippet}
+            </Text>
+
+            {(item.unread_count || 0) > 0 && (
+              <View className="bg-[#FF5A5F] w-5 h-5 rounded-full items-center justify-center">
+                <Text className="text-white text-[10px] font-bold">
+                  {item.unread_count}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View className="flex-1 bg-[#F1F3F8]">

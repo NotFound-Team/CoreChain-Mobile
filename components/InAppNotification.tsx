@@ -9,6 +9,7 @@ type Props = {
   title: string;
   message: string;
   onClose: () => void;
+  onPress?: () => void;
   type?: "success" | "error" | "warning" | "info";
 };
 
@@ -24,8 +25,16 @@ export default function InAppNotification({
   title,
   message,
   onClose,
+  onPress,
   type = "info",
 }: Props) {
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    }
+    onClose();
+  };
+
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <SafeAreaView className="flex-1">
@@ -33,8 +42,9 @@ export default function InAppNotification({
         <Pressable className="flex-1" onPress={onClose} />
 
         {/* Notification */}
-        <View className="absolute top-20 left-0 right-0 items-center">
-          <View
+        <View className="absolute top-2 left-0 right-0 items-center">
+          <Pressable
+            onPress={handlePress}
             className="w-[92%] bg-white rounded-2xl px-4 py-3 flex-row"
             style={{
               borderWidth: 1,
@@ -60,13 +70,21 @@ export default function InAppNotification({
               <Text className="text-[15px] font-semibold text-[#1A1C1E]">
                 {title}
               </Text>
-              <Text className="mt-1 text-[13px] text-gray-600">{message}</Text>
+              <Text className="mt-1 text-[13px] text-gray-600 line-clamp-2">
+                {message}
+              </Text>
             </View>
 
-            <Pressable onPress={onClose} hitSlop={10}>
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              hitSlop={10}
+            >
               <Ionicons name="close" size={20} color="#6B7280" />
             </Pressable>
-          </View>
+          </Pressable>
         </View>
       </SafeAreaView>
     </Modal>

@@ -50,13 +50,14 @@ export const getFCMToken = async () => {
 };
 
 export const setupFCMListeners = (
-  showInAppNotification: (title: string, message: string) => void,
+  showInAppNotification: (title: string, message: string, data?: any) => void,
 ) => {
   const unsubMessage = messaging().onMessage(async (remoteMessage) => {
     console.log(remoteMessage);
     showInAppNotification(
       remoteMessage.notification?.title || "Thông báo",
       remoteMessage.notification?.body || "Bạn có tin mới",
+      remoteMessage.data
     );
   });
 
@@ -64,6 +65,7 @@ export const setupFCMListeners = (
     showInAppNotification(
       remoteMessage.notification?.title || "Thông báo",
       remoteMessage.notification?.body || "Bạn có tin mới",
+      remoteMessage.data
     );
   });
 
@@ -74,6 +76,7 @@ export const setupFCMListeners = (
         showInAppNotification(
           remoteMessage.notification?.title || "Thông báo",
           remoteMessage.notification?.body || "Bạn có tin mới",
+          remoteMessage.data
         );
       }
     });
