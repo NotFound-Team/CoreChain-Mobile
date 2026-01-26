@@ -1,48 +1,54 @@
-<h1 align="center">🔗 CORECHAIN</h1>
+<h1 align="center">CORECHAIN</h1>
 
 <div align="center">
   <img src="assets/images/icon.png" width="160" alt="CoreChain Logo"/>
 </div>
 
 <p align="center">
-  <b>Blockchain-integrated Human Resource Management System</b>
+  <b>Blockchain-Integrated Human Resource Management System</b>
 </p>
 
 ---
 
-## 🧭 OVERVIEW
+## OVERVIEW
 
-**CoreChain** is a mobile-first, blockchain-enabled platform designed to modernize and optimize  
-**Human Resource Management (HRM)** through enhanced **security, transparency, and automation**.
+## Abstract
 
-The project follows an **All-in-One architecture**, integrating **Mobile**, **Web**, **Backend**,  
-**Blockchain**, and **Real-time services** into a unified ecosystem.
+CoreChain represents a *Human Resource Management* solution predicated upon blockchain technology. By leveraging **Distributed Ledger Systems** and **Smart Contracts**, CoreChain guarantees data immutability, verifiability, and integrity, thereby substantially mitigating manual administrative overhead and operational risks.
 
-By leveraging **Blockchain and Smart Contracts**, CoreChain ensures  
-**immutable, verifiable, and trustable HR data**, significantly reducing manual effort and operational risks.
+Designed as a comprehensive, all-encompassing ecosystem, the project integrates disparate corporate management protocols and operational workflows. This consolidation facilitates the optimization of organizational governance and enhances procedural efficiency within the enterprise.
 
----
+## Mobile Application
 
-## ⚠️ PROBLEMS & SOLUTIONS
-
-### ❌ Existing Problems
-
-1. Poor data security
-2. Lack of transparency and traceability
-3. Time-consuming and labor-intensive HR processes
-
-### ✅ CoreChain Solutions
-
-1. Enhanced data security through cryptography and access control
-2. Transparency and trust via Smart Contracts
-3. Immutable records stored on blockchain
-4. Optimized and automated HRM workflows
+This repository constitutes the CoreChain mobile application. Engineered via a cross-platform architecture, the interface is designed to be user-centric for personnel, ensuring accessibility and facilitating seamless integration into daily operations.
 
 ---
 
-## 🧰 TECH STACK
+## MOBILE KEY FEATURES
 
-### 📱 Mobile Application
+### Work
+
+1. Task Lifecycle Management, New Task Notification
+2. Project Progress Tracking, Project Management
+3. Departmental Administration
+
+### Employee Self-Service
+
+1. Personnel Records
+2. Internal Feedback System
+3. Salary Advance Request
+4. Work Schedule & Calendar
+
+### Communication
+
+1. Instant Messaging System
+2. Video Conferencing
+
+---
+
+## TECH STACK
+
+### Mobile Application
 
 - **Framework**: React Native (Expo)
 - **Language**: TypeScript
@@ -52,14 +58,14 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 🌐 Web Application
+### Web Application
 
 - **Framework**: Next.js
 - **Language**: TypeScript
 
 ---
 
-### 🧠 Backend Services
+### Backend Services
 
 - **Core Server**: NestJS
 - **Communication & Notification Service**: Golang
@@ -68,7 +74,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### ⛓️ Blockchain Layer
+### Blockchain Layer
 
 - **Network**: Ethereum Testnet
 - **Smart Contract Language**: Solidity
@@ -82,7 +88,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 🔔 Real-time Communication & Notification
+### Real-time Communication & Notification
 
 - WebSocket
 - WebRTC
@@ -90,7 +96,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 🗄️ Database & Caching
+### Database & Caching
 
 - PostgreSQL – Primary relational database
 - MongoDB – Document-based storage
@@ -98,13 +104,13 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 📡 Message Broker
+### Message Broker
 
 - Apache Kafka – Event-driven service communication
 
 ---
 
-### ☁️ Deployment & Infrastructure
+### Deployment & Infrastructure
 
 - AWS EC2
 - AWS Application Load Balancer (ALB)
@@ -112,9 +118,9 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-## 🧩 SYSTEM FUNCTIONAL MODULES
+## SYSTEM FUNCTIONAL MODULES
 
-### 🔐 1. Identity & Security Module
+### 1. Identity & Security Module
 
 - User authentication & authorization
 - Role-Based Access Control (RBAC)
@@ -124,7 +130,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 🏗️ 2. Infrastructure & Core Services
+### 2. Infrastructure & Core Services
 
 - API Gateway
 - Inter-service communication
@@ -133,7 +139,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 👥 3. Human Resource Management (HRM Core)
+### 3. Human Resource Management (HRM Core)
 
 - Employee profile management
 - Organizational structure
@@ -142,7 +148,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 📋 4. Task & Workflow Management
+### 4. Task & Workflow Management
 
 - Task assignment & tracking
 - Workflow status management
@@ -150,7 +156,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### ⛓️ 5. Blockchain & Smart Contract Integration
+### 5. Blockchain & Smart Contract Integration
 
 - Immutable HR records
 - Transparent transaction history
@@ -158,7 +164,7 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-### 💬 6. Real-time Communication & Notification
+### 6. Real-time Communication & Notification
 
 - Internal chat & messaging
 - Real-time notifications
@@ -166,9 +172,9 @@ By leveraging **Blockchain and Smart Contracts**, CoreChain ensures
 
 ---
 
-## 🗂️ PROJECT STRUCTURE
+## PROJECT STRUCTURE
 
-### 📱 Mobile Application (React Native / Expo)
+### Mobile Application (React Native / Expo)
 
 ```
 .                                   // Project root for CoreChain Mobile (React Native + Expo)
