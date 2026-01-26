@@ -101,4 +101,7 @@ export const API_ENDPOINT = {
     JOIN: "/meetings/join",
     END: "/meetings/end",
   },
+  NOTIFICATION:{
+    INDEX: "/"
+  }
 };
