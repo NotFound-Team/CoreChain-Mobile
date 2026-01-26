@@ -12,7 +12,7 @@ import { RoomEvent, Track } from 'livekit-client';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
-  KeyboardAvoidingView,
+  Keyboard,
   Modal,
   Platform,
   StatusBar,
@@ -21,7 +21,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // --- CHAT MODAL ---
 const ChatModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => void }) => {
@@ -29,6 +29,24 @@ const ChatModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => 
   const room = useRoomContext();
   const [messages, setMessages] = useState<{ sender: string, text: string }[]>([]);
   const [inputText, setInputText] = useState('');
+  const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => setKeyboardHeight(e.endCoordinates.height)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardHeight(0)
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const onDataReceived = (payload: Uint8Array, participant?: any) => {
@@ -52,15 +70,26 @@ const ChatModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => 
   };
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-        className="flex-1 bg-black/60 justify-end"
-      >
-        <View className="bg-[#1A1A1A] h-[70%] rounded-t-[35px] p-6 border-t border-white/10">
+    <Modal visible={isVisible} animationType="slide" transparent statusBarTranslucent={true}>
+      <View className="flex-1 bg-black/60 justify-end">
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={onClose}
+          className="absolute inset-0"
+        />
+        <View
+          className="bg-[#1A1A1A] rounded-t-[35px] p-6 border-t border-white/10"
+          style={{
+            height: keyboardHeight > 0 ? '52%' : '75%',
+            marginBottom: keyboardHeight,
+            paddingBottom: keyboardHeight > 0 ? insets.bottom + 2 : (insets.bottom || 20) + 2
+          }}
+        >
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white font-bold text-lg">In-call messages</Text>
-            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color="white" /></TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color="white" />
+            </TouchableOpacity>
           </View>
           <FlatList
             data={messages}
@@ -79,11 +108,14 @@ const ChatModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => 
               placeholderTextColor="#666"
               value={inputText}
               onChangeText={setInputText}
+              disableFullscreenUI={true}
             />
-            <TouchableOpacity onPress={sendMessage}><Ionicons name="send" size={24} color="#8862F2" /></TouchableOpacity>
+            <TouchableOpacity onPress={sendMessage}>
+              <Ionicons name="send" size={24} color="#8862F2" />
+            </TouchableOpacity>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };
@@ -200,7 +232,7 @@ const VideoMeetingInner = ({ roomName }: { roomName: string }) => {
       <VideoMeetingContent />
 
       {/* Bottom Controls */}
-      <View className="bg-[#2A2A2A] mx-6 mb-8 p-4 rounded-[35px] flex-row justify-between items-center border border-white/5 shadow-2xl">
+      <View className="bg-[#2A2A2A] mx-6 mb-4 p-4 rounded-[35px] flex-row justify-between items-center border border-white/5 shadow-2xl">
         <TouchableOpacity onPress={toggleMic} className={`w-12 h-12 rounded-full items-center justify-center ${micEnabled ? 'bg-white/10' : 'bg-red-500/20'}`}>
           <Ionicons name={micEnabled ? "mic-outline" : "mic-off-outline"} size={22} color={micEnabled ? "white" : "#ef4444"} />
         </TouchableOpacity>

@@ -14,14 +14,14 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
-    KeyboardAvoidingView,
+    Keyboard,
     Platform,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -39,6 +39,25 @@ export default function ChatDetail() {
     const lastTrackedReadId = useRef<number | null>(null);
     const { user } = useAuthStore();
     const { socket, onMessage, offMessage } = useSocket();
+    const insets = useSafeAreaInsets();
+
+    const [kbHeight, setKbHeight] = useState(0);
+
+    useEffect(() => {
+        const showSub = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+            (e) => setKbHeight(e.endCoordinates.height)
+        );
+        const hideSub = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+            () => setKbHeight(0)
+        );
+
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
 
     const normalizeMessage = useCallback((msg: Message): Message => {
         const newMsg = { ...msg };
@@ -545,7 +564,7 @@ export default function ChatDetail() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
             {/* Header */}
             <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
                 <TouchableOpacity onPress={() => router.back()} className="mr-3">
@@ -559,10 +578,8 @@ export default function ChatDetail() {
                 </View>
             </View>
 
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "padding"}
+            <View
                 className="flex-1"
-                keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
             >
                 <FlatList
                     data={messages}
@@ -580,7 +597,17 @@ export default function ChatDetail() {
                 />
 
                 {/* Input Area */}
-                <View className="px-4 py-3 bg-white border-t border-gray-100">
+                <View
+                    style={{
+                        backgroundColor: 'white',
+                        borderTopWidth: 1,
+                        borderTopColor: '#f1f1f1',
+                        marginBottom: kbHeight > 0 ? kbHeight + insets.bottom : 0,
+                        paddingBottom: kbHeight > 0 ? 10 : (insets.bottom > 0 ? insets.bottom : 15),
+                        paddingTop: 10,
+                        paddingHorizontal: 16
+                    }}
+                >
                     <View className="flex-row items-end bg-gray-50 rounded-3xl px-4 py-2 border border-gray-200">
                         <TouchableOpacity
                             className="mb-1 mr-2"
@@ -615,7 +642,7 @@ export default function ChatDetail() {
                         )}
                     </View>
                 </View>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+            </View>
+        </View>
     );
 }

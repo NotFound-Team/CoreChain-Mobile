@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SignInModal from "./SignInModal";
 
 const SignIn = () => {
@@ -18,6 +19,7 @@ const SignIn = () => {
     setModalVisible((prev) => !prev);
   }, []);
 
+  const insets = useSafeAreaInsets();
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   const handleImageLoaded = () => {
@@ -71,10 +73,12 @@ const SignIn = () => {
         </View>
 
         {/* Sign In Button */}
+        {/* style={{ paddingBottom: insets.bottom + 2 }} */}
         <TouchableOpacity
           onPress={toggleModal}
           activeOpacity={0.8}
           className="w-full h-14 bg-[#7A5AF8] rounded-full items-center justify-center shadow-lg shadow-purple-200"
+          style={{ marginBottom: insets.bottom }}
         >
           <Text className="text-white text-lg font-bold">Sign In</Text>
         </TouchableOpacity>

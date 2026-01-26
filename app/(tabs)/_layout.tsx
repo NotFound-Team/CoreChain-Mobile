@@ -2,19 +2,21 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Tabs } from "expo-router";
 import {
-    Building2,
-    Calendar,
-    ClipboardList,
-    Home,
-    Receipt
+  Building2,
+  Calendar,
+  ClipboardList,
+  Home,
+  Receipt
 } from "lucide-react-native";
 import React from "react";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? "light"];
-
+  const insets = useSafeAreaInsets();
+  console.log(insets.bottom);
   return (
     <Tabs
       screenOptions={{
@@ -22,7 +24,11 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.background,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarLabelStyle: { fontSize: 12 },
-        tabBarStyle: { paddingBottom: 4, paddingTop: 15, height: 80 },
+        tabBarStyle: {
+          paddingBottom: Platform.OS === "ios" ? 20 : insets.bottom * 2,
+          paddingTop: 10,
+          height: 75,
+        },
       }}
     >
       <Tabs.Screen
