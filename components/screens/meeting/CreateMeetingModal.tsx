@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface User {
   _id: string;
@@ -52,6 +53,7 @@ export default function CreateMeetingModal({
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
   const { isKeyboardOpen } = useKeyboard();
+  const insets = useSafeAreaInsets();
 
   const currentUser = useAuthStore((state) => state.user);
 
@@ -64,7 +66,7 @@ export default function CreateMeetingModal({
 
     setIsLoadingUsers(true);
     try {
-      const response = await searchUsers(query);
+      const response = await searchUsers(query, undefined);
       if (!response.isError && response.data) {
         const filtered =
           response.data.result?.filter((u: any) => u._id !== currentUser?.id) ||
@@ -144,7 +146,15 @@ export default function CreateMeetingModal({
   return (
     <BottomSheet visible={isVisible} onClose={onClose}>
       <BottomSheet.Overlay />
-      <BottomSheet.Content heightPercentage={isKeyboardOpen ? 0.85 : 0.55}>
+      <BottomSheet.Content
+        heightPercentage={
+          isKeyboardOpen
+            ? 0.9
+            : Platform.OS === "android"
+              ? 0.85
+              : 0.55
+        }
+      >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "padding"}
         >
@@ -303,9 +313,8 @@ export default function CreateMeetingModal({
             </View>
 
             <TouchableOpacity
-              className={`p-4 rounded-xl items-center mb-8 ${
-                !title.trim() ? "bg-gray-300" : "bg-[#8862F2]"
-              }`}
+              className={`p-4 rounded-xl items-center ${Platform.OS === "android" ? "mb-20" : "mb-8"
+                } ${!title.trim() ? "bg-gray-300" : "bg-[#8862F2]"}`}
               disabled={!title.trim()}
               onPress={handleCreate}
             >

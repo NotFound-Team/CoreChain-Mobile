@@ -4,6 +4,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
@@ -15,6 +17,9 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function Messages() {
   const insets = useSafeAreaInsets();
@@ -64,7 +69,7 @@ export default function Messages() {
               {item.name}
             </Text>
             <Text className="text-gray-400 text-[12px]">
-              {dayjs(item.last_message_at).format("HH:mm")}
+              {dayjs.utc(item.last_message_at).local().format("HH:mm")}
             </Text>
           </View>
 

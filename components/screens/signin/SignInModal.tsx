@@ -72,7 +72,7 @@ const SignInModal = ({ isVisible, onClose }: any) => {
   return (
     <BottomSheet visible={isVisible} onClose={onClose}>
       <BottomSheet.Overlay />
-      <BottomSheet.Content heightPercentage={isKeyboardOpen ? 0.85 : 0.75}>
+      <BottomSheet.Content heightPercentage={isKeyboardOpen ? (Platform.OS === "ios" ? 0.85 : 1) : (Platform.OS === "ios" ? 0.75 : 0.85)}>
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
           <KeyboardAvoidingView
             style={{ flex: 1 }}
