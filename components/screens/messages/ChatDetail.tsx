@@ -3,6 +3,8 @@ import { getConversationDetail, getConversationMessages, Message, uploadFile } f
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { Audio, ResizeMode, Video } from 'expo-av';
 import * as DocumentPicker from "expo-document-picker";
 import { Image } from "expo-image";
@@ -20,6 +22,9 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function ChatDetail() {
     const { id, fromNotification, messageData } = useLocalSearchParams<{ id: string; fromNotification?: string; messageData?: string }>();
@@ -524,7 +529,7 @@ export default function ChatDetail() {
 
                 <View className="flex-row justify-end items-center mt-1">
                     <Text className={`text-[10px] ${isMine ? "text-purple-200" : "text-gray-400"}`}>
-                        {dayjs(item.created_at).format("HH:mm")}
+                        {dayjs.utc(item.created_at).local().format("HH:mm")}
                     </Text>
                     {isMine && (
                         <Ionicons
