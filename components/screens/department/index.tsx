@@ -9,11 +9,11 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import UserDetailModal from "./UserDetailModal";
@@ -111,6 +111,8 @@ export default function Department() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
+
+  console.log("Department Data:", department);
 
   const handleCloseModal = useCallback(() => {
     setIsUserModalVisible(false);

@@ -41,9 +41,9 @@ interface SalaryRequest {
 }
 
 const createRequestSchema = z.object({
-  amount: z.number().min(1000, "Tối thiểu 1.000đ"),
-  reason: z.string().min(5, "Lý do tối thiểu 5 ký tự"),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Định dạng YYYY-MM-DD"),
+  amount: z.number().min(1000, "Minimum 1000"),
+  reason: z.string().min(5, "Reason (minimum 5 characters)"),
+  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format YYYY-MM-DD"),
 });
 
 type CreateRequestFormValues = z.infer<typeof createRequestSchema>;
@@ -104,7 +104,7 @@ const RequestCard = ({ item }: { item: SalaryRequest }) => (
               item.isApproved ? "text-green-600" : "text-orange-600",
             )}
           >
-            {item.isApproved ? "Đã duyệt" : "Chờ duyệt"}
+            {item.isApproved ? "Approved" : "Pending"}
           </Text>
         </View>
       </View>
@@ -118,12 +118,12 @@ const RequestCard = ({ item }: { item: SalaryRequest }) => (
       <View className="flex-row items-center gap-1">
         <Calendar size={12} color="#94a3b8" />
         <Text className="text-slate-400 text-xs">
-          Hoàn trả: {new Date(item.returnDate).toLocaleDateString("vi-VN")}
+          Return Date: {new Date(item.returnDate).toLocaleDateString("vi-VN")}
         </Text>
       </View>
 
       <Text className="text-slate-400 text-xs">
-        Ngày tạo: {new Date(item.createdAt).toLocaleDateString("vi-VN")}
+        Created At: {new Date(item.createdAt).toLocaleDateString("vi-VN")}
       </Text>
     </View>
   </View>
@@ -175,14 +175,14 @@ export const Expense = () => {
         setLoadingSubmit(true);
         await salaryAdvance(data);
         await fetchRequestSalary();
-        toast.success("Thành công", {
-          description: "Gửi yêu cầu thành công",
+        toast.success("Success", {
+          description: "Request submitted successfully.",
         });
         setModalVisible(false);
         reset();
       } catch (error) {
-        toast.error("Thất bại", {
-          description: "Có lỗi xảy ra, vui lòng thử lại",
+        toast.error("Failed", {
+          description: "An error occurred, please try again.",
         });
         console.log(error);
       } finally {
@@ -206,7 +206,7 @@ export const Expense = () => {
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Không thể tải danh sách");
+      toast.error("Failed to load list");
     } finally {
       setLoadingList(false);
     }
@@ -230,22 +230,22 @@ export const Expense = () => {
           Salary Request
         </Text>
         <Text className="text-slate-400 text-sm mb-5">
-          Theo dõi các khoản ứng lương
+          Track salary advances
         </Text>
 
         <View className="flex-row">
           <FilterChip
-            label="Tất cả"
+            label="All"
             active={filter === "ALL"}
             onPress={() => setFilter("ALL")}
           />
           <FilterChip
-            label="Chờ duyệt"
+            label="Waiting"
             active={filter === "PENDING"}
             onPress={() => setFilter("PENDING")}
           />
           <FilterChip
-            label="Đã duyệt"
+            label="Approved"
             active={filter === "APPROVED"}
             onPress={() => setFilter("APPROVED")}
           />
@@ -271,7 +271,7 @@ export const Expense = () => {
           ListEmptyComponent={
             <View className="items-center mt-20">
               <Search size={40} color="#cbd5e1" />
-              <Text className="text-slate-400 mt-2">Trống</Text>
+              <Text className="text-slate-400 mt-2">Empty</Text>
             </View>
           }
         />

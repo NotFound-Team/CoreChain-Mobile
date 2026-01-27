@@ -167,7 +167,9 @@ export default function PersonnelScreen() {
               <View className="items-center py-4">
                 <View className="w-24 h-24 rounded-full border-4 border-blue-100 items-center justify-center mb-2">
                   <Text className="text-3xl font-bold text-blue-600">
-                    {typeof kpi === "number" ? kpi : kpi?.score}
+                    {typeof kpi === "number"
+                      ? Number(kpi).toFixed(1)
+                      : Number(kpi?.score).toFixed(1)}
                   </Text>
                 </View>
                 <Text className="text-gray-500 text-sm">Overall Score</Text>

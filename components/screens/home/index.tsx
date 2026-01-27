@@ -429,7 +429,7 @@ export default function Home() {
                   className="flex-row items-center justify-center gap-2 py-4 mb-4 rounded-2xl border border-dashed border-[#8862F2] bg-[#F5F2FF]"
                 >
                   <Text className="text-[#8862F2] font-bold text-sm">
-                    Xem thêm công việc
+                    More Tasks
                   </Text>
                   <Ionicons name="arrow-forward" size={16} color="#8862F2" />
                 </TouchableOpacity>
