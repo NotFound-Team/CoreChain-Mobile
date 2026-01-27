@@ -37,13 +37,14 @@ interface AuthState {
   isAuthenticated: boolean;
   redirectRoute: string | null;
   setRedirectRoute: (route: string) => void;
+  setUser: (data: Partial<User>) => void;
   login: (data: SignInFormData) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   loadStoredToken: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, zustandGet) => ({
   user: null,
   token: null,
   isAuthenticated: false,
@@ -51,6 +52,19 @@ export const useAuthStore = create<AuthState>((set) => ({
   setRedirectRoute: (route: string) => {
     set({ redirectRoute: route });
   },
+
+  setUser: (data: Partial<User>) => {
+    const currentUser = zustandGet().user;
+    if (!currentUser) return;
+
+    set({
+      user: {
+        ...currentUser,
+        ...data,
+      },
+    });
+  },
+
   login: async (data: SignInFormData) => {
     try {
       // call service

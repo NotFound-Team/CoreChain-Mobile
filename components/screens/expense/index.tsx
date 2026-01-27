@@ -2,6 +2,9 @@ import { cn } from "@/libs/cn";
 import { getSalaryList, salaryAdvance } from "@/services/personnel.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import utc from "dayjs/plugin/utc";
 import {
   Calendar,
   CheckCircle2,
@@ -26,6 +29,9 @@ import { z } from "zod";
 import CreateRequestModal from "./CreateRequestModal";
 import { RequestListSkeleton } from "./RequestListSkeleton";
 
+dayjs.extend(utc);
+dayjs.extend(isSameOrAfter);
+
 // --- TYPES ---
 interface SalaryRequest {
   _id: string;
@@ -43,7 +49,17 @@ interface SalaryRequest {
 const createRequestSchema = z.object({
   amount: z.number().min(1000, "Minimum 1000"),
   reason: z.string().min(5, "Reason (minimum 5 characters)"),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format YYYY-MM-DD"),
+  returnDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format YYYY-MM-DD")
+    .refine(
+      (val) =>
+        dayjs(val, "YYYY-MM-DD", true).isSameOrAfter(
+          dayjs().startOf("day"),
+          "day",
+        ),
+      "The date must be greater than or equal to today.",
+    ),
 });
 
 type CreateRequestFormValues = z.infer<typeof createRequestSchema>;

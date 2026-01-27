@@ -7,19 +7,19 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const UpdateProfile = () => {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [userData, setUserData] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -45,6 +45,7 @@ const UpdateProfile = () => {
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const pickImage = async () => {
@@ -90,6 +91,7 @@ const UpdateProfile = () => {
         name: name,
         avatar: newAvatarUrl,
       });
+      setUser({ name: name, avatar: newAvatarUrl });
 
       Alert.alert("Success", "Profile updated successfully", [
         { text: "OK", onPress: () => router.back() },
