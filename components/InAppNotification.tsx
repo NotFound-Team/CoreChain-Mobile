@@ -38,7 +38,6 @@ export default function InAppNotification({
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <SafeAreaView className="flex-1">
-        {/* Overlay bắt touch */}
         <Pressable className="flex-1" onPress={onClose} />
 
         {/* Notification */}

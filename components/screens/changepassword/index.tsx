@@ -22,12 +22,14 @@ import { z } from "zod";
 
 const changePasswordSchema = z
   .object({
-    oldPassword: z.string().min(1, "Mật khẩu hiện tại là bắt buộc"),
-    newPassword: z.string().min(3, "Mật khẩu mới phải từ 6 ký tự trở lên"),
-    confirmPassword: z.string().min(1, "Xác nhận mật khẩu là bắt buộc"),
+    oldPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(3, "New password must be at least 6 characters"),
+    confirmPassword: z.string().min(1, "Confirm password is required"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Mật khẩu xác nhận không khớp",
+    message: "The verification password does not match.",
     path: ["confirmPassword"],
   });
 
@@ -59,8 +61,8 @@ export default function ChangePassword() {
   const onSubmit = useCallback(
     async (data: ChangePasswordFormData) => {
       if (!user?.id) {
-        toast.error("Lỗi", {
-          description: "Không tìm thấy thông tin người dùng",
+        toast.error("Error", {
+          description: "User information not found.",
         });
         return;
       }
@@ -77,35 +79,38 @@ export default function ChangePassword() {
           oldPassword: data.oldPassword,
           newPassword: data.newPassword,
         });
-        console.log(response)
+        console.log(response);
         if (!response.isError) {
-          toast.success("Thành công", {
-            description: "Đổi mật khẩu thành công",
+          toast.success("Success", {
+            description: "Password changed successfully.",
           });
           reset();
           router.back();
         } else {
-          toast.error("Thất bại", {
-            description: response.message || "Đổi mật khẩu thất bại",
+          toast.error("Failed", {
+            description: response.message || "Failed to change password",
           });
         }
       } catch (error) {
         console.log(error);
-        toast.error("Thất bại", {
-          description: "Có lỗi xảy ra, vui lòng thử lại",
+        toast.error("Failed", {
+          description: "An error occurred, please try again",
         });
       } finally {
         setIsLoading(false);
       }
     },
-    [user?.id, reset]
+    [user?.id, reset],
   );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 bg-[#F8F9FE]">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pb-4 pt-10 bg-white" style={{ paddingTop: Math.max(insets.top, 20) }}>
+        <View
+          className="flex-row items-center justify-between px-4 pb-4 pt-10 bg-white"
+          style={{ paddingTop: Math.max(insets.top, 20) }}
+        >
           <TouchableOpacity
             onPress={() => router.back()}
             className="w-10 h-10 items-center justify-center rounded-full bg-[#F3F0FF]"

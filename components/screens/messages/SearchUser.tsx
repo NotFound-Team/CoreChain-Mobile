@@ -94,7 +94,7 @@ export default function SearchUser() {
     };
 
     // const fetchUsers = async () => {
-    //   setIsLoading(true); // Bắt đầu loading khi gọi API
+    //   setIsLoading(true);
     //   try {
     //     const res = await searchUsers(debouncedQuery);
 
@@ -109,7 +109,7 @@ export default function SearchUser() {
     //   } catch (error) {
     //     console.error("Search error:", error);
     //   } finally {
-    //     setIsLoading(false); // Kết thúc loading dù thành công hay lỗi
+    //     setIsLoading(false);
     //   }
     // };
 

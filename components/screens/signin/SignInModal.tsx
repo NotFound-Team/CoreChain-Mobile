@@ -24,10 +24,10 @@ import { z } from "zod";
 const signInSchema = z.object({
   username: z
     .string()
-    .min(1, "Email là bắt buộc")
-    .email("Email không đúng định dạng"),
+    .min(1, "Email is required")
+    .email("Email is not in the correct format."),
   password: z.string(),
-  // .min(6, "Mật khẩu phải từ 6 ký tự trở lên"),
+  // .min(6, "Passwords must be 6 characters or more."),
 });
 
 export type SignInFormData = z.infer<typeof signInSchema>;
@@ -72,7 +72,17 @@ const SignInModal = ({ isVisible, onClose }: any) => {
   return (
     <BottomSheet visible={isVisible} onClose={onClose}>
       <BottomSheet.Overlay />
-      <BottomSheet.Content heightPercentage={isKeyboardOpen ? (Platform.OS === "ios" ? 0.85 : 1) : (Platform.OS === "ios" ? 0.75 : 0.85)}>
+      <BottomSheet.Content
+        heightPercentage={
+          isKeyboardOpen
+            ? Platform.OS === "ios"
+              ? 0.85
+              : 1
+            : Platform.OS === "ios"
+              ? 0.75
+              : 0.85
+        }
+      >
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
           <KeyboardAvoidingView
             style={{ flex: 1 }}
