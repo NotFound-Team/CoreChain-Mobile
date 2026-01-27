@@ -26,7 +26,7 @@ const signInSchema = z.object({
     .string()
     .min(1, "Email is required")
     .email("Email is not in the correct format."),
-  password: z.string(),
+  password: z.string().min(1, "Password is required"),
   // .min(6, "Passwords must be 6 characters or more."),
 });
 
