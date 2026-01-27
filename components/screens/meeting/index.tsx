@@ -156,6 +156,7 @@ export default function MeetingScreen() {
         <FlatList
           data={meetings}
           renderItem={renderMeetingItem}
+          inverted
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 20 }}
           refreshControl={
