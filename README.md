@@ -423,3 +423,29 @@ This repository constitutes the CoreChain mobile application. Engineered via a c
 <div align="center">
   <img src="assets/images/web.png" width="100%"/>
 </div>
+
+
+### APP
+
+<div align="center">
+  <img src="assets/images/demo_1.jpg" width="auto"/>
+  <br/>
+
+  <img src="assets/images/demo_2.jpg" width="auto"/>
+  <br/>
+
+  <img src="assets/images/demo_3.jpg" width="auto"/>
+  <br/>
+
+  <img src="assets/images/demo_4.jpg" width="auto"/>
+  <br/>
+
+  <img src="assets/images/demo_5.jpg" width="auto"/>
+  <br/>
+
+  <img src="assets/images/demo_6.jpg" width="auto"/>
+  <br/>
+
+  <img src="assets/images/demo_7.jpg" width="auto"/>
+  <br/>
+</div>
