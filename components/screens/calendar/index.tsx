@@ -30,7 +30,11 @@ export default function CalendarScreenIndex() {
   );
   const [viewMode, setViewMode] = useState<"month">("month");
 
-  const isManager = user?.roleName === "MANAGER";
+  const ALLOWED_ROLES = ["MANAGER", "ADMIN"];
+
+  const isManager = ALLOWED_ROLES.some((r) =>
+    user?.roleName?.toUpperCase().startsWith(r),
+  );
 
   const fetchData = async () => {
     if (!user?.id) return;

@@ -23,7 +23,12 @@ export default function ProjectScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
   const insets = useSafeAreaInsets();
-  const isManager = user?.roleName === "MANAGER";
+  const ALLOWED_ROLES = ["MANAGER", "ADMIN"];
+
+  const isManager = ALLOWED_ROLES.some((r) =>
+    user?.roleName?.toUpperCase().startsWith(r),
+  );
+
   const fetchProjects = async () => {
     const fillter = isManager ? { manager: user?.id } : { employees: user?.id };
     try {

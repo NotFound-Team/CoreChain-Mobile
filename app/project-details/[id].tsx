@@ -10,14 +10,14 @@ import dayjs from "dayjs";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
@@ -35,7 +35,11 @@ export default function ProjectDetailScreen() {
   const [activeTab, setActiveTab] = useState("All");
   const insets = useSafeAreaInsets();
 
-  const isManager = user?.roleName === "MANAGER";
+  const ALLOWED_ROLES = ["MANAGER", "ADMIN"];
+
+  const isManager = ALLOWED_ROLES.some((r) =>
+    user?.roleName?.toUpperCase().startsWith(r),
+  );
 
   const fetchData = async () => {
     if (!id) return;
@@ -114,7 +118,7 @@ export default function ProjectDetailScreen() {
     Alert.alert("Project Actions", "Choose an action for this project", [
       {
         text: project.status === 1 ? "Mark as Review" : "Mark as Done",
-        onPress: () => handleUpdateStatus(project.status === 1 ? 2 : 3), 
+        onPress: () => handleUpdateStatus(project.status === 1 ? 2 : 3),
       },
       {
         text: "Report Project",
@@ -297,7 +301,8 @@ export default function ProjectDetailScreen() {
                 Current Progress
               </Text>
               <Text className="text-gray-500 text-[11px]">
-                {tasks.filter((t) => t.status === 3).length} / {tasks.length} Tasks Done
+                {tasks.filter((t) => t.status === 3).length} / {tasks.length}{" "}
+                Tasks Done
               </Text>
             </View>
             <Text className="text-2xl font-black text-[#8862F2]">
@@ -342,7 +347,9 @@ export default function ProjectDetailScreen() {
                       <Ionicons name="business" size={16} color="#F59E0B" />
                     </View>
                     <Text className="text-[#1A1C1E] font-bold text-sm">
-                      {project.departmentName || project.department || "General"}
+                      {project.departmentName ||
+                        project.department ||
+                        "General"}
                     </Text>
                   </View>
                 </View>

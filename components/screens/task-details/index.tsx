@@ -89,7 +89,11 @@ export const TaskDetails = ({ id }: { id: string }) => {
   const [taskDetail, setTaskDetail] = useState<TaskWithAssigned>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { user } = useAuthStore();
-  const isManager = user?.roleName === "MANAGER";
+  const ALLOWED_ROLES = ["MANAGER", "ADMIN"];
+
+  const isManager = ALLOWED_ROLES.some((r) =>
+    user?.roleName?.toUpperCase().startsWith(r),
+  );
 
   useEffect(() => {
     const fetchTaskDetails = async () => {

@@ -1,4 +1,3 @@
- 
 import { getProjects } from "@/services/project.service";
 import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
@@ -8,12 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 
 import {
-  FlatList,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import FilterModal from "./FilterModal";
@@ -35,7 +34,11 @@ export default function Challange() {
   const { user } = useAuthStore();
   const insets = useSafeAreaInsets();
 
-  const isManager = user?.roleName === "MANAGER";
+  const ALLOWED_ROLES = ["MANAGER", "ADMIN"];
+
+  const isManager = ALLOWED_ROLES.some((r) =>
+    user?.roleName?.toUpperCase().startsWith(r),
+  );
 
   const initialFilters = {
     priority: null as number | null,
