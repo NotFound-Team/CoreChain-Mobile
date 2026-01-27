@@ -38,7 +38,7 @@ export default function MeetingScreen() {
     try {
       const response = await getMeetings();
       if (!response.isError && response.data) {
-        setMeetings(response.data);
+        setMeetings([...response.data].reverse());
       }
     } catch (error) {
       console.error("Error fetching meetings:", error);
@@ -156,7 +156,6 @@ export default function MeetingScreen() {
         <FlatList
           data={meetings}
           renderItem={renderMeetingItem}
-          inverted
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 20 }}
           refreshControl={
