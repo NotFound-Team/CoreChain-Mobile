@@ -377,7 +377,9 @@ export const TaskDetails = ({ id }: { id: string }) => {
                       className="font-bold text-slate-800 text-base"
                       numberOfLines={1}
                     >
-                      {taskDetail.assignedTo.email.split("@")[0]}
+                      {taskDetail.assignedTo?.email
+                        ? taskDetail.assignedTo.email.split("@")[0]
+                        : "Unknown"}
                     </Text>
                     <Text className="text-slate-400 text-xs" numberOfLines={1}>
                       {taskDetail.assignedTo.email}

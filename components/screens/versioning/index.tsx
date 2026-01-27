@@ -1,30 +1,9 @@
+import { RELEASE_NOTES, VESSION_INFO } from "@/constants/version";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-
-const RELEASE_NOTES = [
-  {
-    version: "2.0.0",
-    date: "Current version",
-    notes: [
-      "Full-featured version with all modules.",
-      "Supports Department management, Expenses, Leave, and Personnel.",
-      "Real-time video meetings and chat integration.",
-      "Complete workflow with task and project tracking.",
-    ],
-  },
-  {
-    version: "1.0.0",
-    date: "Initial Vision",
-    notes: [
-      "Core modules focus: Project and Task views.",
-      "Simplified UI tailored for productivity tracking.",
-      "Basic authentication and profile access.",
-    ],
-  },
-];
 
 export default function Versioning() {
   return (
@@ -54,11 +33,11 @@ export default function Versioning() {
             />
           </View>
           <Text className="text-2xl font-bold text-[#1A1C1E] mt-4">
-            CoreChain Mobile
+            {VESSION_INFO.name}
           </Text>
           <View className="flex-row items-center mt-1 bg-[#8862F2]/10 px-3 py-1 rounded-full">
             <Text className="text-[#8862F2] font-semibold">
-              Version 2.0.0 (Build 2026)
+              Version {VESSION_INFO.version} (Build {VESSION_INFO.build})
             </Text>
           </View>
           <Text className="text-gray-500 text-sm mt-2">
@@ -83,7 +62,7 @@ export default function Versioning() {
 
           {RELEASE_NOTES.map((release, index) => (
             <View
-              key={index}
+              key={release.version}
               className="mb-6 bg-[#F8F9FE] p-5 rounded-3xl border border-[#EEE]"
             >
               <View className="flex-row justify-between items-center mb-3">
