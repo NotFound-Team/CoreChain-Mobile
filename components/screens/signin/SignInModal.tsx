@@ -19,6 +19,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { toast, Toaster } from "sonner-native";
 import { z } from "zod";
 
 const signInSchema = z.object({
@@ -59,6 +60,9 @@ const SignInModal = ({ isVisible, onClose }: any) => {
       onClose();
       reset();
     } catch (error) {
+      toast.error("Error", {
+        description: "Email or Password is incorrect.",
+      });
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -71,6 +75,7 @@ const SignInModal = ({ isVisible, onClose }: any) => {
 
   return (
     <BottomSheet visible={isVisible} onClose={onClose}>
+      <Toaster />
       <BottomSheet.Overlay />
       <BottomSheet.Content
         heightPercentage={
