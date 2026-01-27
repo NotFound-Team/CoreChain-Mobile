@@ -21,6 +21,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import InCallManager from 'react-native-incall-manager';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // --- CHAT MODAL ---
@@ -202,6 +203,25 @@ const VideoMeetingInner = ({ roomName }: { roomName: string }) => {
   const [micEnabled, setMicEnabled] = useState(true);
   const [camEnabled, setCamEnabled] = useState(true);
 
+  const [speakerEnabled, setSpeakerEnabled] = useState(true);
+
+  useEffect(() => {
+    InCallManager.start({ media: 'video' });
+    InCallManager.setSpeakerphoneOn(true);
+    InCallManager.setKeepScreenOn(true);
+
+    return () => {
+      InCallManager.stop();
+    };
+  }, []);
+
+  const toggleSpeaker = () => {
+    const newState = !speakerEnabled;
+    InCallManager.setSpeakerphoneOn(newState);
+    InCallManager.setForceSpeakerphoneOn(newState);
+    setSpeakerEnabled(newState);
+  };
+
   const toggleMic = async () => {
     const enabled = !micEnabled;
     await localParticipant.setMicrophoneEnabled(enabled);
@@ -232,7 +252,17 @@ const VideoMeetingInner = ({ roomName }: { roomName: string }) => {
       <VideoMeetingContent />
 
       {/* Bottom Controls */}
-      <View className="bg-[#2A2A2A] mx-6 mb-4 p-4 rounded-[35px] flex-row justify-between items-center border border-white/5 shadow-2xl">
+      <View className="bg-[#2A2A2A] mx-4 mb-4 p-4 rounded-[35px] flex-row justify-between items-center border border-white/5 shadow-2xl">
+        <TouchableOpacity
+          onPress={toggleSpeaker}
+          className={`w-10 h-10 rounded-full items-center justify-center ${speakerEnabled ? 'bg-purple-500/20' : 'bg-white/10'}`}
+        >
+          <Ionicons
+            name={speakerEnabled ? "volume-high" : "volume-medium"}
+            size={20}
+            color={speakerEnabled ? "#8862F2" : "white"}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={toggleMic} className={`w-12 h-12 rounded-full items-center justify-center ${micEnabled ? 'bg-white/10' : 'bg-red-500/20'}`}>
           <Ionicons name={micEnabled ? "mic-outline" : "mic-off-outline"} size={22} color={micEnabled ? "white" : "#ef4444"} />
         </TouchableOpacity>
