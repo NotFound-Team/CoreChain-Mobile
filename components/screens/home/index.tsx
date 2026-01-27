@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import NavigationMenu from "./NavigationMenu";
 
 export default function Home() {
   const { user } = useAuthStore();
@@ -25,6 +26,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<TypeTask[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const { onMessage, offMessage } = useSocket();
 
   const fetchUnreadCount = async () => {
@@ -96,7 +98,7 @@ export default function Home() {
       // Handle meetings
       if (!meetingsRes.isError && meetingsRes.data) {
         const todayMeetings = meetingsRes.data.filter((m: Meeting) =>
-          dayjs(m.start_time).isSame(dayjs(), "day")
+          dayjs(m.start_time).isSame(dayjs(), "day"),
         );
         setMeetings(todayMeetings);
       }
@@ -179,6 +181,12 @@ export default function Home() {
                 size={20}
                 color="#5F6368"
               />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="p-2 bg-white rounded-full shadow-sm"
+              onPress={() => setIsMenuVisible(true)}
+            >
+              <Ionicons name="grid-outline" size={20} color="#8862F2" />
             </TouchableOpacity>
           </View>
         </View>
@@ -354,7 +362,11 @@ export default function Home() {
                       <View className="bg-gray-100 px-3 py-1 rounded-full flex-row items-center">
                         <Ionicons name="ellipse" size={8} color="#9AA0A6" />
                         <Text className="text-gray-500 text-xs ml-1">
-                          In Progress
+                          {task.status === 1
+                            ? "In Progress"
+                            : task.status === 2
+                              ? "Review"
+                              : "Completed"}
                         </Text>
                       </View>
                       <View className="bg-red-100 px-3 py-1 rounded-full flex-row items-center">
@@ -410,6 +422,8 @@ export default function Home() {
                     </View>
                   </TouchableOpacity>
                 ))}
+
+                {/* More tasks available... */}
                 <TouchableOpacity
                   onPress={() => handleNavigate("/challange" as Href)}
                   className="flex-row items-center justify-center gap-2 py-4 mb-4 rounded-2xl border border-dashed border-[#8862F2] bg-[#F5F2FF]"
@@ -438,6 +452,11 @@ export default function Home() {
           </TouchableOpacity>
         )} */}
       </ScrollView>
+
+      <NavigationMenu
+        visible={isMenuVisible}
+        onClose={() => setIsMenuVisible(false)}
+      />
     </View>
   );
 }

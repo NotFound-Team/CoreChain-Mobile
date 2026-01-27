@@ -6,22 +6,22 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const RELEASE_NOTES = [
   {
-    version: "1.0.0",
-    date: "Jan 15, 2026",
+    version: "2.0.0",
+    date: "Current version",
     notes: [
-      "Initial public release of CoreChain Mobile.",
-      "Support for secure sign-in and profile management.",
-      "Integrated project and department management modules.",
-      "Real-time notifications and feedback system.",
+      "Full-featured version with all modules.",
+      "Supports Department management, Expenses, Leave, and Personnel.",
+      "Real-time video meetings and chat integration.",
+      "Complete workflow with task and project tracking.",
     ],
   },
   {
-    version: "0.9.5",
-    date: "Jan 02, 2026",
+    version: "1.0.0",
+    date: "Initial Vision",
     notes: [
-      "Beta testing version with core features.",
-      "Enhanced UI responsiveness and performance.",
-      "Added support for multiple file uploads in feedback.",
+      "Core modules focus: Project and Task views.",
+      "Simplified UI tailored for productivity tracking.",
+      "Basic authentication and profile access.",
     ],
   },
 ];
@@ -58,7 +58,7 @@ export default function Versioning() {
           </Text>
           <View className="flex-row items-center mt-1 bg-[#8862F2]/10 px-3 py-1 rounded-full">
             <Text className="text-[#8862F2] font-semibold">
-              Version 1.0.0 (Build 1240)
+              Version 2.0.0 (Build 2026)
             </Text>
           </View>
           <Text className="text-gray-500 text-sm mt-2">

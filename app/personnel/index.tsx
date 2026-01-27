@@ -70,7 +70,7 @@ export default function PersonnelScreen() {
         >
           <Ionicons name="chevron-back" size={24} color="#8862F2" />
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-[#1A1C1E]">Payroll & Tax</Text>
+        <Text className="text-lg font-bold text-[#1A1C1E]">Salary & KPI</Text>
         <View className="w-10" />
       </View>
 
@@ -196,7 +196,6 @@ export default function PersonnelScreen() {
               )}
             </View>
           )}
-
         </View>
       </ScrollView>
     </View>

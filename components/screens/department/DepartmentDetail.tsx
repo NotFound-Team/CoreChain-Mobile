@@ -1,7 +1,6 @@
 import DepartmentSkeleton from "@/components/skeletons/DepartmentSkeleton";
-import { getDepartments } from "@/services/department.service";
+import { getDetailDepartment } from "@/services/department.service";
 import { getUserDetails, getUserIds } from "@/services/user.service";
-import { useAuthStore } from "@/stores/auth-store";
 import { IDepartment } from "@/types/department";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -9,16 +8,20 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import UserDetailModal from "./UserDetailModal";
 
-export default function Department() {
+interface DepartmentDetailProps {
+  id: string;
+}
+
+export default function DepartmentDetail({ id }: DepartmentDetailProps) {
   const router = useRouter();
   const [department, setDepartment] = useState<IDepartment | null>(null);
   const [managerProfile, setManagerProfile] = useState<any>(null);
@@ -27,77 +30,64 @@ export default function Department() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuthStore();
 
   const fetchData = async () => {
+    if (!id) return;
     try {
       setIsLoading(true);
-      // 1. Find user's department
-      const isManager = user?.roleName?.toLowerCase() === "manager";
-      const params = isManager
-        ? { manager: user?.id }
-        : { employees: user?.id };
+      const detailRes = await getDetailDepartment(id);
+      if (!detailRes.isError) {
+        const dept = detailRes.data;
+        setDepartment(dept);
 
-      const listRes = await getDepartments(params);
-      if (!listRes.isError && listRes.data.result.length > 0) {
-        const deptId = listRes.data.result[0]._id;
-        // 2. Get full detail
-        const { getDetailDepartment } =
-          await import("@/services/department.service");
-        const detailRes = await getDetailDepartment(deptId);
-        if (!detailRes.isError) {
-          const dept = detailRes.data;
-          setDepartment(dept);
+        // 3. Fetch parallel manager and employees
+        const managerId =
+          typeof dept.manager === "string"
+            ? dept.manager
+            : (dept.manager as any)?._id || dept.manager;
 
-          // 3. Fetch parallel manager and employees
-          const managerId =
-            typeof dept.manager === "string"
-              ? dept.manager
-              : (dept.manager as any)?._id || dept.manager;
+        const managerPromise = managerId
+          ? getUserDetails(managerId)
+          : Promise.resolve(null);
 
-          const managerPromise = managerId
-            ? getUserDetails(managerId)
+        const employeesPromise =
+          Array.isArray(dept.employees) && dept.employees.length > 0
+            ? getUserIds(dept.employees)
             : Promise.resolve(null);
 
-          const employeesPromise =
-            Array.isArray(dept.employees) && dept.employees.length > 0
-              ? getUserIds(dept.employees)
-              : Promise.resolve(null);
+        const projectsPromise =
+          Array.isArray(dept.projectIds) && dept.projectIds.length > 0
+            ? (async () => {
+                const { getProjectDetail } =
+                  await import("@/services/project.service");
 
-          const projectsPromise =
-            Array.isArray(dept.projectIds) && dept.projectIds.length > 0
-              ? (async () => {
-                  const { getProjectDetail } =
-                    await import("@/services/project.service");
+                const projects = await Promise.all(
+                  dept.projectIds.map(async (id: string) => {
+                    const res = await getProjectDetail(id);
+                    return res.isError ? null : res.data;
+                  }),
+                );
 
-                  const projects = await Promise.all(
-                    dept.projectIds.map(async (id: string) => {
-                      const res = await getProjectDetail(id);
-                      return res.isError ? null : res.data;
-                    }),
-                  );
+                return projects.filter(Boolean);
+              })()
+            : Promise.resolve([]);
 
-                  return projects.filter(Boolean);
-                })()
-              : Promise.resolve([]);
+        const [mRes, resEmployees, projects] = await Promise.all([
+          managerPromise,
+          employeesPromise,
+          projectsPromise,
+        ]);
 
-          const [mRes, resEmployees, projects] = await Promise.all([
-            managerPromise,
-            employeesPromise,
-            projectsPromise,
-          ]);
+        if (mRes && !mRes.isError) {
+          setManagerProfile(mRes.data);
+        }
 
-          if (mRes && !mRes.isError) {
-            setManagerProfile(mRes.data);
-          }
+        if (resEmployees && !resEmployees.isError) {
+          setEmployeeProfiles(resEmployees.data);
+        }
 
-          if (resEmployees && !resEmployees.isError) {
-            setEmployeeProfiles(resEmployees.data);
-          }
-
-          if (projects.length > 0) {
-            setProjects(projects);
-          }
+        if (projects.length > 0) {
+          setProjects(projects);
         }
       }
     } catch (error) {
@@ -109,8 +99,7 @@ export default function Department() {
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [id]);
 
   const handleCloseModal = useCallback(() => {
     setIsUserModalVisible(false);
@@ -120,10 +109,13 @@ export default function Department() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="px-6 pt-4 pb-4 flex-row items-center border-b border-gray-100 bg-white">
-        <View className="w-10 h-10 items-center justify-center rounded-2xl bg-indigo-50 mr-3">
-          <Ionicons name="business" size={20} color="#4F46E5" />
-        </View>
-        <Text className="text-xl font-bold text-gray-900">My Department</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-2xl bg-gray-50 mr-3"
+        >
+          <Ionicons name="arrow-back" size={20} color="#4F46E5" />
+        </TouchableOpacity>
+        <Text className="text-xl font-bold text-gray-900">Department Details</Text>
       </View>
 
       <ScrollView
@@ -148,9 +140,6 @@ export default function Department() {
             </View>
             <Text className="text-gray-500 font-medium">
               No department found
-            </Text>
-            <Text className="text-gray-400 text-xs mt-1 text-center px-10">
-              You are not assigned to any department yet.
             </Text>
           </View>
         ) : (

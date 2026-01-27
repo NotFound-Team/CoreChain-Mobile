@@ -23,7 +23,7 @@ export default function Profile() {
       },
       { icon: "person", label: "Personal Data", href: "/personal" },
       // { icon: "folder", label: "Office Assets" },
-      { icon: "card", label: "Payroll & Tax", href: "/personnel" },
+      { icon: "card", label: "Salary & KPI", href: "/personnel" },
     ],
     SETTINGS: [
       { icon: "settings", label: "Change Password", href: "/changepassword" },

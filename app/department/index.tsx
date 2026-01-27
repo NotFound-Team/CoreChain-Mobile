@@ -1,5 +1,5 @@
-import Department from "@/components/screens/department";
+import DepartmentList from "@/components/screens/department/DepartmentList";
 
-export default function DepartmentScreen() {
-  return <Department />;
+export default function DepartmentListScreen() {
+  return <DepartmentList />;
 }

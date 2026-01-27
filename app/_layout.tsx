@@ -123,6 +123,10 @@ const AppScreens = () => {
         options={{ headerShown: false, gestureEnabled: true }}
       />
       <Stack.Screen
+        name="department/[id]"
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+      <Stack.Screen
         name="create-task"
         options={{ headerShown: false, gestureEnabled: true }}
       />
