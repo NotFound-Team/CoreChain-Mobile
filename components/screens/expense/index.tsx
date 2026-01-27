@@ -23,9 +23,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { z } from "zod";
+import CreateRequestModal from "./CreateRequestModal";
 import { RequestListSkeleton } from "./RequestListSkeleton";
-
-const CreateRequestModal = React.lazy(() => import("./CreateRequestModal"));
 
 // --- TYPES ---
 interface SalaryRequest {

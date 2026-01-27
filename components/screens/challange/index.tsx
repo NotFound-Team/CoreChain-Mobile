@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-expressions */
+ 
 import { getProjects } from "@/services/project.service";
 import { getTasks } from "@/services/task.service";
 import { useAuthStore } from "@/stores/auth-store";
@@ -8,19 +8,19 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 
 import {
-    FlatList,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import FilterModal from "./FilterModal";
 import { ProjectItem } from "./ProjectItem";
 import { TaskItem } from "./TaskItem";
 import { TaskItemSkeleton } from "./TaskItemSkeleton";
 
-const FilterModal = React.lazy(() => import("./FilterModal"));
 const PAGE_SIZE = 10;
 export default function Challange() {
   const [activeTab, setActiveTab] = useState("All");
